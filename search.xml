@@ -2,6 +2,33 @@
 <search> 
   
   
+    
+    <entry>
+      <title>Welcome to Pluto&#39;s Notes</title>
+      <link href="/Myblog/2026/08/08/Welcome-to-Pluto-s-Notes/"/>
+      <url>/Myblog/2026/08/08/Welcome-to-Pluto-s-Notes/</url>
+      
+        <content type="html"><![CDATA[<p>欢迎来到 <strong>Pluto’s Notes</strong>，这是我的个人技术笔记站。</p><p>在这里，我会记录学习过程中的点点滴滴，包括但不限于：</p><ul><li>逆向工程</li><li>Web 安全与渗透测试</li><li>CTF 竞赛题解</li><li>Python 开发</li></ul><span id="more"></span><h2 id="关于本站"><a href="#关于本站" class="headerlink" title="关于本站"></a>关于本站</h2><p>本站使用 <a href="https://hexo.io/">Hexo</a> 框架 + <a href="https://github.com/ppoffice/hexo-theme-icarus">Icarus</a> 主题构建，部署在 GitHub Pages 上。</p><p>敬请期待更多内容…</p>]]></content>
+      
+      
+      <categories>
+          
+          <category> 技术笔记 </category>
+          
+      </categories>
+      
+      
+        <tags>
+            
+            <tag> 建站 </tag>
+            
+            <tag> Hexo </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    
   
   
 </search>

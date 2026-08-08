@@ -1,231 +1,71 @@
-<!DOCTYPE html>
-<html lang="zh-CN">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Pluto's Notes</title>
-<meta name="description" content="一个极客的技术笔记与知识分享站">
-<link rel="icon" href="img/avatar.svg">
+<!doctype html>
+<html lang="zh"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"><title>极客笔记</title><link rel="manifest" href="/Myblog/manifest.json"><meta name="theme-color" content="#3273dc"><meta name="application-name" content="极客笔记"><meta name="msapplication-TileImage" content="/img/icon.svg"><meta name="msapplication-TileColor" content="#3273dc"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="极客笔记"><meta name="apple-mobile-web-app-status-bar-style" content="default"><link rel="apple-touch-icon" sizes="192x192" href="/img/icon.svg"><meta name="description" content="一个极客的技术笔记与知识分享站"><meta property="og:type" content="website"><meta property="og:title" content="极客笔记"><meta property="og:url" content="https://pluto839.github.io/Myblog"><meta property="og:site_name" content="极客笔记"><meta property="og:description" content="一个极客的技术笔记与知识分享站"><meta property="og:locale" content="zh_CN"><meta property="og:image" content="https://pluto839.github.io/img/og_image.png"><meta property="article:author" content="Pluto"><meta property="article:tag" content="极客"><meta property="article:tag" content="技术笔记"><meta property="article:tag" content="编程"><meta property="article:tag" content="开源"><meta property="twitter:card" content="summary"><meta property="twitter:image:src" content="https://pluto839.github.io/img/og_image.png"><script type="application/ld+json">{"@context":"https://schema.org","@type":"BlogPosting","mainEntityOfPage":{"@type":"WebPage","@id":"https://pluto839.github.io/Myblog"},"headline":"极客笔记","image":["https://pluto839.github.io/Myblog/img/og_image.png"],"author":{"@type":"Person","name":"Pluto"},"publisher":{"@type":"Organization","name":"极客笔记","logo":{"@type":"ImageObject","url":{"text":"Pluto's Notes"}}},"description":"一个极客的技术笔记与知识分享站"}</script><link rel="icon" href="/Myblog/img/avatar.jpg"><link rel="stylesheet" href="https://use.fontawesome.com/releases/v6.0.0/css/all.css"><link data-pjax rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@11.7.0/styles/atom-one-light.css"><link rel="stylesheet" href="jsdelivr"><link data-pjax rel="stylesheet" href="/Myblog/css/default.css"><style>body>.footer,body>.navbar,body>.section{opacity:0}</style><!--!--><style>.pace{-webkit-pointer-events:none;pointer-events:none;-webkit-user-select:none;-moz-user-select:none;user-select:none}.pace-inactive{display:none}.pace .pace-progress{background:#3273dc;position:fixed;z-index:2000;top:0;right:100%;width:100%;height:2px}</style><script src="https://cdn.jsdelivr.net/npm/pace-js@1.2.4/pace.min.js"></script><!-- hexo injector head_end start --><script>
+  (function () {
+      function switchTab() {
+          if (!location.hash) {
+            return;
+          }
+
+          const id = '#' + CSS.escape(location.hash.substring(1));
+          const $tabMenu = document.querySelector(`.tabs a[href="${id}"]`);
+          if (!$tabMenu) {
+            return;
+          }
+
+          const $tabMenuContainer = $tabMenu.parentElement.parentElement;
+          Array.from($tabMenuContainer.children).forEach($menu => $menu.classList.remove('is-active'));
+          Array.from($tabMenuContainer.querySelectorAll('a'))
+              .map($menu => document.getElementById($menu.getAttribute("href").substring(1)))
+              .forEach($content => $content.classList.add('is-hidden'));
+
+          if ($tabMenu) {
+              $tabMenu.parentElement.classList.add('is-active');
+          }
+          const $activeTab = document.querySelector(id);
+          if ($activeTab) {
+              $activeTab.classList.remove('is-hidden');
+          }
+      }
+      switchTab();
+      window.addEventListener('hashchange', switchTab, false);
+  })();
+  </script>
+<meta name="data-root" content="/Myblog/">
+<link rel="stylesheet" href="/Myblog/css/pluto-custom.css">
 <script>
   var s = localStorage.getItem('pluto-theme');
   var pd = window.matchMedia('(prefers-color-scheme: dark)').matches;
   var t = s || (pd ? 'dark' : 'light');
   document.documentElement.setAttribute('data-theme', t);
+  document.documentElement.setAttribute('data-root', '/Myblog/');
 </script>
-<link rel="stylesheet" href="css/pluto-custom.css">
-<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;500;700;900&display=swap" rel="stylesheet">
-<style>
-  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-  body {
-    font-family: 'Noto Sans SC', -apple-system, BlinkMacSystemFont, sans-serif;
-    min-height: 100vh;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    text-align: center;
-    padding: 40px 20px;
-    overflow-x: hidden;
-  }
-  .top-nav {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    padding: 16px 32px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    z-index: 100;
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
-    background: rgba(255,255,255,0.6);
-    border-bottom: 1px solid rgba(0,0,0,0.05);
-  }
-  [data-theme="dark"] .top-nav {
-    background: rgba(10,10,30,0.6);
-    border-bottom-color: rgba(255,255,255,0.05);
-  }
-  .top-nav .logo {
-    font-size: 1.3rem;
-    font-weight: 800;
-    letter-spacing: 1px;
-    text-decoration: none;
-    background: linear-gradient(90deg, #3273dc, #a855f7);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-  }
-  [data-theme="dark"] .top-nav .logo {
-    background: linear-gradient(90deg, #79c0ff, #d2a8ff);
-    -webkit-background-clip: text;
-    background-clip: text;
-  }
-  .top-nav nav a {
-    color: var(--pluto-text);
-    text-decoration: none;
-    margin-left: 24px;
-    font-size: 0.95rem;
-    font-weight: 500;
-    transition: color 0.2s;
-  }
-  .top-nav nav a:hover { color: var(--pluto-accent); }
-
-  .avatar-wrap {
-    position: relative;
-    display: inline-block;
-    margin-bottom: 24px;
-  }
-  .avatar-wrap::before {
-    content: '';
-    position: absolute;
-    inset: -10px;
-    border-radius: 50%;
-    background: conic-gradient(from 0deg, #3273dc, #a855f7, #79c0ff, #3273dc);
-    animation: spin 8s linear infinite;
-    filter: blur(4px);
-    opacity: 0.7;
-  }
-  [data-theme="dark"] .avatar-wrap::before {
-    background: conic-gradient(from 0deg, #79c0ff, #d2a8ff, #9be7fd, #79c0ff);
-  }
-  @keyframes spin { to { transform: rotate(360deg); } }
-  .avatar-wrap img {
-    position: relative;
-    width: 160px;
-    height: 160px;
-    border-radius: 50%;
-    border: 4px solid #fff;
-    box-shadow: 0 8px 40px rgba(0,0,0,0.25);
-    z-index: 1;
-    animation: pluto-float 4s ease-in-out infinite;
-  }
-  [data-theme="dark"] .avatar-wrap img {
-    border-color: #2a2a4a;
-  }
-
-  h1 {
-    font-size: 3rem;
-    font-weight: 900;
-    letter-spacing: 4px;
-    margin-bottom: 12px;
-    background: linear-gradient(135deg, #3273dc 0%, #a855f7 50%, #e879f9 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-  }
-  [data-theme="dark"] h1 {
-    background: linear-gradient(135deg, #79c0ff 0%, #d2a8ff 50%, #f0f6fc 100%);
-    -webkit-background-clip: text;
-    background-clip: text;
-  }
-  .tagline {
-    font-size: 1.15rem;
-    color: #666;
-    font-style: italic;
-    margin-bottom: 40px;
-    letter-spacing: 1px;
-  }
-  [data-theme="dark"] .tagline { color: #a8b3c7; }
-
-  .badges {
-    display: flex;
-    gap: 12px;
-    flex-wrap: wrap;
-    justify-content: center;
-    margin-bottom: 48px;
-  }
-  .badge {
-    padding: 6px 16px;
-    border-radius: 999px;
-    font-size: 0.85rem;
-    font-weight: 500;
-    background: rgba(50, 115, 220, 0.1);
-    color: #3273dc;
-    border: 1px solid rgba(50, 115, 220, 0.2);
-  }
-  [data-theme="dark"] .badge {
-    background: rgba(121, 192, 255, 0.1);
-    color: #79c0ff;
-    border-color: rgba(121, 192, 255, 0.2);
-  }
-
-  .actions {
-    display: flex;
-    gap: 16px;
-    flex-wrap: wrap;
-    justify-content: center;
-  }
-  .btn {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    padding: 12px 28px;
-    border-radius: 999px;
-    font-size: 0.95rem;
-    font-weight: 600;
-    text-decoration: none;
-    transition: transform 0.2s, box-shadow 0.2s;
-  }
-  .btn:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(50,115,220,0.3); }
-  .btn-primary {
-    background: linear-gradient(135deg, #3273dc, #a855f7);
-    color: #fff;
-  }
-  .btn-secondary {
-    background: rgba(50, 115, 220, 0.1);
-    color: #3273dc;
-    border: 1px solid rgba(50, 115, 220, 0.3);
-  }
-  [data-theme="dark"] .btn-secondary {
-    background: rgba(121, 192, 255, 0.1);
-    color: #79c0ff;
-    border-color: rgba(121, 192, 255, 0.3);
-  }
-  .typed { border-right: 2px solid var(--pluto-accent); padding-right: 4px; }
-</style>
-</head>
-<body>
-
+<!-- hexo injector head_end end --><meta name="generator" content="Hexo 8.1.2"></head><body class="is-3-column"><nav class="navbar navbar-main"><div class="container navbar-container"><div class="navbar-brand justify-content-center"><a class="navbar-item navbar-logo" href="/Myblog/">Pluto&#039;s Notes</a></div><div class="navbar-menu"><div class="navbar-start"><a class="navbar-item is-active" href="/Myblog/">首页</a><a class="navbar-item" href="/Myblog/archives">归档</a><a class="navbar-item" href="/Myblog/categories">分类</a><a class="navbar-item" href="/Myblog/tags">标签</a><a class="navbar-item" href="/Myblog/links">友链</a><a class="navbar-item" href="/Myblog/about">关于</a></div><div class="navbar-end"><a class="navbar-item" target="_blank" rel="noopener" title="GitHub" href="https://github.com/pluto839"><i class="fab fa-github"></i></a><a class="navbar-item search" title="搜索" href="javascript:;"><i class="fas fa-search"></i></a></div></div></div></nav><section class="section"><div class="container"><div class="columns"><div class="column order-2 column-main is-8-tablet is-8-desktop is-6-widescreen"><div class="card"><article class="card-content article" role="article"><div class="article-meta is-size-7 is-uppercase level is-mobile"><div class="level-left"><span class="level-item"><time dateTime="2026-08-08T15:20:52.000Z" title="2026/8/8 23:20:52">2026-08-08</time>发表</span><span class="level-item"><time dateTime="2026-08-08T15:24:05.856Z" title="2026/8/8 23:24:05">2026-08-08</time>更新</span><span class="level-item"><a class="link-muted" href="/Myblog/categories/%E6%8A%80%E6%9C%AF%E7%AC%94%E8%AE%B0/">技术笔记</a></span><span class="level-item">几秒读完 (大约109个字)</span></div></div><p class="title is-3 is-size-4-mobile"><a class="link-muted" href="/Myblog/2026/08/08/Welcome-to-Pluto-s-Notes/">Welcome to Pluto&#039;s Notes</a></p><div class="content"><p>欢迎来到 <strong>Pluto’s Notes</strong>，这是我的个人技术笔记站。</p>
+<p>在这里，我会记录学习过程中的点点滴滴，包括但不限于：</p>
+<ul>
+<li>逆向工程</li>
+<li>Web 安全与渗透测试</li>
+<li>CTF 竞赛题解</li>
+<li>Python 开发</li>
+</ul></div><a class="article-more button is-small is-size-7" href="/Myblog/2026/08/08/Welcome-to-Pluto-s-Notes/#more">阅读更多</a></article></div></div><div class="column column-left is-4-tablet is-4-desktop is-3-widescreen  order-1 is-sticky"><div class="card widget" data-type="profile"><div class="card-content"><nav class="level"><div class="level-item has-text-centered flex-shrink-1"><div><figure class="image is-128x128 mx-auto mb-2"><img class="avatar is-rounded" src="/Myblog/img/avatar.jpg" alt="Pluto"></figure><p class="title is-size-4 is-block" style="line-height:inherit;">Pluto</p><p class="is-size-6 is-block">Hack the planet</p><p class="is-size-6 is-flex justify-content-center"><i class="fas fa-map-marker-alt mr-1"></i><span>Cyberspace</span></p></div></div></nav><nav class="level is-mobile"><div class="level-item has-text-centered is-marginless"><div><p class="heading">文章</p><a href="/Myblog/archives/"><p class="title">1</p></a></div></div><div class="level-item has-text-centered is-marginless"><div><p class="heading">分类</p><a href="/Myblog/categories/"><p class="title">1</p></a></div></div><div class="level-item has-text-centered is-marginless"><div><p class="heading">标签</p><a href="/Myblog/tags/"><p class="title">2</p></a></div></div></nav><div class="level"><a class="level-item button is-primary is-rounded" href="https://github.com/pluto839" target="_blank" rel="me noopener">关注我</a></div><div class="level is-mobile is-multiline"><a class="level-item button is-transparent is-marginless" target="_blank" rel="me noopener" title="GitHub" href="https://github.com/pluto839"><i class="fab fa-github"></i></a><a class="level-item button is-transparent is-marginless" target="_blank" rel="me noopener" title="RSS" href="/Myblog/atom.xml"><i class="fas fa-rss"></i></a></div></div></div><!--!--><div class="card widget" data-type="links"><div class="card-content"><div class="menu"><h3 class="menu-label">链接</h3><ul class="menu-list"><li><a class="level is-mobile" href="https://hexo.io" target="_blank" rel="noopener"><span class="level-left"><span class="level-item">Hexo</span></span><span class="level-right"><span class="level-item tag">hexo.io</span></span></a></li><li><a class="level is-mobile" href="https://github.com/ppoffice/hexo-theme-icarus" target="_blank" rel="noopener"><span class="level-left"><span class="level-item">Icarus</span></span><span class="level-right"><span class="level-item tag">github.com</span></span></a></li></ul></div></div></div><div class="column-right-shadow is-hidden-widescreen"></div></div><div class="column column-right is-4-tablet is-4-desktop is-3-widescreen is-hidden-touch is-hidden-desktop-only order-3"><div class="card widget" data-type="categories"><div class="card-content"><div class="menu"><h3 class="menu-label">分类</h3><ul class="menu-list"><li><a class="level is-mobile" href="/Myblog/categories/%E6%8A%80%E6%9C%AF%E7%AC%94%E8%AE%B0/"><span class="level-start"><span class="level-item">技术笔记</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li></ul></div></div></div><div class="card widget" data-type="tags"><div class="card-content"><div class="menu"><h3 class="menu-label">标签</h3><div class="field is-grouped is-grouped-multiline"><div class="control"><a class="tags has-addons" href="/Myblog/tags/Hexo/"><span class="tag">Hexo</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/Myblog/tags/%E5%BB%BA%E7%AB%99/"><span class="tag">建站</span><span class="tag">1</span></a></div></div></div></div></div><div class="card widget" data-type="archives"><div class="card-content"><div class="menu"><h3 class="menu-label">归档</h3><ul class="menu-list"><li><a class="level is-mobile" href="/Myblog/archives/2026/08/"><span class="level-start"><span class="level-item">八月 2026</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li></ul></div></div></div><div class="card widget" data-type="recent-posts"><div class="card-content"><h3 class="menu-label">最新文章</h3><article class="media"><div class="media-content"><p class="date"><time dateTime="2026-08-08T15:20:52.000Z">2026-08-08</time></p><p class="title"><a href="/Myblog/2026/08/08/Welcome-to-Pluto-s-Notes/">Welcome to Pluto&#039;s Notes</a></p><p class="categories"><a href="/Myblog/categories/%E6%8A%80%E6%9C%AF%E7%AC%94%E8%AE%B0/">技术笔记</a></p></div></article></div></div></div></div></div></section><footer class="footer"><div class="container"><div class="level"><div class="level-start"><a class="footer-logo is-block mb-2" href="/Myblog/">Pluto&#039;s Notes</a><p class="is-size-7"><span>&copy; 2026 Pluto</span>  Powered by <a href="https://hexo.io/" target="_blank" rel="noopener">Hexo</a> &amp; <a href="https://github.com/ppoffice/hexo-theme-icarus" target="_blank" rel="noopener">Icarus</a></p></div><div class="level-end"><div class="field has-addons"><p class="control"><a class="button is-transparent is-large" target="_blank" rel="noopener" title="Creative Commons" href="https://creativecommons.org/licenses/by-nc-sa/4.0/"><i class="fab fa-creative-commons"></i></a></p><p class="control"><a class="button is-transparent is-large" target="_blank" rel="noopener" title="Attribution" href="https://creativecommons.org/licenses/by-nc-sa/4.0/"><i class="fab fa-creative-commons-by"></i></a></p><p class="control"><a class="button is-transparent is-large" target="_blank" rel="noopener" title="Noncommercial" href="https://creativecommons.org/licenses/by-nc-sa/4.0/"><i class="fab fa-creative-commons-nc"></i></a></p><p class="control"><a class="button is-transparent is-large" target="_blank" rel="noopener" title="Share Alike" href="https://creativecommons.org/licenses/by-nc-sa/4.0/"><i class="fab fa-creative-commons-sa"></i></a></p></div></div></div></div></footer><script src="https://cdn.jsdelivr.net/npm/jquery@3.3.1/dist/jquery.min.js"></script><script src="https://cdn.jsdelivr.net/npm/moment@2.22.2/min/moment-with-locales.min.js"></script><script src="https://cdn.jsdelivr.net/npm/clipboard@2.0.4/dist/clipboard.min.js" defer></script><script>moment.locale("zh-cn");</script><script>var IcarusThemeSettings = {
+            article: {
+                highlight: {
+                    clipboard: true,
+                    fold: 'unfolded'
+                }
+            }
+        };</script><script data-pjax src="/Myblog/js/column.js"></script><script src="/Myblog/js/animation.js"></script><a id="back-to-top" title="回到顶端" href="javascript:;"><i class="fas fa-chevron-up"></i></a><script data-pjax src="/Myblog/js/back_to_top.js" defer></script><!--!--><script data-pjax src="/Myblog/js/main.js" defer></script><div class="searchbox"><div class="searchbox-container"><div class="searchbox-header"><div class="searchbox-input-container"><input class="searchbox-input" type="text" placeholder="想要查找什么..."></div><a class="searchbox-close" href="javascript:;">×</a></div><div class="searchbox-body"></div></div></div><script data-pjax src="/Myblog/js/insight.js" defer></script><script data-pjax>document.addEventListener('DOMContentLoaded', function () {
+            loadInsight({"contentUrl":"/Myblog/content.json"}, {"hint":"想要查找什么...","untitled":"(无标题)","posts":"文章","pages":"页面","categories":"分类","tags":"标签"});
+        });</script><!-- hexo injector body_end start -->
 <div class="pluto-scene">
-  <div class="cloud"></div><div class="cloud"></div><div class="cloud"></div><div class="cloud"></div>
-  <div class="shooting-star" style="top:8%;left:60%;animation-delay:-1s"></div>
-  <div class="shooting-star" style="top:20%;left:30%;animation-delay:-3s"></div>
+  <div class="cloud"></div>
+  <div class="cloud"></div>
+  <div class="cloud"></div>
+  <div class="cloud"></div>
+  <span class="star" style="top:24.169908141012975%;left:14.447472526965367%;animation-delay:2.4675622011039264s;animation-duration:4.00772033162806s;width:1.6509493697308983px;height:1.6509493697308983px"></span><span class="star" style="top:68.29085846407173%;left:35.6291604692134%;animation-delay:0.6206172195380621s;animation-duration:3.289293229992569s;width:1.1562357103076728px;height:1.1562357103076728px"></span><span class="star" style="top:25.910105881354706%;left:5.593983394696855%;animation-delay:2.0116026209892572s;animation-duration:2.086243547413753s;width:1.2089401944839173px;height:1.2089401944839173px"></span><span class="star" style="top:54.021247418125604%;left:40.646514386330445%;animation-delay:3.441797686949757s;animation-duration:4.90743486609297s;width:1.4513948595781807px;height:1.4513948595781807px"></span><span class="star" style="top:86.28565566399118%;left:36.05098489925034%;animation-delay:0.7891521807473489s;animation-duration:2.0115851603671238s;width:1.0437114573561068px;height:1.0437114573561068px"></span><span class="star" style="top:53.37831448684683%;left:33.24609821714065%;animation-delay:3.3392813598301725s;animation-duration:2.216374133114414s;width:1.0978794676911876px;height:1.0978794676911876px"></span><span class="star" style="top:22.904958966017553%;left:65.81853043323144%;animation-delay:2.5569123407110816s;animation-duration:2.057637160390216s;width:1.0229034763161073px;height:1.0229034763161073px"></span><span class="star" style="top:18.553509213331065%;left:10.45824542278343%;animation-delay:4.555505431554868s;animation-duration:2.5412622212195473s;width:1.5285900141351623px;height:1.5285900141351623px"></span><span class="star" style="top:4.0652095541023%;left:39.7817040577376%;animation-delay:2.314089000614934s;animation-duration:3.2962123712368356s;width:1.7252245045744032px;height:1.7252245045744032px"></span><span class="star" style="top:72.17862222447296%;left:93.27585910402007%;animation-delay:1.4382684968242643s;animation-duration:4.428336646917581s;width:1.2743023021147775px;height:1.2743023021147775px"></span><span class="star" style="top:56.239169003532396%;left:52.05105712683138%;animation-delay:1.448072941538051s;animation-duration:4.109692745914392s;width:1.5309508997576415px;height:1.5309508997576415px"></span><span class="star" style="top:33.02952917677371%;left:82.84067930686844%;animation-delay:1.2820135086039108s;animation-duration:3.0832032401192198s;width:1.3126718529309533px;height:1.3126718529309533px"></span><span class="star" style="top:1.3003500094934783%;left:15.686227294076193%;animation-delay:2.5527034183214554s;animation-duration:2.260683084801957s;width:1.4464454376647051px;height:1.4464454376647051px"></span><span class="star" style="top:52.91519004269417%;left:9.287808672842024%;animation-delay:4.405233527619811s;animation-duration:2.567566075560374s;width:1.6947439290470518px;height:1.6947439290470518px"></span><span class="star" style="top:23.985022101539734%;left:14.361493997573804%;animation-delay:4.703021592998664s;animation-duration:2.2415621586873877s;width:2.045590222447233px;height:2.045590222447233px"></span><span class="star" style="top:90.3949052806517%;left:15.814131376172025%;animation-delay:0.15323030015488848s;animation-duration:3.90769632544363s;width:1.361690449055513px;height:1.361690449055513px"></span><span class="star" style="top:39.64855647361703%;left:62.645101193145926%;animation-delay:0.7576572221809746s;animation-duration:3.985292501731049s;width:2.332155482592001px;height:2.332155482592001px"></span><span class="star" style="top:62.132499610856975%;left:21.277085420659535%;animation-delay:4.789709663718725s;animation-duration:3.7201483196706504s;width:1.295803368233785px;height:1.295803368233785px"></span><span class="star" style="top:51.26151011936606%;left:32.27769005475214%;animation-delay:2.577671600459794s;animation-duration:2.4514801388578746s;width:1.8366784758762016px;height:1.8366784758762016px"></span><span class="star" style="top:70.46905887173091%;left:59.609659118771894%;animation-delay:2.3352666837995018s;animation-duration:4.0284417599244104s;width:1.3783575180585048px;height:1.3783575180585048px"></span><span class="star" style="top:35.3787865062117%;left:34.863284382194436%;animation-delay:0.6587661114031929s;animation-duration:2.83189364991816s;width:1.376703766440632px;height:1.376703766440632px"></span><span class="star" style="top:6.8227898216600575%;left:17.292684199097152%;animation-delay:3.4363285143919375s;animation-duration:3.95659463842359s;width:2.0710500030296477px;height:2.0710500030296477px"></span><span class="star" style="top:9.18316877192995%;left:24.994893311734444%;animation-delay:2.3988648193755195s;animation-duration:2.7146683249018055s;width:2.043733886484034px;height:2.043733886484034px"></span><span class="star" style="top:90.87629795425342%;left:89.86398859573451%;animation-delay:3.0887535599787688s;animation-duration:4.541549549605829s;width:2.2446783017318888px;height:2.2446783017318888px"></span><span class="star" style="top:31.658522669670695%;left:86.61520894876243%;animation-delay:3.155506358525679s;animation-duration:2.368300119525717s;width:2.2809765415253533px;height:2.2809765415253533px"></span><span class="star" style="top:30.712479884961574%;left:79.87633163475722%;animation-delay:4.6745445898162865s;animation-duration:4.496852980330662s;width:1.5601565357332516px;height:1.5601565357332516px"></span><span class="star" style="top:55.0116661174332%;left:27.315158705599472%;animation-delay:3.1922092528268378s;animation-duration:2.2307293263885866s;width:2.40453452579247px;height:2.40453452579247px"></span><span class="star" style="top:44.00858342057635%;left:54.77815955662071%;animation-delay:1.9313130491397745s;animation-duration:3.5688692637131405s;width:1.7252245448388035px;height:1.7252245448388035px"></span><span class="star" style="top:62.80231917693041%;left:89.05753162679869%;animation-delay:0.6832429062510548s;animation-duration:3.236327287465956s;width:2.2470583240368796px;height:2.2470583240368796px"></span><span class="star" style="top:86.40959712757756%;left:26.626137540753536%;animation-delay:4.871220217215254s;animation-duration:3.0635734454479797s;width:1.1020034608159897px;height:1.1020034608159897px"></span><span class="star" style="top:25.285804787187814%;left:34.88349954691301%;animation-delay:1.8581773499819003s;animation-duration:3.9814589090859203s;width:1.8843985876419693px;height:1.8843985876419693px"></span><span class="star" style="top:92.14426074647827%;left:25.805547787522908%;animation-delay:3.8274993982837873s;animation-duration:3.5883627027916507s;width:1.174543204976556px;height:1.174543204976556px"></span><span class="star" style="top:94.61637029676046%;left:15.8331725495786%;animation-delay:3.991794639428297s;animation-duration:3.649596598232006s;width:2.04203425822302px;height:2.04203425822302px"></span><span class="star" style="top:93.92069342922301%;left:40.644313846950396%;animation-delay:4.040145479900989s;animation-duration:3.6002749852081015s;width:1.7299886160232867px;height:1.7299886160232867px"></span><span class="star" style="top:63.78031183782055%;left:52.13640158378018%;animation-delay:1.348693005734627s;animation-duration:4.142326282422318s;width:1.1080851343152618px;height:1.1080851343152618px"></span><span class="star" style="top:15.522140404458495%;left:2.558424475582155%;animation-delay:4.444995975693632s;animation-duration:3.690886899801464s;width:2.0976122826538046px;height:2.0976122826538046px"></span><span class="star" style="top:62.34594231965054%;left:83.23619299878355%;animation-delay:2.0999801928188235s;animation-duration:2.1111931986023422s;width:2.3275871577792557px;height:2.3275871577792557px"></span><span class="star" style="top:98.58656039284848%;left:46.037011368074396%;animation-delay:3.5953073729660896s;animation-duration:4.509068739025747s;width:2.081850380645637px;height:2.081850380645637px"></span><span class="star" style="top:44.69506874790561%;left:2.3698782942840446%;animation-delay:3.385849504570337s;animation-duration:3.4915942531192465s;width:1.367877827625927px;height:1.367877827625927px"></span><span class="star" style="top:52.293643559009126%;left:35.346399313717015%;animation-delay:4.408689881914254s;animation-duration:4.049684434911078s;width:1.7133928918514738px;height:1.7133928918514738px"></span><span class="star" style="top:63.544314611609664%;left:43.72274524115798%;animation-delay:4.075986812703327s;animation-duration:2.602794843050926s;width:1.1831988071923534px;height:1.1831988071923534px"></span><span class="star" style="top:54.276891368252%;left:15.872141583401744%;animation-delay:3.001828333097527s;animation-duration:2.7369646652824158s;width:1.202685687997101px;height:1.202685687997101px"></span><span class="star" style="top:99.42957027786%;left:77.19631313855103%;animation-delay:0.9302205329528018s;animation-duration:3.7263782528687694s;width:1.2361947144910026px;height:1.2361947144910026px"></span><span class="star" style="top:44.03800720505002%;left:54.77844275456749%;animation-delay:4.258812159625977s;animation-duration:2.148621685701595s;width:1.580041594127537px;height:1.580041594127537px"></span><span class="star" style="top:60.132467356840635%;left:75.57349477313787%;animation-delay:0.1529308392845269s;animation-duration:3.996828946437544s;width:1.0158793360584588px;height:1.0158793360584588px"></span><span class="star" style="top:51.822080299264215%;left:29.16632651866542%;animation-delay:4.286742260403321s;animation-duration:2.6707681393100606s;width:1.122120075791568px;height:1.122120075791568px"></span><span class="star" style="top:26.584022207801617%;left:65.81677164142454%;animation-delay:2.8632011984455303s;animation-duration:2.607471002080252s;width:1.3962961828277134px;height:1.3962961828277134px"></span><span class="star" style="top:87.06208088353877%;left:77.24605021008325%;animation-delay:4.966064032903636s;animation-duration:4.235059566708308s;width:2.0685942107659674px;height:2.0685942107659674px"></span><span class="star" style="top:40.39537234049134%;left:74.22441761987913%;animation-delay:0.12081555852848924s;animation-duration:2.26516342705661s;width:1.9626267026947963px;height:1.9626267026947963px"></span><span class="star" style="top:0.43724421257994583%;left:46.53126980586606%;animation-delay:2.2532296305646264s;animation-duration:2.8815399326561755s;width:1.1336266128331642px;height:1.1336266128331642px"></span><span class="star" style="top:80.90369193424827%;left:76.74058889754467%;animation-delay:4.75292792406783s;animation-duration:2.5780464501510845s;width:2.1457813988716126px;height:2.1457813988716126px"></span><span class="star" style="top:1.6208763696928474%;left:92.59697397384089%;animation-delay:2.326984177473724s;animation-duration:3.2508241914866467s;width:1.0538070942591715px;height:1.0538070942591715px"></span><span class="star" style="top:20.553354502701403%;left:63.439078621098176%;animation-delay:2.1389806165731495s;animation-duration:4.1625919818118104s;width:2.4269960195647826px;height:2.4269960195647826px"></span><span class="star" style="top:70.15194858358947%;left:66.26160041155082%;animation-delay:2.643100985773051s;animation-duration:3.727438714735288s;width:2.2645121989463703px;height:2.2645121989463703px"></span><span class="star" style="top:86.4662122907743%;left:6.023919861546112%;animation-delay:4.708307467239848s;animation-duration:3.89695562372455s;width:1.1395122904804702px;height:1.1395122904804702px"></span><span class="star" style="top:48.322830239385894%;left:92.63083345013442%;animation-delay:3.360515969333648s;animation-duration:3.159702827948128s;width:1.2276108098185061px;height:1.2276108098185061px"></span><span class="star" style="top:33.103335675121784%;left:78.28536900047824%;animation-delay:0.31425210823023797s;animation-duration:3.720893606523463s;width:1.8717953716584952px;height:1.8717953716584952px"></span><span class="star" style="top:44.546549958279144%;left:74.29806408197027%;animation-delay:1.1454427023642748s;animation-duration:4.583116178840463s;width:1.7982190430255771px;height:1.7982190430255771px"></span><span class="star" style="top:92.24457407599195%;left:1.3909507340026495%;animation-delay:3.035023484391477s;animation-duration:3.474750719777782s;width:2.03037618756949px;height:2.03037618756949px"></span><span class="star" style="top:7.594737477593538%;left:8.902402705736334%;animation-delay:1.3948716288888552s;animation-duration:2.7827183279408105s;width:1.6932933544360067px;height:1.6932933544360067px"></span>
+  <div class="shooting-star" style="top:10%;left:70%;animation-delay:-1s"></div>
+  <div class="shooting-star" style="top:25%;left:40%;animation-delay:-3s"></div>
 </div>
-
-<nav class="top-nav">
-  <a href="/" class="logo">Pluto's Notes</a>
-  <nav>
-    <a href="archives/">归档</a>
-    <a href="categories/">分类</a>
-    <a href="tags/">标签</a>
-    <a href="links/">友链</a>
-    <a href="about/">关于</a>
-  </nav>
-</nav>
-
-<div class="avatar-wrap">
-  <img src="img/avatar.svg" alt="Pluto">
-</div>
-
-<h1>PLUTO</h1>
-<div class="tagline" id="tagline"></div>
-
-<div class="badges">
-  <span class="badge">🔓 Reverse Engineering</span>
-  <span class="badge">🌐 Web Security</span>
-  <span class="badge">🏴 CTF</span>
-  <span class="badge">🤖 Python</span>
-</div>
-
-<div class="actions">
-  <a href="archives/" class="btn btn-primary">📚 开始阅读</a>
-  <a href="about/" class="btn btn-secondary">👤 了解更多</a>
-  <a href="https://github.com/pluto839" class="btn btn-secondary" target="_blank">⭐ GitHub</a>
-</div>
-
-<button class="theme-toggle" id="plutoThemeToggle" title="切换日/夜模式">🌙</button>
-
+<button class="theme-toggle" id="plutoThemeToggle" aria-label="Toggle dark mode" title="切换日/夜模式">🌙</button>
 <script>
 (function(){
   var saved = localStorage.getItem('pluto-theme');
@@ -241,42 +81,28 @@
   function apply(t){
     document.documentElement.setAttribute('data-theme', t);
     btn.textContent = t === 'dark' ? '☀️' : '🌙';
+    document.body.style.colorScheme = t === 'dark' ? 'dark' : 'light';
   }
 })();
-
-var lines = ['> Hack the planet. Explore the unknown.',
-             '> In code we trust, in vuln we thrive.',
-             '> 用代码丈量世界，记录每一处精彩。'];
-var li = 0, ci = 0, deleting = false;
-var el = document.getElementById('tagline');
-function type() {
-  var line = lines[li];
-  if (!deleting) {
-    el.classList.add('typed');
-    el.textContent = line.slice(0, ++ci);
-    if (ci === line.length) { deleting = true; setTimeout(type, 2200); return; }
-  } else {
-    el.textContent = line.slice(0, --ci);
-    if (ci === 0) { deleting = false; li = (li + 1) % lines.length; }
-  }
-  setTimeout(type, deleting ? 30 : 70);
-}
-type();
-
-var stars = 60;
-var scene = document.querySelector('.pluto-scene');
-for (var i = 0; i < stars; i++) {
-  var s = document.createElement('span');
-  s.className = 'star';
-  s.style.top = Math.random()*100 + '%';
-  s.style.left = Math.random()*100 + '%';
-  s.style.animationDelay = Math.random()*5 + 's';
-  s.style.animationDuration = (2 + Math.random()*3) + 's';
-  var sz = (1 + Math.random()*1.5) + 'px';
-  s.style.width = sz; s.style.height = sz;
-  scene.appendChild(s);
-}
 </script>
-<script src="js/pluto-cursor.js"></script>
-</body>
-</html>
+<script>
+(function(){
+  var root = '/Myblog/';
+  var path = window.location.pathname.replace(//+$/, '');
+  var rootPath = root.replace(//+$/, '');
+  var isHome = (path === rootPath) || (path === '') || (path === '/');
+  if (isHome) {
+    var main = document.querySelector('main.column') || document.querySelector('#main') || document.querySelector('.columns.is-desktop') || document.querySelector('main');
+    if (main) {
+      var hero = document.createElement('div');
+      hero.className = 'pluto-hero';
+      hero.innerHTML = '<img class="pluto-avatar" src="' + root + 'img/avatar.svg" alt="Pluto">' +
+        '<h1>Pluto</h1>' +
+        '<p class="pluto-tagline">Hack the planet. Explore the unknown.</p>';
+      main.parentNode.insertBefore(hero, main);
+    }
+  }
+})();
+</script>
+<script src="/Myblog/js/pluto-cursor.js"></script>
+<!-- hexo injector body_end end --></body></html>

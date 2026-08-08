@@ -127,6 +127,7 @@ body {
   border: 3px solid var(--pluto-accent);
   box-shadow: 0 4px 16px rgba(50, 115, 220, 0.4);
   transition: transform 0.4s ease, box-shadow 0.4s ease;
+  object-fit: cover;
 }
 
 .profile .card-content .card-header .media .media-left figure img:hover,
@@ -190,6 +191,7 @@ body {
     0 8px 30px rgba(0,0,0,0.18);
   animation: pluto-float 4s ease-in-out infinite;
   transition: transform 0.4s ease;
+  object-fit: cover;
 }
 
 .pluto-hero .pluto-avatar:hover {
