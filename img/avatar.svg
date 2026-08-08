@@ -1,0 +1,36 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 240">
+  <defs>
+    <radialGradient id="bg" cx="50%" cy="50%" r="60%">
+      <stop offset="0%" stop-color="#1a1f4e"/>
+      <stop offset="100%" stop-color="#0a0a1e"/>
+    </radialGradient>
+    <linearGradient id="hair" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#4f8fff"/>
+      <stop offset="100%" stop-color="#7b2fd8"/>
+    </linearGradient>
+    <linearGradient id="skin" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#ffe0c2"/>
+      <stop offset="100%" stop-color="#f5c9a6"/>
+    </linearGradient>
+  </defs>
+  <rect width="240" height="240" fill="url(#bg)" rx="120"/>
+  <circle cx="120" cy="135" r="58" fill="url(#skin)"/>
+  <path d="M62 108 Q70 60 120 50 Q170 60 178 108 L178 95 Q170 40 120 32 Q70 40 62 95 Z" fill="url(#hair)"/>
+  <path d="M58 98 Q52 120 55 140 Q60 130 65 110 Z" fill="url(#hair)"/>
+  <path d="M182 98 Q188 120 185 140 Q180 130 175 110 Z" fill="url(#hair)"/>
+  <ellipse cx="95" cy="125" rx="8" ry="10" fill="#fff"/>
+  <ellipse cx="145" cy="125" rx="8" ry="10" fill="#fff"/>
+  <ellipse cx="95" cy="127" rx="5.5" ry="7.5" fill="#1a7fff"/>
+  <ellipse cx="145" cy="127" rx="5.5" ry="7.5" fill="#1a7fff"/>
+  <circle cx="94" cy="125" r="3" fill="#0a0a2e"/>
+  <circle cx="144" cy="125" r="3" fill="#0a0a2e"/>
+  <circle cx="97" cy="123" r="2" fill="#fff"/>
+  <circle cx="147" cy="123" r="2" fill="#fff"/>
+  <path d="M108 155 Q120 165 132 155" stroke="#d4796a" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+  <path d="M72 110 Q80 105 88 110" stroke="url(#hair)" stroke-width="3" fill="none" stroke-linecap="round"/>
+  <path d="M152 110 Q160 105 168 110" stroke="url(#hair)" stroke-width="3" fill="none" stroke-linecap="round"/>
+  <path d="M60 105 Q40 90 35 80" stroke="url(#hair)" stroke-width="6" fill="none" stroke-linecap="round"/>
+  <path d="M180 105 Q200 90 205 80" stroke="url(#hair)" stroke-width="6" fill="none" stroke-linecap="round"/>
+  <circle cx="120" cy="195" r="8" fill="#7b2fd8"/>
+  <text x="120" y="200" text-anchor="middle" font-family="monospace" font-size="10" fill="#fff" font-weight="bold">P</text>
+</svg>
