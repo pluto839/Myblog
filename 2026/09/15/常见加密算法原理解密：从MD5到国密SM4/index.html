@@ -1,0 +1,680 @@
+<!doctype html>
+<html lang="zh"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"><title>常见加密算法原理解密：从MD5到国密SM4 - Pluto&#039;s Notes</title><link rel="manifest" href="/Myblog/manifest.json"><meta name="theme-color" content="#3273dc"><meta name="application-name" content="极客笔记"><meta name="msapplication-TileImage" content="/img/icon.svg"><meta name="msapplication-TileColor" content="#3273dc"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="极客笔记"><meta name="apple-mobile-web-app-status-bar-style" content="default"><link rel="apple-touch-icon" sizes="192x192" href="/img/icon.svg"><meta name="description" content="一个极客的技术笔记与知识分享站"><meta property="og:type" content="website"><meta property="og:title" content="极客笔记"><meta property="og:url" content="https://pluto839.github.io/Myblog"><meta property="og:site_name" content="Pluto&#039;s Notes"><meta property="og:description" content="一个极客的技术笔记与知识分享站"><meta property="og:locale" content="zh_CN"><meta property="og:image" content="https://pluto839.github.io/img/og_image.png"><meta property="article:published_time" content="2026-09-15T12:00:00.000Z"><meta property="article:modified_time" content="2026-09-15T12:56:37.654Z"><meta property="article:author" content="Pluto"><meta property="article:tag" content="密码学"><meta property="article:tag" content="加密算法"><meta property="article:tag" content="CTF"><meta property="article:tag" content="MD5"><meta property="article:tag" content="SHA"><meta property="article:tag" content="AES"><meta property="article:tag" content="DES"><meta property="article:tag" content="RSA"><meta property="article:tag" content="国密"><meta property="article:tag" content="SM2"><meta property="article:tag" content="SM4"><meta property="twitter:card" content="summary"><meta property="twitter:image:src" content="https://pluto839.github.io/img/og_image.png"><script type="application/ld+json">{"@context":"https://schema.org","@type":"BlogPosting","mainEntityOfPage":{"@type":"WebPage","@id":"https://pluto839.github.io/Myblog/2026/09/15/%E5%B8%B8%E8%A7%81%E5%8A%A0%E5%AF%86%E7%AE%97%E6%B3%95%E5%8E%9F%E7%90%86%E8%A7%A3%E5%AF%86%EF%BC%9A%E4%BB%8EMD5%E5%88%B0%E5%9B%BD%E5%AF%86SM4/"},"headline":"常见加密算法原理解密：从MD5到国密SM4","image":[],"datePublished":"2026-09-15T12:00:00.000Z","dateModified":"2026-09-15T12:56:37.654Z","author":{"@type":"Person","name":"Pluto"},"publisher":{"@type":"Organization","name":"Pluto's Notes","logo":{"@type":"ImageObject","url":{"text":"Pluto's Notes"}}},"description":"系统梳理密码学三大体系：哈希（MD5&#x2F;SHA-1&#x2F;SHA-256）、对称加密（DES&#x2F;AES&#x2F;SM4）、非对称加密（RSA&#x2F;SM2）。从算法原理、数学基础到CTF实战识别与攻击套路，一文看懂常用加密算法。"}</script><link rel="canonical" href="https://pluto839.github.io/Myblog/2026/09/15/%E5%B8%B8%E8%A7%81%E5%8A%A0%E5%AF%86%E7%AE%97%E6%B3%95%E5%8E%9F%E7%90%86%E8%A7%A3%E5%AF%86%EF%BC%9A%E4%BB%8EMD5%E5%88%B0%E5%9B%BD%E5%AF%86SM4/"><link rel="icon" href="/Myblog/img/avatar.jpg"><link rel="stylesheet" href="https://use.fontawesome.com/releases/v6.0.0/css/all.css"><link data-pjax rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@11.7.0/styles/atom-one-light.css"><link rel="stylesheet" href="jsdelivr"><link data-pjax rel="stylesheet" href="/Myblog/css/default.css"><style>body>.footer,body>.navbar,body>.section{opacity:0}</style><!--!--><style>.pace{-webkit-pointer-events:none;pointer-events:none;-webkit-user-select:none;-moz-user-select:none;user-select:none}.pace-inactive{display:none}.pace .pace-progress{background:#3273dc;position:fixed;z-index:2000;top:0;right:100%;width:100%;height:2px}</style><script src="https://cdn.jsdelivr.net/npm/pace-js@1.2.4/pace.min.js"></script><!-- hexo injector head_end start --><script>
+  (function () {
+      function switchTab() {
+          if (!location.hash) {
+            return;
+          }
+
+          const id = '#' + CSS.escape(location.hash.substring(1));
+          const $tabMenu = document.querySelector(`.tabs a[href="${id}"]`);
+          if (!$tabMenu) {
+            return;
+          }
+
+          const $tabMenuContainer = $tabMenu.parentElement.parentElement;
+          Array.from($tabMenuContainer.children).forEach($menu => $menu.classList.remove('is-active'));
+          Array.from($tabMenuContainer.querySelectorAll('a'))
+              .map($menu => document.getElementById($menu.getAttribute("href").substring(1)))
+              .forEach($content => $content.classList.add('is-hidden'));
+
+          if ($tabMenu) {
+              $tabMenu.parentElement.classList.add('is-active');
+          }
+          const $activeTab = document.querySelector(id);
+          if ($activeTab) {
+              $activeTab.classList.remove('is-hidden');
+          }
+      }
+      switchTab();
+      window.addEventListener('hashchange', switchTab, false);
+  })();
+  </script>
+<meta name="data-root" content="/Myblog/">
+<link rel="stylesheet" href="/Myblog/css/pluto-custom.css">
+<script>
+  var s = localStorage.getItem('pluto-theme');
+  var pd = window.matchMedia('(prefers-color-scheme: dark)').matches;
+  var t = s || (pd ? 'dark' : 'light');
+  document.documentElement.setAttribute('data-theme', t);
+  document.documentElement.setAttribute('data-root', '/Myblog/');
+</script>
+<!-- hexo injector head_end end --><meta name="generator" content="Hexo 8.1.2"></head><body class="is-3-column"><nav class="navbar navbar-main"><div class="container navbar-container"><div class="navbar-brand justify-content-center"><a class="navbar-item navbar-logo" href="/Myblog/">Pluto&#039;s Notes</a></div><div class="navbar-menu"><div class="navbar-start"><a class="navbar-item" href="/Myblog/">首页</a><a class="navbar-item" href="/Myblog/archives">归档</a><a class="navbar-item" href="/Myblog/categories">分类</a><a class="navbar-item" href="/Myblog/tags">标签</a><a class="navbar-item" href="/Myblog/links">友链</a><a class="navbar-item" href="/Myblog/about">关于</a></div><div class="navbar-end"><a class="navbar-item" target="_blank" rel="noopener" title="GitHub" href="https://github.com/pluto839"><i class="fab fa-github"></i></a><a class="navbar-item search" title="搜索" href="javascript:;"><i class="fas fa-search"></i></a></div></div></div></nav><section class="section"><div class="container"><div class="columns"><div class="column order-2 column-main is-8-tablet is-8-desktop is-6-widescreen"><div class="card"><div class="card-image"><span class="image is-7by3"><img class="fill" src="/Myblog/img/covers/ctf.svg" alt="常见加密算法原理解密：从MD5到国密SM4"></span></div><article class="card-content article" role="article"><div class="article-meta is-size-7 is-uppercase level is-mobile"><div class="level-left"><span class="level-item"><time dateTime="2026-09-15T12:00:00.000Z" title="2026/9/15 20:00:00">2026-09-15</time>发表</span><span class="level-item"><time dateTime="2026-09-15T12:56:37.654Z" title="2026/9/15 20:56:37">2026-09-15</time>更新</span><span class="level-item"><a class="link-muted" href="/Myblog/categories/%E5%AF%86%E7%A0%81%E5%AD%A6/">密码学</a></span><span class="level-item">22 分钟读完 (大约3343个字)</span></div></div><h1 class="title is-3 is-size-4-mobile">常见加密算法原理解密：从MD5到国密SM4</h1><div class="content"><h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>在 CTF 攻防、Web 安全或逆向工程中，<strong>加密算法几乎是绕不开的基础</strong>。你经常会在题目里看到 <code>eyJ...</code> 开头的 Base64 长串、<code>md5 破解</code>、<code>RSA 共模攻击</code>、<code>AES 密文</code>……如果连算法类型都识别不出来，解题更是无从谈起。</p>
+<p>本文是对一份加密算法教学视频的系统整理，覆盖三大类共 9 个主题：</p>
+<table>
+<thead>
+<tr>
+<th>类别</th>
+<th>算法</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>哈希（摘要）</td>
+<td>MD5、SHA-1、SHA-256</td>
+</tr>
+<tr>
+<td>对称加密</td>
+<td>DES、AES、国密 SM4</td>
+</tr>
+<tr>
+<td>非对称加密</td>
+<td>RSA、国密 SM2</td>
+</tr>
+<tr>
+<td>加密体制总览</td>
+<td>对称加密 vs 非对称加密</td>
+</tr>
+</tbody></table>
+<span id="more"></span>
+
+<blockquote>
+<p>读完本文你将掌握：每种算法的<strong>基本原理</strong>、<strong>典型特征</strong>（用于CTF快速识别）、以及<strong>常见攻击套路</strong>。</p>
+</blockquote>
+<hr>
+<h2 id="一、加密体制总览：对称加密-vs-非对称加密"><a href="#一、加密体制总览：对称加密-vs-非对称加密" class="headerlink" title="一、加密体制总览：对称加密 vs 非对称加密"></a>一、加密体制总览：对称加密 vs 非对称加密</h2><p>在学习具体算法前，先建立全局观。加密体制主要分两大类。</p>
+<h3 id="1-1-对称加密（Symmetric-Encryption）"><a href="#1-1-对称加密（Symmetric-Encryption）" class="headerlink" title="1.1 对称加密（Symmetric Encryption）"></a>1.1 对称加密（Symmetric Encryption）</h3><p><strong>加密和解密使用同一个密钥</strong>，也叫”共享密钥”或”会话密钥”。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">明文 --(密钥K)--&gt; 密文</span><br><span class="line">密文 --(密钥K)--&gt; 明文</span><br></pre></td></tr></table></figure>
+
+<table>
+<thead>
+<tr>
+<th>优点</th>
+<th>缺点</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>速度快（硬件加速）、吞吐量大</td>
+<td>密钥分发困难（双方如何安全拿到同一把钥匙？）</td>
+</tr>
+<tr>
+<td>适合加密大量数据</td>
+<td>n 个人两两通信需要 C(n,2) 把密钥</td>
+</tr>
+</tbody></table>
+<p><strong>代表算法</strong>：DES、3DES、AES、国密 SM4、RC4、Blowfish。</p>
+<h3 id="1-2-非对称加密（Asymmetric-Encryption）"><a href="#1-2-非对称加密（Asymmetric-Encryption）" class="headerlink" title="1.2 非对称加密（Asymmetric Encryption）"></a>1.2 非对称加密（Asymmetric Encryption）</h3><p>基于<strong>公钥密码学</strong>，使用一对密钥：<strong>公钥（Public Key）</strong> 和 <strong>私钥（Private Key）</strong>。</p>
+<ul>
+<li>公钥加密 → 私钥解密（加密&#x2F;保密）</li>
+<li>私钥签名 → 公钥验签（认证&#x2F;防篡改）</li>
+</ul>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">明文 --(公钥)--&gt; 密文 --(私钥)--&gt; 明文</span><br></pre></td></tr></table></figure>
+
+<table>
+<thead>
+<tr>
+<th>优点</th>
+<th>缺点</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>解决密钥分发问题（公钥公开）</td>
+<td>速度慢（大整数&#x2F;椭圆曲线运算）</td>
+</tr>
+<tr>
+<td>支持数字签名</td>
+<td>不适合加密大数据量</td>
+</tr>
+</tbody></table>
+<p><strong>代表算法</strong>：RSA、ECC（椭圆曲线）、国密 SM2。</p>
+<h3 id="1-3-为什么非对称加密不直接用于数据加密？"><a href="#1-3-为什么非对称加密不直接用于数据加密？" class="headerlink" title="1.3 为什么非对称加密不直接用于数据加密？"></a>1.3 为什么非对称加密不直接用于数据加密？</h3><p>非对称加密速度太慢，实际场景（如 HTTPS）用的是 <strong>混合加密</strong>：</p>
+<ol>
+<li><strong>公钥加密</strong>方式安全地交换一个临时对称密钥（会话密钥）</li>
+<li>后续大量数据用 <strong>对称加密</strong>（如 AES）高效传输</li>
+</ol>
+<blockquote>
+<p>私钥必须严格保密，公开公钥即可。非对称加密的安全性建立在某个数学难题上（详见 RSA &#x2F; SM2 章节）。</p>
+</blockquote>
+<hr>
+<h2 id="二、哈希算法：MD5、SHA-1、SHA-256"><a href="#二、哈希算法：MD5、SHA-1、SHA-256" class="headerlink" title="二、哈希算法：MD5、SHA-1、SHA-256"></a>二、哈希算法：MD5、SHA-1、SHA-256</h2><p><strong>哈希（散列&#x2F;摘要）算法严格来说不是”加密”</strong>，因为它不可逆——无法从结果反推原文。它把任意长度的输入映射为固定长度的”指纹”。</p>
+<p><strong>哈希的核心性质：</strong></p>
+<table>
+<thead>
+<tr>
+<th>性质</th>
+<th>含义</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>单向性</td>
+<td>由输入得输出容易，反推几乎不可能</td>
+</tr>
+<tr>
+<td>定长输出</td>
+<td>不管输入多长，输出固定长度</td>
+</tr>
+<tr>
+<td>雪崩效应</td>
+<td>输入变一个 bit，输出完全不同</td>
+</tr>
+<tr>
+<td>抗碰撞（理想）</td>
+<td>很难找到两个不同输入得到相同输出</td>
+</tr>
+</tbody></table>
+<h3 id="2-1-MD5（Message-Digest-5）"><a href="#2-1-MD5（Message-Digest-5）" class="headerlink" title="2.1 MD5（Message-Digest 5）"></a>2.1 MD5（Message-Digest 5）</h3><ul>
+<li>输出 <strong>128 位</strong>（16 字节，32 个十六进制字符）</li>
+<li>1991 年由 Ronald Rivest（RSA 中的 R）设计，由 MD4 改进而来</li>
+<li>以 <strong>512 位</strong>为单位分块处理，4 个 32 位初始寄存器，共 <strong>4 轮、每轮 16 步 &#x3D; 64 步</strong>迭代</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 命令行查看</span></span><br><span class="line"><span class="built_in">echo</span> -n <span class="string">&quot;hello&quot;</span> | <span class="built_in">md5sum</span></span><br><span class="line"><span class="comment"># 输出: 5d41402abc4b2a76b9719d911017c592</span></span><br></pre></td></tr></table></figure>
+
+<p><strong>现状：已被攻破！</strong> 2004 年王小云团队找到 MD5 碰撞，2008&#x2F;2012 年成功构造了可实际利用的证书与格式碰撞。<strong>不要再用于密码存储或安全校验。</strong></p>
+<p>MD5 在 CTF 中主要是<strong>弱口令&#x2F;明文映射</strong>玩法：</p>
+<ul>
+<li>在线破解：cmd5、somd5、md5online</li>
+<li>字典暴力：hashcat、john the ripper</li>
+</ul>
+<h3 id="2-2-SHA-1（Secure-Hash-Algorithm-1）"><a href="#2-2-SHA-1（Secure-Hash-Algorithm-1）" class="headerlink" title="2.2 SHA-1（Secure Hash Algorithm 1）"></a>2.2 SHA-1（Secure Hash Algorithm 1）</h3><ul>
+<li>输出 <strong>160 位</strong>（20 字节，40 个十六进制字符）</li>
+<li>1995 年发布，结构类似 MD5，但用了 <strong>5 个 32 位寄存器（多一个）</strong>，共 <strong>4 轮、每轮 20 步 &#x3D; 80 步</strong></li>
+<li>分组仍为 <strong>512 位</strong></li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">echo</span> -n <span class="string">&quot;hello&quot;</span> | <span class="built_in">sha1sum</span></span><br><span class="line"><span class="comment"># 输出: aaf4c61ddcc5e8a2dabede0f3b482cd9aea9434d</span></span><br></pre></td></tr></table></figure>
+
+<p><strong>现状：已被攻破！</strong> 2017 年 Google 与 CWI 发布 <strong>SHAttered</strong> 攻击，成功构造了两个不同 PDF 拥有相同 SHA-1 值。Git 已弃用 SHA-1，TLS 证书停止签发 SHA-1。</p>
+<h3 id="2-3-SHA-256（SHA-2-家族）"><a href="#2-3-SHA-256（SHA-2-家族）" class="headerlink" title="2.3 SHA-256（SHA-2 家族）"></a>2.3 SHA-256（SHA-2 家族）</h3><ul>
+<li>输出 <strong>256 位</strong>（32 字节，64 个十六进制字符）</li>
+<li>SHA-2 家族成员还包括 SHA-224、SHA-384、SHA-512</li>
+<li>分组 <strong>512 位</strong>，使用 <strong>8 个 32 位寄存器</strong>，共 <strong>64 轮</strong></li>
+<li>轮常量的取法：前 64 个素数立方根的小数部分前 32 位</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">echo</span> -n <span class="string">&quot;hello&quot;</span> | <span class="built_in">sha256sum</span></span><br><span class="line"><span class="comment"># 输出: 2cf24dba5fb0a30e26e83b2ac5b9e29e1b161e5c1fa7425e73043362938b9824</span></span><br></pre></td></tr></table></figure>
+
+<p><strong>现状：目前安全</strong>，尚无有效攻击。广泛用于 TLS 证书、Git 版本控制、比特币挖矿（SHA-256d）。</p>
+<h3 id="2-4-哈希算法特征速查（CTF-识别）"><a href="#2-4-哈希算法特征速查（CTF-识别）" class="headerlink" title="2.4 哈希算法特征速查（CTF 识别）"></a>2.4 哈希算法特征速查（CTF 识别）</h3><table>
+<thead>
+<tr>
+<th>算法</th>
+<th align="center">输出长度(bit)</th>
+<th align="center">hex 字符数</th>
+<th align="center">是否安全</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>MD5</td>
+<td align="center">128</td>
+<td align="center">32</td>
+<td align="center">❌ 已碰撞</td>
+</tr>
+<tr>
+<td>SHA-1</td>
+<td align="center">160</td>
+<td align="center">40</td>
+<td align="center">❌ 已碰撞</td>
+</tr>
+<tr>
+<td>SHA-256</td>
+<td align="center">256</td>
+<td align="center">64</td>
+<td align="center">✅ 安全</td>
+</tr>
+<tr>
+<td>SHA-512</td>
+<td align="center">512</td>
+<td align="center">128</td>
+<td align="center">✅ 安全</td>
+</tr>
+</tbody></table>
+<hr>
+<h2 id="三、对称加密：DES、AES、国密-SM4"><a href="#三、对称加密：DES、AES、国密-SM4" class="headerlink" title="三、对称加密：DES、AES、国密 SM4"></a>三、对称加密：DES、AES、国密 SM4</h2><h3 id="3-1-DES（Data-Encryption-Standard）"><a href="#3-1-DES（Data-Encryption-Standard）" class="headerlink" title="3.1 DES（Data Encryption Standard）"></a>3.1 DES（Data Encryption Standard）</h3><ul>
+<li>分组 <strong>64 位</strong>，密钥 <strong>64 位（有效密钥 56 位，8 位用于奇偶校验）</strong></li>
+<li>采用 <strong>Feistel 结构</strong>，共 <strong>16 轮</strong></li>
+<li>每轮流程：初始置换 IP → 16 轮 Feistel 迭代（轮函数 F 包含扩展置换E、S盒代换、P盒置换）→ 逆置换 IP⁻¹</li>
+</ul>
+<p><strong>结构特点：</strong></p>
+<ul>
+<li><strong>初始化置换 IP</strong>：将 64 位明文重新排列</li>
+<li><strong>轮函数 F</strong>：扩展置换 E（32→48）→ 与子密钥异或 → S 盒代换（48→32）→ P 盒置换（32→32）</li>
+<li><strong>子密钥调度</strong>：56 位密钥经 PC-1 压缩、循环左移、PC-2 压缩生成 16 个 48 位子密钥</li>
+</ul>
+<p><strong>现状：已不安全！</strong> 56 位密钥太短，1998 年 EFF 的 Deep Crack 设备 56 小时即可暴力破解全部密钥。</p>
+<p><strong>3DES</strong>：用三个 56 位密钥做 <strong>加密-解密-加密（EDE）</strong>，实际密钥长度至少 112 位，安全性大幅提升，但速度慢，已被 AES 取代。</p>
+<h3 id="3-2-AES（Advanced-Encryption-Standard）"><a href="#3-2-AES（Advanced-Encryption-Standard）" class="headerlink" title="3.2 AES（Advanced Encryption Standard）"></a>3.2 AES（Advanced Encryption Standard）</h3><ul>
+<li>2001 年 NIST 标准化，算法原名 <strong>Rijndael</strong></li>
+<li>分组 <strong>128 位</strong>，密钥长度支持 <strong>128 &#x2F; 192 &#x2F; 256 位</strong>（对应 AES-128&#x2F;192&#x2F;256）</li>
+<li>不是 Feistel 结构，而是 <strong>SPN（代换-置换网络）</strong></li>
+</ul>
+<p><strong>轮数与密钥长度对应：</strong></p>
+<table>
+<thead>
+<tr>
+<th>算法</th>
+<th align="center">密钥长度</th>
+<th align="center">轮数</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>AES-128</td>
+<td align="center">128</td>
+<td align="center">10</td>
+</tr>
+<tr>
+<td>AES-192</td>
+<td align="center">192</td>
+<td align="center">12</td>
+</tr>
+<tr>
+<td>AES-256</td>
+<td align="center">256</td>
+<td align="center">14</td>
+</tr>
+</tbody></table>
+<p><strong>每一轮（除首轮与末轮）包含 4 个步骤：</strong></p>
+<table>
+<thead>
+<tr>
+<th>步骤</th>
+<th>作用</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>SubBytes</td>
+<td>通过 <strong>S 盒</strong>非线性替换，提供混淆</td>
+</tr>
+<tr>
+<td>ShiftRows</td>
+<td>对状态矩阵<strong>行移位</strong>，扩散</td>
+</tr>
+<tr>
+<td>MixColumns</td>
+<td>对<strong>列做矩阵乘法混合</strong>，扩散（末轮省略）</td>
+</tr>
+<tr>
+<td>AddRoundKey</td>
+<td>与<strong>轮密钥异或</strong></td>
+</tr>
+</tbody></table>
+<p>AES 至今无有效攻击，配合硬件指令（AES-NI）极快，是当前最主流的对称加密标准。</p>
+<h3 id="3-3-国密-SM4（对称加密）"><a href="#3-3-国密-SM4（对称加密）" class="headerlink" title="3.3 国密 SM4（对称加密）"></a>3.3 国密 SM4（对称加密）</h3><blockquote>
+<p>这是课程中附带 PPT 的算法，信息最完整，可见其重要性。</p>
+</blockquote>
+<p><strong>发展历程：</strong></p>
+<table>
+<thead>
+<tr>
+<th>时间</th>
+<th>事件</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>2006</td>
+<td>原名 <strong>SMS4</strong>，由国家密码管理局公布，为 WAPI 标准设计</td>
+</tr>
+<tr>
+<td>2012</td>
+<td>正式成为国密标准 <strong>GB&#x2F;T 32907-2016</strong></td>
+</tr>
+<tr>
+<td>2021</td>
+<td>被纳入 <strong>ISO&#x2F;IEC 国际标准</strong>，获全球认可</td>
+</tr>
+</tbody></table>
+<p><strong>核心参数：</strong></p>
+<table>
+<thead>
+<tr>
+<th>参数</th>
+<th>值</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>分组长度</td>
+<td><strong>128 位</strong></td>
+</tr>
+<tr>
+<td>密钥长度</td>
+<td><strong>128 位</strong></td>
+</tr>
+<tr>
+<td>迭代轮数</td>
+<td><strong>32 轮</strong></td>
+</tr>
+</tbody></table>
+<p><strong>结构</strong>：采用 <strong>32 轮 Feistel 结构</strong>，每轮对数据做混淆与扩散。核心是<strong>轮函数 F</strong>：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">F(Xi) = L( τ ( Xi ⊕ 轮密钥 ) )</span><br></pre></td></tr></table></figure>
+
+<p>由<strong>合成置换 T</strong> 和异或构成：</p>
+<ul>
+<li><strong>非线性变换 τ</strong>：本质是 <strong>S 盒</strong>，采用 8×8 字节置换表，对每个 8 位输入独立查表替换，打破明文与密文之间的线性关系</li>
+<li><strong>线性变换 L</strong>：对 32 位字做循环移位与异或，实现扩散</li>
+</ul>
+<p><strong>S 盒</strong>是 SM4 唯一的非线性部件，采用公开且固定的置换表，保证算法一致性、可验证性。</p>
+<p><strong>密钥扩展</strong>：将 128 位初始密钥扩展为 <strong>32 个 32 位的轮密钥</strong>，供每轮使用。</p>
+<p><strong>广泛应用场景：</strong></p>
+<table>
+<thead>
+<tr>
+<th>领域</th>
+<th>典型应用</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>政务</td>
+<td>电子公文传输与签署、政务云数据存储、涉密终端身份认证（SM4 加密芯片）</td>
+</tr>
+<tr>
+<td>金融</td>
+<td>金融 IC 卡（保护密钥与交易数据）、电子银行、第三方支付</td>
+</tr>
+<tr>
+<td>通信</td>
+<td>国密 VPN、5G 通信、物联网（智能家居 &#x2F; 工业传感器轻量级加密）</td>
+</tr>
+</tbody></table>
+<p><strong>SM4 vs AES：</strong></p>
+<table>
+<thead>
+<tr>
+<th>维度</th>
+<th>SM4</th>
+<th>AES</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>设计目标</td>
+<td>与 AES-128 相当</td>
+<td>—</td>
+</tr>
+<tr>
+<td>安全性</td>
+<td>能抵御已知攻击</td>
+<td>能抵御已知攻击</td>
+</tr>
+<tr>
+<td>性能</td>
+<td>嵌入式设备上简洁设计更占优</td>
+<td>通用处理器有广泛硬件加速（AES-NI）通常更快</td>
+</tr>
+</tbody></table>
+<p><strong>未来展望</strong>：挑战是国际兼容性、硬件加速支持不足、量子计算潜在威胁；机遇是国产化政策强制要求、技术创新、国际标准提升影响力。</p>
+<h3 id="3-4-对称算法对比"><a href="#3-4-对称算法对比" class="headerlink" title="3.4 对称算法对比"></a>3.4 对称算法对比</h3><table>
+<thead>
+<tr>
+<th>算法</th>
+<th align="center">分组</th>
+<th align="center">密钥</th>
+<th align="center">轮数</th>
+<th align="center">结构</th>
+<th align="center">状态</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>DES</td>
+<td align="center">64</td>
+<td align="center">56</td>
+<td align="center">16</td>
+<td align="center">Feistel</td>
+<td align="center">❌ 不安全</td>
+</tr>
+<tr>
+<td>3DES</td>
+<td align="center">64</td>
+<td align="center">112+</td>
+<td align="center">16×3</td>
+<td align="center">Feistel</td>
+<td align="center">⚠️ 过渡</td>
+</tr>
+<tr>
+<td>AES</td>
+<td align="center">128</td>
+<td align="center">128&#x2F;192&#x2F;256</td>
+<td align="center">10&#x2F;12&#x2F;14</td>
+<td align="center">SPN</td>
+<td align="center">✅ 主流</td>
+</tr>
+<tr>
+<td>SM4</td>
+<td align="center">128</td>
+<td align="center">128</td>
+<td align="center">32</td>
+<td align="center">Feistel</td>
+<td align="center">✅ 国密</td>
+</tr>
+</tbody></table>
+<hr>
+<h2 id="四、非对称加密：RSA、国密-SM2"><a href="#四、非对称加密：RSA、国密-SM2" class="headerlink" title="四、非对称加密：RSA、国密 SM2"></a>四、非对称加密：RSA、国密 SM2</h2><h3 id="4-1-RSA"><a href="#4-1-RSA" class="headerlink" title="4.1 RSA"></a>4.1 RSA</h3><p>1977 年美国三位科学家 <strong>Rivest、Shamir、Adleman</strong> 提出，是<strong>第一个</strong>实用的公钥密码算法。</p>
+<p><strong>数学基础</strong>：<strong>大整数分解难题（IFP）</strong>——两个大素数相乘很容易，但由乘积分解回两个素数极难。</p>
+<p><strong>密钥生成流程：</strong></p>
+<ol>
+<li>选两个大素数 <strong>p、q</strong></li>
+<li>计算 <strong>n &#x3D; p × q</strong>（n 公开，作为公钥的一部分）</li>
+<li>计算欧拉函数 <strong>φ(n) &#x3D; (p-1)(q-1)</strong></li>
+<li>选择一个与 φ(n) 互质的加密指数 <strong>e</strong>（通常取 65537 &#x3D; 2¹⁶+1）</li>
+<li>计算 <strong>d &#x3D; e⁻¹ mod φ(n)</strong>（d 为私钥）</li>
+</ol>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">公钥：(n, e)</span><br><span class="line">私钥：(n, d)</span><br></pre></td></tr></table></figure>
+
+<p><strong>加密 &#x2F; 解密公式：</strong></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">加密：c = m^e   mod n</span><br><span class="line">解密：m = c^d   mod n</span><br></pre></td></tr></table></figure>
+
+<p><strong>签名 &#x2F; 验签：</strong></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">签名：s = m^d   mod n</span><br><span class="line">验签：m = s^e   mod n</span><br></pre></td></tr></table></figure>
+
+<p><code>n</code> 的位长直接决定安全性，现在要求 <strong>2048 位以上</strong>。</p>
+<p><strong>CTF 常见攻击套路（基于数学弱点）：</strong></p>
+<table>
+<thead>
+<tr>
+<th>攻击</th>
+<th>触发条件</th>
+<th>思路</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>直接分解 n</td>
+<td>n 较小 &#x2F; 有共因子</td>
+<td>用 yafu、factordb.com 分解</td>
+</tr>
+<tr>
+<td>共模攻击</td>
+<td>两个密文同 n 不同 e</td>
+<td>扩展欧几里得找 s、t，s·e₁+t·e₂&#x3D;1</td>
+</tr>
+<tr>
+<td>低加密指数 e&#x3D;3</td>
+<td>少组相同明文广播</td>
+<td>中国剩余定理 + 开 e 次方</td>
+</tr>
+<tr>
+<td>Wiener 攻击</td>
+<td>d 过小</td>
+<td>连分数逼近</td>
+</tr>
+<tr>
+<td>素数相近</td>
+<td>p、q 接近</td>
+<td>Fermat 分解</td>
+</tr>
+</tbody></table>
+<h3 id="4-2-国密-SM2（非对称加密）"><a href="#4-2-国密-SM2（非对称加密）" class="headerlink" title="4.2 国密 SM2（非对称加密）"></a>4.2 国密 SM2（非对称加密）</h3><p>SM2 是国密体系中的<strong>椭圆曲线公钥密码算法（ECC）</strong>，基于 <strong>256 位素域曲线</strong>（SM2P256V1）。</p>
+<p><strong>数学基础</strong>：<strong>椭圆曲线离散对数问题（ECDLP）</strong>。已知基点 G 和点 k·G，求 k 极难。</p>
+<p><strong>主要功能：</strong></p>
+<table>
+<thead>
+<tr>
+<th>功能</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>数字签名</td>
+<td>电子签章、法律效力</td>
+</tr>
+<tr>
+<td>密钥交换</td>
+<td>双方协商会话密钥</td>
+</tr>
+<tr>
+<td>公钥加密</td>
+<td>数据保密传输</td>
+</tr>
+</tbody></table>
+<p><strong>SM2 vs RSA（同安全强度下）：</strong></p>
+<table>
+<thead>
+<tr>
+<th>维度</th>
+<th>SM2（ECC）</th>
+<th>RSA</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>密钥长度</td>
+<td><strong>256 位</strong></td>
+<td><strong>2048&#x2F;3072 位</strong></td>
+</tr>
+<tr>
+<td>存储&#x2F;带宽</td>
+<td>占用小</td>
+<td>占用大</td>
+</tr>
+<tr>
+<td>运算速度</td>
+<td>快</td>
+<td>较慢</td>
+</tr>
+</tbody></table>
+<blockquote>
+<p>椭圆曲线用更短的密钥达到与 RSA 相当甚至更高的安全性，是国密体系核心，配合 SM3（哈希）、SM4（对称）构成完整国密算法族。</p>
+</blockquote>
+<hr>
+<h2 id="五、CTF-密码题实战：识别与解题速查"><a href="#五、CTF-密码题实战：识别与解题速查" class="headerlink" title="五、CTF 密码题实战：识别与解题速查"></a>五、CTF 密码题实战：识别与解题速查</h2><h3 id="5-1-如何根据”密文特征”识别算法"><a href="#5-1-如何根据”密文特征”识别算法" class="headerlink" title="5.1 如何根据”密文特征”识别算法"></a>5.1 如何根据”密文特征”识别算法</h3><p>拿到题目先看密文形态：</p>
+<table>
+<thead>
+<tr>
+<th>密文特征</th>
+<th>可能是</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>eyJ...</code> 或 <code>=</code> 结尾的 <code>A-Za-z0-9+/</code></td>
+<td>Base64（通常是载体，还需结合长度判断）</td>
+</tr>
+<tr>
+<td>64 hex 字符 &#x2F; 32 字节</td>
+<td><strong>SHA-256</strong> 或 AES-256</td>
+</tr>
+<tr>
+<td>32 hex 字符 &#x2F; 16 字节</td>
+<td><strong>MD5</strong> 或 AES-128</td>
+</tr>
+<tr>
+<td>16 字节的乱码或 hex，且带 IV</td>
+<td><strong>AES</strong> 分组加密</td>
+</tr>
+<tr>
+<td>一长串与原文等长的字符</td>
+<td>对称加密或异或&#x2F;流密码</td>
+</tr>
+<tr>
+<td>可逆字符替换</td>
+<td>古典密码（凯撒&#x2F;栅栏等）</td>
+</tr>
+</tbody></table>
+<h3 id="5-2-常用工具链"><a href="#5-2-常用工具链" class="headerlink" title="5.2 常用工具链"></a>5.2 常用工具链</h3><table>
+<thead>
+<tr>
+<th>工具</th>
+<th>用途</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>hashcat &#x2F; john</td>
+<td>Hash 暴力破解（MD5&#x2F;SHA）</td>
+</tr>
+<tr>
+<td>CyberChef</td>
+<td>万能编码&#x2F;解码、魔改配方</td>
+</tr>
+<tr>
+<td>RsaCtfTool</td>
+<td>RSA 一键多种攻击</td>
+</tr>
+<tr>
+<td>factorDB</td>
+<td>在线分解 n</td>
+</tr>
+<tr>
+<td>yafu &#x2F; SageMath</td>
+<td>本地分解大整数 &#x2F; 数学运算</td>
+</tr>
+</tbody></table>
+<blockquote>
+<p><strong>RSA 优先</strong>：很多 RSA 题的 n 直接能在 factordb.com 分解，先把 n 丢进去看一眼，往往直接出题。</p>
+</blockquote>
+<hr>
+<h2 id="写在最后"><a href="#写在最后" class="headerlink" title="写在最后"></a>写在最后</h2><p>密码学是整个安全领域的基石：</p>
+<ul>
+<li><strong>对称加密</strong>（AES&#x2F;SM4）：快，保护数据的”状态”安全</li>
+<li><strong>非对称加密</strong>（RSA&#x2F;SM2）：慢，解决密钥分发并支持签名</li>
+<li><strong>哈希</strong>（SHA-256）：不可逆，完整性校验与口令存储</li>
+</ul>
+<p>学习时的建议：</p>
+<ol>
+<li>先能<strong>识别算法</strong>，再谈<strong>破解</strong>——CTF 里 80% 的题卡在识别上</li>
+<li>对称加密重点关注 <strong>密钥长度与分组模式</strong>（ECB&#x2F;CBC）</li>
+<li>哈希题别硬破，优先查表（cmd5 等）</li>
+<li>RSA 记住前面那 6 种攻击，做几道题就熟了</li>
+<li>国密（SM2&#x2F;SM3&#x2F;SM4）在国内未来只会越来越多，提早了解不吃亏</li>
+</ol>
+<p><strong>会识、会算、会借工具，密码题手到擒来。</strong></p>
+</div><div class="article-licensing box"><div class="licensing-title"><p>常见加密算法原理解密：从MD5到国密SM4</p><p><a href="https://pluto839.github.io/Myblog/2026/09/15/常见加密算法原理解密：从MD5到国密SM4/">https://pluto839.github.io/Myblog/2026/09/15/常见加密算法原理解密：从MD5到国密SM4/</a></p></div><div class="licensing-meta level is-mobile"><div class="level-left"><div class="level-item is-narrow"><div><h6>作者</h6><p>Pluto</p></div></div><div class="level-item is-narrow"><div><h6>发布于</h6><p>2026-09-15</p></div></div><div class="level-item is-narrow"><div><h6>更新于</h6><p>2026-09-15</p></div></div><div class="level-item is-narrow"><div><h6>许可协议</h6><p><a class="" rel="noopener" target="_blank" title="知识共享署名-非商业性使用-相同方式共享 4.0 国际许可协议" href="https://creativecommons.org/licenses/by-nc-sa/4.0/">知识共享署名-非商业性使用-相同方式共享 4.0 国际许可协议</a></p></div></div></div></div></div><div class="article-tags is-size-7 mb-4"><span class="mr-2">#</span><a class="link-muted mr-2" rel="tag" href="/Myblog/tags/%E5%AF%86%E7%A0%81%E5%AD%A6/">密码学</a><a class="link-muted mr-2" rel="tag" href="/Myblog/tags/%E5%8A%A0%E5%AF%86%E7%AE%97%E6%B3%95/">加密算法</a><a class="link-muted mr-2" rel="tag" href="/Myblog/tags/CTF/">CTF</a><a class="link-muted mr-2" rel="tag" href="/Myblog/tags/MD5/">MD5</a><a class="link-muted mr-2" rel="tag" href="/Myblog/tags/SHA/">SHA</a><a class="link-muted mr-2" rel="tag" href="/Myblog/tags/AES/">AES</a><a class="link-muted mr-2" rel="tag" href="/Myblog/tags/DES/">DES</a><a class="link-muted mr-2" rel="tag" href="/Myblog/tags/RSA/">RSA</a><a class="link-muted mr-2" rel="tag" href="/Myblog/tags/%E5%9B%BD%E5%AF%86/">国密</a><a class="link-muted mr-2" rel="tag" href="/Myblog/tags/SM2/">SM2</a><a class="link-muted mr-2" rel="tag" href="/Myblog/tags/SM4/">SM4</a></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/social-share.js@1.0.16/dist/css/share.min.css"><div class="social-share"></div><script src="https://cdn.jsdelivr.net/npm/social-share.js@1.0.16/dist/js/social-share.min.js"></script></article></div><!--!--><nav class="post-navigation mt-4 level is-mobile"><div class="level-end"><a class="article-nav-next level level-item link-muted" href="/Myblog/2026/08/09/%E6%B8%97%E9%80%8F%E6%B5%8B%E8%AF%95%E4%BF%A1%E6%81%AF%E6%94%B6%E9%9B%86%E5%AE%8C%E5%85%A8%E6%8C%87%E5%8D%97/"><span class="level-item">Web渗透测试信息收集完全指南：从入门到实战</span><i class="level-item fas fa-chevron-right"></i></a></div></nav><div class="card" id="comments"><div class="card-content"><h3 class="title is-5">评论</h3><script src="https://giscus.app/client.js" repo="pluto839/Myblog" data-repo="pluto839/Myblog" data-repo-id="R_kgDOTyPc2A" data-category-id="DIC_kwDOTyPc2M4DC8BO" data-category="Announcements" data-mapping="pathname" data-strict="1" data-reactions-enabled="1" data-emit-metadata="0" data-input-position="top" data-theme="noborder_light" data-lang="zh-CN" crossorigin="anonymous" async></script></div></div></div><div class="column column-left is-4-tablet is-4-desktop is-3-widescreen  order-1 is-sticky"><div class="card widget" data-type="profile"><div class="card-content"><nav class="level"><div class="level-item has-text-centered flex-shrink-1"><div><figure class="image is-128x128 mx-auto mb-2"><img class="avatar is-rounded" src="/Myblog/img/avatar.jpg" alt="Pluto"></figure><p class="title is-size-4 is-block" style="line-height:inherit;">Pluto</p><p class="is-size-6 is-block">Hack the planet</p><p class="is-size-6 is-flex justify-content-center"><i class="fas fa-map-marker-alt mr-1"></i><span>Cyberspace</span></p></div></div></nav><nav class="level is-mobile"><div class="level-item has-text-centered is-marginless"><div><p class="heading">文章</p><a href="/Myblog/archives/"><p class="title">3</p></a></div></div><div class="level-item has-text-centered is-marginless"><div><p class="heading">分类</p><a href="/Myblog/categories/"><p class="title">3</p></a></div></div><div class="level-item has-text-centered is-marginless"><div><p class="heading">标签</p><a href="/Myblog/tags/"><p class="title">22</p></a></div></div></nav><div class="level"><a class="level-item button is-primary is-rounded" href="https://github.com/pluto839" target="_blank" rel="me noopener">关注我</a></div><div class="level is-mobile is-multiline"><a class="level-item button is-transparent is-marginless" target="_blank" rel="me noopener" title="GitHub" href="https://github.com/pluto839"><i class="fab fa-github"></i></a><a class="level-item button is-transparent is-marginless" target="_blank" rel="me noopener" title="RSS" href="/Myblog/atom.xml"><i class="fas fa-rss"></i></a></div></div></div><!--!--><div class="card widget" data-type="links"><div class="card-content"><div class="menu"><h3 class="menu-label">链接</h3><ul class="menu-list"><li><a class="level is-mobile" href="https://hexo.io" target="_blank" rel="noopener"><span class="level-left"><span class="level-item">Hexo</span></span><span class="level-right"><span class="level-item tag">hexo.io</span></span></a></li><li><a class="level is-mobile" href="https://github.com/ppoffice/hexo-theme-icarus" target="_blank" rel="noopener"><span class="level-left"><span class="level-item">Icarus</span></span><span class="level-right"><span class="level-item tag">github.com</span></span></a></li></ul></div></div></div><div class="column-right-shadow is-hidden-widescreen"></div></div><div class="column column-right is-4-tablet is-4-desktop is-3-widescreen is-hidden-touch is-hidden-desktop-only order-3"><div class="card widget" data-type="categories"><div class="card-content"><div class="menu"><h3 class="menu-label">分类</h3><ul class="menu-list"><li><a class="level is-mobile" href="/Myblog/categories/Web%E6%B8%97%E9%80%8F%E6%B5%8B%E8%AF%95/"><span class="level-start"><span class="level-item">Web渗透测试</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/Myblog/categories/%E5%AF%86%E7%A0%81%E5%AD%A6/"><span class="level-start"><span class="level-item">密码学</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/Myblog/categories/%E6%8A%80%E6%9C%AF%E7%AC%94%E8%AE%B0/"><span class="level-start"><span class="level-item">技术笔记</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li></ul></div></div></div><div class="card widget" data-type="tags"><div class="card-content"><div class="menu"><h3 class="menu-label">标签</h3><div class="field is-grouped is-grouped-multiline"><div class="control"><a class="tags has-addons" href="/Myblog/tags/AES/"><span class="tag">AES</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/Myblog/tags/CDN%E7%BB%95%E8%BF%87/"><span class="tag">CDN绕过</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/Myblog/tags/CTF/"><span class="tag">CTF</span><span class="tag">2</span></a></div><div class="control"><a class="tags has-addons" href="/Myblog/tags/DES/"><span class="tag">DES</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/Myblog/tags/GitHub-Pages/"><span class="tag">GitHub Pages</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/Myblog/tags/Hexo/"><span class="tag">Hexo</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/Myblog/tags/Icarus/"><span class="tag">Icarus</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/Myblog/tags/MD5/"><span class="tag">MD5</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/Myblog/tags/RSA/"><span class="tag">RSA</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/Myblog/tags/SHA/"><span class="tag">SHA</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/Myblog/tags/SM2/"><span class="tag">SM2</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/Myblog/tags/SM4/"><span class="tag">SM4</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/Myblog/tags/%E4%BF%A1%E6%81%AF%E6%94%B6%E9%9B%86/"><span class="tag">信息收集</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/Myblog/tags/%E5%8A%A0%E5%AF%86%E7%AE%97%E6%B3%95/"><span class="tag">加密算法</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/Myblog/tags/%E5%8D%9A%E5%AE%A2%E6%90%AD%E5%BB%BA/"><span class="tag">博客搭建</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/Myblog/tags/%E5%9B%BD%E5%AF%86/"><span class="tag">国密</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/Myblog/tags/%E5%AD%90%E5%9F%9F%E5%90%8D%E6%9E%9A%E4%B8%BE/"><span class="tag">子域名枚举</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/Myblog/tags/%E5%AF%86%E7%A0%81%E5%AD%A6/"><span class="tag">密码学</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/Myblog/tags/%E5%BB%BA%E7%AB%99/"><span class="tag">建站</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/Myblog/tags/%E6%89%93%E7%82%B9/"><span class="tag">打点</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/Myblog/tags/%E6%8C%87%E7%BA%B9%E8%AF%86%E5%88%AB/"><span class="tag">指纹识别</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/Myblog/tags/%E6%B8%97%E9%80%8F%E6%B5%8B%E8%AF%95/"><span class="tag">渗透测试</span><span class="tag">1</span></a></div></div></div></div></div><div class="card widget" data-type="archives"><div class="card-content"><div class="menu"><h3 class="menu-label">归档</h3><ul class="menu-list"><li><a class="level is-mobile" href="/Myblog/archives/2026/09/"><span class="level-start"><span class="level-item">九月 2026</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/Myblog/archives/2026/08/"><span class="level-start"><span class="level-item">八月 2026</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li></ul></div></div></div><div class="card widget" data-type="recent-posts"><div class="card-content"><h3 class="menu-label">最新文章</h3><article class="media"><div class="media-content"><p class="date"><time dateTime="2026-09-15T12:00:00.000Z">2026-09-15</time></p><p class="title"><a href="/Myblog/2026/09/15/%E5%B8%B8%E8%A7%81%E5%8A%A0%E5%AF%86%E7%AE%97%E6%B3%95%E5%8E%9F%E7%90%86%E8%A7%A3%E5%AF%86%EF%BC%9A%E4%BB%8EMD5%E5%88%B0%E5%9B%BD%E5%AF%86SM4/">常见加密算法原理解密：从MD5到国密SM4</a></p><p class="categories"><a href="/Myblog/categories/%E5%AF%86%E7%A0%81%E5%AD%A6/">密码学</a></p></div></article><article class="media"><div class="media-content"><p class="date"><time dateTime="2026-08-09T02:00:00.000Z">2026-08-09</time></p><p class="title"><a href="/Myblog/2026/08/09/%E6%B8%97%E9%80%8F%E6%B5%8B%E8%AF%95%E4%BF%A1%E6%81%AF%E6%94%B6%E9%9B%86%E5%AE%8C%E5%85%A8%E6%8C%87%E5%8D%97/">Web渗透测试信息收集完全指南：从入门到实战</a></p><p class="categories"><a href="/Myblog/categories/Web%E6%B8%97%E9%80%8F%E6%B5%8B%E8%AF%95/">Web渗透测试</a></p></div></article><article class="media"><div class="media-content"><p class="date"><time dateTime="2026-08-08T15:40:00.000Z">2026-08-08</time></p><p class="title"><a href="/Myblog/2026/08/08/%E4%BB%8E%E9%9B%B6%E6%90%AD%E5%BB%BA%E6%9E%81%E5%AE%A2%E5%8D%9A%E5%AE%A2%EF%BC%9A%E7%94%A8-Hexo-%E6%89%93%E9%80%A0%E4%B8%AA%E4%BA%BA%E6%8A%80%E6%9C%AF%E7%AC%94%E8%AE%B0%E7%AB%99/">从零搭建极客博客：用 Hexo 打造个人技术笔记站</a></p><p class="categories"><a href="/Myblog/categories/%E6%8A%80%E6%9C%AF%E7%AC%94%E8%AE%B0/">技术笔记</a></p></div></article></div></div></div></div></div></section><footer class="footer"><div class="container"><div class="level"><div class="level-start"><a class="footer-logo is-block mb-2" href="/Myblog/">Pluto&#039;s Notes</a><p class="is-size-7"><span>&copy; 2026 Pluto</span>  Powered by <a href="https://hexo.io/" target="_blank" rel="noopener">Hexo</a> &amp; <a href="https://github.com/ppoffice/hexo-theme-icarus" target="_blank" rel="noopener">Icarus</a></p></div><div class="level-end"><div class="field has-addons"><p class="control"><a class="button is-transparent is-large" target="_blank" rel="noopener" title="Creative Commons" href="https://creativecommons.org/licenses/by-nc-sa/4.0/"><i class="fab fa-creative-commons"></i></a></p><p class="control"><a class="button is-transparent is-large" target="_blank" rel="noopener" title="Attribution" href="https://creativecommons.org/licenses/by-nc-sa/4.0/"><i class="fab fa-creative-commons-by"></i></a></p><p class="control"><a class="button is-transparent is-large" target="_blank" rel="noopener" title="Noncommercial" href="https://creativecommons.org/licenses/by-nc-sa/4.0/"><i class="fab fa-creative-commons-nc"></i></a></p><p class="control"><a class="button is-transparent is-large" target="_blank" rel="noopener" title="Share Alike" href="https://creativecommons.org/licenses/by-nc-sa/4.0/"><i class="fab fa-creative-commons-sa"></i></a></p></div></div></div></div></footer><script src="https://cdn.jsdelivr.net/npm/jquery@3.3.1/dist/jquery.min.js"></script><script src="https://cdn.jsdelivr.net/npm/moment@2.22.2/min/moment-with-locales.min.js"></script><script src="https://cdn.jsdelivr.net/npm/clipboard@2.0.4/dist/clipboard.min.js" defer></script><script>moment.locale("zh-cn");</script><script>var IcarusThemeSettings = {
+            article: {
+                highlight: {
+                    clipboard: true,
+                    fold: 'unfolded'
+                }
+            }
+        };</script><script data-pjax src="/Myblog/js/column.js"></script><script src="/Myblog/js/animation.js"></script><a id="back-to-top" title="回到顶端" href="javascript:;"><i class="fas fa-chevron-up"></i></a><script data-pjax src="/Myblog/js/back_to_top.js" defer></script><!--!--><script data-pjax src="/Myblog/js/main.js" defer></script><div class="searchbox"><div class="searchbox-container"><div class="searchbox-header"><div class="searchbox-input-container"><input class="searchbox-input" type="text" placeholder="想要查找什么..."></div><a class="searchbox-close" href="javascript:;">×</a></div><div class="searchbox-body"></div></div></div><script data-pjax src="/Myblog/js/insight.js" defer></script><script data-pjax>document.addEventListener('DOMContentLoaded', function () {
+            loadInsight({"contentUrl":"/Myblog/content.json"}, {"hint":"想要查找什么...","untitled":"(无标题)","posts":"文章","pages":"页面","categories":"分类","tags":"标签"});
+        });</script><!-- hexo injector body_end start -->
+<div class="pluto-scene">
+  <div class="cloud"></div>
+  <div class="cloud"></div>
+  <div class="cloud"></div>
+  <div class="cloud"></div>
+  <span class="star" style="top:28.514950910530036%;left:42.186671590500445%;animation-delay:1.3718768331237903s;animation-duration:4.536775693850149s;width:1.4944973807762056px;height:1.4944973807762056px"></span><span class="star" style="top:22.309275949466954%;left:18.324485587326066%;animation-delay:1.7802210450465066s;animation-duration:3.6838958186449933s;width:1.3348283639795773px;height:1.3348283639795773px"></span><span class="star" style="top:47.75378465022651%;left:13.600830817157616%;animation-delay:2.886627193412845s;animation-duration:3.5962087714817033s;width:2.3124187765706274px;height:2.3124187765706274px"></span><span class="star" style="top:30.528999582487938%;left:60.79365063833202%;animation-delay:4.4259847493495625s;animation-duration:2.744399646372123s;width:1.1405604110751137px;height:1.1405604110751137px"></span><span class="star" style="top:57.135733693741265%;left:98.07983034635221%;animation-delay:4.065344169399141s;animation-duration:3.3471853795062265s;width:1.540031491997865px;height:1.540031491997865px"></span><span class="star" style="top:34.23191874713806%;left:84.27029681389186%;animation-delay:2.7512878476837486s;animation-duration:3.70407776448399s;width:2.283464868602781px;height:2.283464868602781px"></span><span class="star" style="top:44.91791988767163%;left:6.741079348926182%;animation-delay:2.8884130352485196s;animation-duration:2.878896158697837s;width:2.386221982677929px;height:2.386221982677929px"></span><span class="star" style="top:39.10760592969882%;left:11.902720804514367%;animation-delay:4.096419615322758s;animation-duration:4.3361511350870305s;width:1.2599018030391467px;height:1.2599018030391467px"></span><span class="star" style="top:51.744239752252376%;left:47.87055042697206%;animation-delay:4.925426251334958s;animation-duration:3.1744134015196375s;width:1.65148907286031px;height:1.65148907286031px"></span><span class="star" style="top:4.260778517496345%;left:24.25958345944943%;animation-delay:0.9237045695197904s;animation-duration:2.675462183933656s;width:1.6141213463773654px;height:1.6141213463773654px"></span><span class="star" style="top:28.300763346479265%;left:75.52417376645852%;animation-delay:3.7000544097615498s;animation-duration:4.325759790343658s;width:2.479482983799261px;height:2.479482983799261px"></span><span class="star" style="top:58.58921631961217%;left:24.953238218574892%;animation-delay:0.6281146644765517s;animation-duration:3.405626800238093s;width:2.0098152561598432px;height:2.0098152561598432px"></span><span class="star" style="top:24.979566537504994%;left:86.67368061271993%;animation-delay:1.761045288828989s;animation-duration:2.8325579475126887s;width:1.6267776134305258px;height:1.6267776134305258px"></span><span class="star" style="top:53.33369548807722%;left:15.530523923181649%;animation-delay:0.5567876710430408s;animation-duration:3.7279701198709763s;width:1.146715865702306px;height:1.146715865702306px"></span><span class="star" style="top:4.465562154791957%;left:89.73339757998598%;animation-delay:3.733327579649849s;animation-duration:3.2786380828697106s;width:1.9335057084031246px;height:1.9335057084031246px"></span><span class="star" style="top:86.22133950544229%;left:30.94399035256651%;animation-delay:1.8899613322821711s;animation-duration:4.62223980602424s;width:2.147905973438902px;height:2.147905973438902px"></span><span class="star" style="top:15.701046032095666%;left:82.70852828331458%;animation-delay:3.8500316408074857s;animation-duration:2.252154473858768s;width:1.9664058902720445px;height:1.9664058902720445px"></span><span class="star" style="top:62.52212605401461%;left:28.511515823838373%;animation-delay:2.010275456402148s;animation-duration:3.1936879024841147s;width:1.819205737435003px;height:1.819205737435003px"></span><span class="star" style="top:76.03866070201303%;left:3.8933187986382345%;animation-delay:2.3164687998835394s;animation-duration:3.4880416415494646s;width:1.2137765596470556px;height:1.2137765596470556px"></span><span class="star" style="top:96.23308986732744%;left:50.82474128497733%;animation-delay:3.580953337074621s;animation-duration:4.980860040195202s;width:1.8213030881127759px;height:1.8213030881127759px"></span><span class="star" style="top:50.75693072404937%;left:31.448273237536807%;animation-delay:2.275751619501304s;animation-duration:4.786803646660669s;width:1.5880324820077731px;height:1.5880324820077731px"></span><span class="star" style="top:3.7148654504503886%;left:79.30539431339933%;animation-delay:4.47481939477475s;animation-duration:3.133094659066316s;width:2.0046968787369392px;height:2.0046968787369392px"></span><span class="star" style="top:5.084321217758625%;left:11.245283238902182%;animation-delay:4.468523834406424s;animation-duration:2.140390736954883s;width:2.072445931056711px;height:2.072445931056711px"></span><span class="star" style="top:59.52985457118082%;left:66.32499129777072%;animation-delay:3.5380140052682907s;animation-duration:4.520934509033704s;width:1.966324051014555px;height:1.966324051014555px"></span><span class="star" style="top:14.606897093664905%;left:46.08923143002245%;animation-delay:2.4300063702999104s;animation-duration:3.46865746736188s;width:2.2995632151772654px;height:2.2995632151772654px"></span><span class="star" style="top:50.25459678127886%;left:66.2392372728787%;animation-delay:1.5029075131194891s;animation-duration:4.1372625795255935s;width:1.5056526676342334px;height:1.5056526676342334px"></span><span class="star" style="top:89.4824268875254%;left:87.80197294450316%;animation-delay:1.7335160753951144s;animation-duration:3.1525973748008425s;width:1.216206095058088px;height:1.216206095058088px"></span><span class="star" style="top:14.276759428439401%;left:38.597826782849154%;animation-delay:1.783281632368876s;animation-duration:4.861653734512224s;width:2.2516151929075097px;height:2.2516151929075097px"></span><span class="star" style="top:88.08552924702585%;left:73.6413423149885%;animation-delay:2.2778303394986232s;animation-duration:3.862527849561132s;width:1.498034669943393px;height:1.498034669943393px"></span><span class="star" style="top:85.5147608080052%;left:82.42052034090139%;animation-delay:1.389890497634888s;animation-duration:2.030791613453714s;width:2.489511799815304px;height:2.489511799815304px"></span><span class="star" style="top:71.5253745932875%;left:8.944539716115607%;animation-delay:2.4329363495013965s;animation-duration:3.783250193627874s;width:1.0034802361420878px;height:1.0034802361420878px"></span><span class="star" style="top:80.84031745101103%;left:11.774490043069186%;animation-delay:2.873666444709993s;animation-duration:4.905395441092938s;width:1.3984094535901803px;height:1.3984094535901803px"></span><span class="star" style="top:36.6669525300988%;left:34.51880544871108%;animation-delay:3.5800300231140243s;animation-duration:4.086250196789741s;width:1.1972130198627486px;height:1.1972130198627486px"></span><span class="star" style="top:53.77019765002522%;left:99.52148603201391%;animation-delay:3.4167998134230486s;animation-duration:4.948793650965906s;width:1.5020625002177799px;height:1.5020625002177799px"></span><span class="star" style="top:22.844583748730983%;left:90.57738223143862%;animation-delay:3.7872625059720004s;animation-duration:3.9982630785745745s;width:2.459195120072269px;height:2.459195120072269px"></span><span class="star" style="top:2.0186106978708596%;left:75.54400252541163%;animation-delay:3.546583321547492s;animation-duration:2.0117124748283888s;width:2.4177279355623633px;height:2.4177279355623633px"></span><span class="star" style="top:22.697601237774233%;left:30.47657636546427%;animation-delay:1.7784805201599192s;animation-duration:4.447302498668782s;width:1.3836300596346147px;height:1.3836300596346147px"></span><span class="star" style="top:92.25818503204275%;left:47.31219803389616%;animation-delay:4.789041377219989s;animation-duration:2.9392640761716033s;width:1.8035188626120866px;height:1.8035188626120866px"></span><span class="star" style="top:25.70547576960155%;left:39.279516617952716%;animation-delay:3.2980320174424014s;animation-duration:2.565590256946032s;width:1.8227901605109182px;height:1.8227901605109182px"></span><span class="star" style="top:46.411499893226306%;left:83.30478891705341%;animation-delay:0.38523417005859983s;animation-duration:4.172698914463141s;width:2.1149363661553084px;height:2.1149363661553084px"></span><span class="star" style="top:33.388999958486764%;left:98.07070569339311%;animation-delay:4.263703497664984s;animation-duration:4.203241806362032s;width:1.8948240869021598px;height:1.8948240869021598px"></span><span class="star" style="top:44.87172767599651%;left:32.97146251426214%;animation-delay:4.981821090101632s;animation-duration:2.176390520001704s;width:1.2771288524440858px;height:1.2771288524440858px"></span><span class="star" style="top:16.60817911669652%;left:80.18833140515427%;animation-delay:1.9313368321897195s;animation-duration:4.052667737723098s;width:2.364042069532369px;height:2.364042069532369px"></span><span class="star" style="top:40.005113256346014%;left:23.10663114863456%;animation-delay:3.926713811842953s;animation-duration:2.331377958539094s;width:2.2620816246010413px;height:2.2620816246010413px"></span><span class="star" style="top:5.609759944164205%;left:18.354630087167568%;animation-delay:1.6786327709516096s;animation-duration:2.167825266759347s;width:2.090838649457326px;height:2.090838649457326px"></span><span class="star" style="top:8.738298814504109%;left:45.27513829854756%;animation-delay:3.0726080967748635s;animation-duration:4.459988086531651s;width:1.1638794554806107px;height:1.1638794554806107px"></span><span class="star" style="top:77.91787448430068%;left:41.50331871345661%;animation-delay:2.3050396779133733s;animation-duration:2.715407060295105s;width:1.1533612579637824px;height:1.1533612579637824px"></span><span class="star" style="top:13.807630747181665%;left:37.82097518684016%;animation-delay:2.0393211671333655s;animation-duration:3.0574581583882012s;width:2.46155764941037px;height:2.46155764941037px"></span><span class="star" style="top:40.74854604483365%;left:36.858532553612434%;animation-delay:1.4498540670405857s;animation-duration:2.3818003679003503s;width:2.1892349051885263px;height:2.1892349051885263px"></span><span class="star" style="top:5.66575400945899%;left:73.78824318635839%;animation-delay:0.2473001154245702s;animation-duration:2.7851819814625776s;width:1.6657674151085522px;height:1.6657674151085522px"></span><span class="star" style="top:88.2655957442647%;left:17.18386552834197%;animation-delay:2.6844930553219504s;animation-duration:2.4071702363788816s;width:2.095040631377812px;height:2.095040631377812px"></span><span class="star" style="top:91.1212616179439%;left:19.771938083364592%;animation-delay:4.701838594365724s;animation-duration:2.9982121908565187s;width:1.6141977551942002px;height:1.6141977551942002px"></span><span class="star" style="top:1.4039307085057628%;left:47.22775312506712%;animation-delay:0.10453193947885409s;animation-duration:4.1727723248798485s;width:2.4873566491729706px;height:2.4873566491729706px"></span><span class="star" style="top:15.634029206328881%;left:17.010891361561608%;animation-delay:2.132129330744455s;animation-duration:2.252070185463654s;width:2.115668912478757px;height:2.115668912478757px"></span><span class="star" style="top:36.48827031765415%;left:55.088930485322265%;animation-delay:3.2246288411837227s;animation-duration:4.691797663009827s;width:1.1999186966832465px;height:1.1999186966832465px"></span><span class="star" style="top:90.97217541680526%;left:17.68789178360639%;animation-delay:4.645155166371676s;animation-duration:4.208834345829752s;width:2.0538654717070086px;height:2.0538654717070086px"></span><span class="star" style="top:25.28177868080118%;left:81.57473968750874%;animation-delay:3.8698412997379865s;animation-duration:2.0848143349296073s;width:2.171665434894934px;height:2.171665434894934px"></span><span class="star" style="top:91.54329498190079%;left:86.78141774254252%;animation-delay:4.762915837751727s;animation-duration:4.459082121215317s;width:1.845204775830767px;height:1.845204775830767px"></span><span class="star" style="top:63.373397469100844%;left:28.573924077091906%;animation-delay:1.8733755986667604s;animation-duration:3.9704182430777073s;width:1.0595647081922706px;height:1.0595647081922706px"></span><span class="star" style="top:44.62324158266861%;left:25.408664025198558%;animation-delay:0.26490226074777967s;animation-duration:3.050953537053255s;width:1.6655860806318055px;height:1.6655860806318055px"></span>
+  <div class="shooting-star" style="top:10%;left:70%;animation-delay:-1s"></div>
+  <div class="shooting-star" style="top:25%;left:40%;animation-delay:-3s"></div>
+</div>
+<button class="theme-toggle" id="plutoThemeToggle" aria-label="Toggle dark mode" title="切换日/夜模式">🌙</button>
+<script>
+(function(){
+  var saved = localStorage.getItem('pluto-theme');
+  var btn = document.getElementById('plutoThemeToggle');
+  var prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+  var theme = saved || (prefersDark ? 'dark' : 'light');
+  apply(theme);
+  btn.addEventListener('click', function(){
+    theme = theme === 'dark' ? 'light' : 'dark';
+    localStorage.setItem('pluto-theme', theme);
+    apply(theme);
+  });
+  function apply(t){
+    document.documentElement.setAttribute('data-theme', t);
+    btn.textContent = t === 'dark' ? '☀️' : '🌙';
+    document.body.style.colorScheme = t === 'dark' ? 'dark' : 'light';
+  }
+})();
+</script>
+<script>
+(function(){
+  var root = '/Myblog/';
+  var path = window.location.pathname.replace(//+$/, '');
+  var rootPath = root.replace(//+$/, '');
+  var isHome = (path === rootPath) || (path === '') || (path === '/');
+  if (isHome) {
+    var main = document.querySelector('main.column') || document.querySelector('#main') || document.querySelector('.columns.is-desktop') || document.querySelector('main');
+    if (main) {
+      var hero = document.createElement('div');
+      hero.className = 'pluto-hero';
+      hero.innerHTML = '<img class="pluto-avatar" src="' + root + 'img/avatar.jpg?v=2" alt="Pluto">' +
+        '<h1>Pluto</h1>' +
+        '<p class="pluto-tagline">Hack the planet. Explore the unknown.</p>';
+      main.parentNode.insertBefore(hero, main);
+    }
+  }
+})();
+</script>
+<script src="/Myblog/js/pluto-cursor.js"></script>
+<!-- hexo injector body_end end --></body></html>
