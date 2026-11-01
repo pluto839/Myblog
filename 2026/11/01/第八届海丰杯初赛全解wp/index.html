@@ -1,0 +1,819 @@
+<!doctype html>
+<html lang="zh"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"><title>第八届「海丰杯」初赛全解 WriteUp（20 题全解） - Pluto&#039;s Notes</title><link rel="manifest" href="/Myblog/manifest.json"><meta name="theme-color" content="#3273dc"><meta name="application-name" content="极客笔记"><meta name="msapplication-TileImage" content="/img/icon.svg"><meta name="msapplication-TileColor" content="#3273dc"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="极客笔记"><meta name="apple-mobile-web-app-status-bar-style" content="default"><link rel="apple-touch-icon" sizes="192x192" href="/img/icon.svg"><meta name="description" content="一个极客的技术笔记与知识分享站"><meta property="og:type" content="website"><meta property="og:title" content="极客笔记"><meta property="og:url" content="https://pluto839.github.io/Myblog"><meta property="og:site_name" content="Pluto&#039;s Notes"><meta property="og:description" content="一个极客的技术笔记与知识分享站"><meta property="og:locale" content="zh_CN"><meta property="og:image" content="https://pluto839.github.io/img/og_image.png"><meta property="article:published_time" content="2026-11-01T12:00:00.000Z"><meta property="article:modified_time" content="2026-11-01T09:35:12.403Z"><meta property="article:author" content="Pluto"><meta property="article:tag" content="CTF"><meta property="article:tag" content="WriteUp"><meta property="article:tag" content="比赛"><meta property="twitter:card" content="summary"><meta property="twitter:image:src" content="https://pluto839.github.io/img/og_image.png"><script type="application/ld+json">{"@context":"https://schema.org","@type":"BlogPosting","mainEntityOfPage":{"@type":"WebPage","@id":"https://pluto839.github.io/Myblog/2026/11/01/%E7%AC%AC%E5%85%AB%E5%B1%8A%E6%B5%B7%E4%B8%B0%E6%9D%AF%E5%88%9D%E8%B5%9B%E5%85%A8%E8%A7%A3wp/"},"headline":"第八届「海丰杯」初赛全解 WriteUp（20 题全解）","image":["https://pluto839.github.io/Myblog/img/covers/haifengbei.jpg"],"datePublished":"2026-11-01T12:00:00.000Z","dateModified":"2026-11-01T09:35:12.403Z","author":{"@type":"Person","name":"Pluto"},"publisher":{"@type":"Organization","name":"Pluto's Notes","logo":{"@type":"ImageObject","url":{"text":"Pluto's Notes"}}},"description":"第八届海丰杯初赛 20 道题的完整解题记录：PyInstaller&#x2F;PE&#x2F;APK&#x2F;Nuitka 逆向、ICMP 与流量隐写、PNG 尺寸篡改、WinZip AES 解密、多层编码套娃，附全部可复现脚本与踩坑记录。"}</script><link rel="canonical" href="https://pluto839.github.io/Myblog/2026/11/01/%E7%AC%AC%E5%85%AB%E5%B1%8A%E6%B5%B7%E4%B8%B0%E6%9D%AF%E5%88%9D%E8%B5%9B%E5%85%A8%E8%A7%A3wp/"><link rel="icon" href="/Myblog/img/avatar.jpg"><link rel="stylesheet" href="https://use.fontawesome.com/releases/v6.0.0/css/all.css"><link data-pjax rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@11.7.0/styles/atom-one-light.css"><link rel="stylesheet" href="jsdelivr"><link data-pjax rel="stylesheet" href="/Myblog/css/default.css"><style>body>.footer,body>.navbar,body>.section{opacity:0}</style><!--!--><style>.pace{-webkit-pointer-events:none;pointer-events:none;-webkit-user-select:none;-moz-user-select:none;user-select:none}.pace-inactive{display:none}.pace .pace-progress{background:#3273dc;position:fixed;z-index:2000;top:0;right:100%;width:100%;height:2px}</style><script src="https://cdn.jsdelivr.net/npm/pace-js@1.2.4/pace.min.js"></script><!-- hexo injector head_end start --><script>
+  (function () {
+      function switchTab() {
+          if (!location.hash) {
+            return;
+          }
+
+          const id = '#' + CSS.escape(location.hash.substring(1));
+          const $tabMenu = document.querySelector(`.tabs a[href="${id}"]`);
+          if (!$tabMenu) {
+            return;
+          }
+
+          const $tabMenuContainer = $tabMenu.parentElement.parentElement;
+          Array.from($tabMenuContainer.children).forEach($menu => $menu.classList.remove('is-active'));
+          Array.from($tabMenuContainer.querySelectorAll('a'))
+              .map($menu => document.getElementById($menu.getAttribute("href").substring(1)))
+              .forEach($content => $content.classList.add('is-hidden'));
+
+          if ($tabMenu) {
+              $tabMenu.parentElement.classList.add('is-active');
+          }
+          const $activeTab = document.querySelector(id);
+          if ($activeTab) {
+              $activeTab.classList.remove('is-hidden');
+          }
+      }
+      switchTab();
+      window.addEventListener('hashchange', switchTab, false);
+  })();
+  </script>
+<meta name="data-root" content="/Myblog/">
+<link rel="stylesheet" href="/Myblog/css/pluto-custom.css">
+<script>
+  // 尽早执行，避免深色模式首屏白闪
+  (function () {
+    var s = localStorage.getItem('pluto-theme');
+    var pd = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+    var t = s || (pd ? 'dark' : 'light');
+    var d = document.documentElement;
+    d.setAttribute('data-theme', t);
+    d.setAttribute('data-root', '/Myblog/');
+    d.classList.add('pluto-anim');
+    // 兜底：主题入场脚本万一没跑，1.2s 后强制显形，绝不把页面卡在半透明
+    setTimeout(function () {
+      d.classList.remove('pluto-anim');
+    }, 1200);
+  })();
+</script>
+<!-- hexo injector head_end end --><meta name="generator" content="Hexo 8.1.2"><link rel="alternate" href="/Myblog/atom.xml" title="Pluto's Notes" type="application/atom+xml">
+</head><body class="is-3-column"><nav class="navbar navbar-main"><div class="container navbar-container"><div class="navbar-brand justify-content-center"><a class="navbar-item navbar-logo" href="/Myblog/">Pluto&#039;s Notes</a></div><div class="navbar-menu"><div class="navbar-start"><a class="navbar-item" href="/Myblog/">首页</a><a class="navbar-item" href="/Myblog/archives">归档</a><a class="navbar-item" href="/Myblog/categories">分类</a><a class="navbar-item" href="/Myblog/tags">标签</a><a class="navbar-item" href="/Myblog/about">关于</a></div><div class="navbar-end"><a class="navbar-item" target="_blank" rel="noopener" title="GitHub" href="https://github.com/pluto839"><i class="fab fa-github"></i></a><a class="navbar-item search" title="搜索" href="javascript:;"><i class="fas fa-search"></i></a></div></div></div></nav><section class="section"><div class="container"><div class="columns"><div class="column order-2 column-main is-8-tablet is-8-desktop is-6-widescreen"><div class="card"><div class="card-image"><span class="image is-7by3"><img class="fill" src="/Myblog/img/covers/haifengbei.jpg" alt="第八届「海丰杯」初赛全解 WriteUp（20 题全解）"></span></div><article class="card-content article" role="article"><div class="article-meta is-size-7 is-uppercase level is-mobile"><div class="level-left"><span class="level-item"><time dateTime="2026-11-01T12:00:00.000Z" title="2026/11/1 20:00:00">2026-11-01</time>发表</span><span class="level-item"><time dateTime="2026-11-01T09:35:12.403Z" title="2026/11/1 17:35:12">2026-11-01</time>更新</span><span class="level-item"><a class="link-muted" href="/Myblog/categories/CTF/">CTF</a></span><span class="level-item">38 分钟读完 (大约5634个字)</span></div></div><h1 class="title is-3 is-size-4-mobile">第八届「海丰杯」初赛全解 WriteUp（20 题全解）</h1><div class="content"><p>这次海丰杯初赛一共 20 道题，题面五花八门，但把 20 份 WriteUp 摊开来看，考点的集中度其实很高：<strong>逆向占了 6 题（PE &#x2F; PyInstaller &#x2F; APK &#x2F; Nuitka），流量分析 5 题，Misc 隐写 5 题，编码套娃 2 题，剩下的是一道前端 JS 和一道 Web 弱口令</strong>。</p>
+<p>这篇文章把 20 题按类型串成一整条线，重点记录<strong>每道题的关键观察点</strong>——也就是那种「想通了之后就只剩几行脚本」的瞬间，而不是单纯罗列 flag。</p>
+<span id="more"></span>
+
+<h2 id="战况速览"><a href="#战况速览" class="headerlink" title="战况速览"></a>战况速览</h2><table>
+<thead>
+<tr>
+<th>#</th>
+<th>题目</th>
+<th>类型</th>
+<th>核心考点</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>01</td>
+<td>challenge.exe</td>
+<td>Reverse</td>
+<td>PyInstaller 解包 + 三段变换求逆（base64&#x2F;大小写 &#x2F; 4 字节块反转 &#x2F; 可复现随机密钥异或）</td>
+</tr>
+<tr>
+<td>02</td>
+<td>tp.cap</td>
+<td>Misc &#x2F; 流量</td>
+<td>还原 HTTP 内嵌 ZIP + JPEG 尾部摩斯 + WinZip AES-256 + 与佛论禅</td>
+</tr>
+<tr>
+<td>03</td>
+<td>二维码</td>
+<td>Misc</td>
+<td>PNG IHDR 高度篡改（CRC 不匹配）→ RAR → base64 PNG → 二维码</td>
+</tr>
+<tr>
+<td>04</td>
+<td>弱口令</td>
+<td>Web</td>
+<td>源码注释里的密码字典 + Burp Intruder</td>
+</tr>
+<tr>
+<td>05</td>
+<td>encrypted.bin</td>
+<td>Crypto</td>
+<td>重复密钥 XOR + 已知明文推导密钥</td>
+</tr>
+<tr>
+<td>06</td>
+<td>secret_upload</td>
+<td>Misc &#x2F; 流量</td>
+<td>ICMP payload 隐写 base64 + 上传即 ZIP + ZipCrypto</td>
+</tr>
+<tr>
+<td>07</td>
+<td>mystery.exe</td>
+<td>Reverse</td>
+<td>MinGW 符号未剥离 + XOR 0x42</td>
+</tr>
+<tr>
+<td>08</td>
+<td>pac.pcapng</td>
+<td>Misc &#x2F; 流量</td>
+<td>sqlmap 流量里的 base64 参数</td>
+</tr>
+<tr>
+<td>09</td>
+<td>ping.pcapng</td>
+<td>Misc &#x2F; 流量</td>
+<td>ICMP 整帧长度 → base64 密钥 + AES-256-ECB</td>
+</tr>
+<tr>
+<td>10</td>
+<td>1.pcapng</td>
+<td>Misc &#x2F; 流量</td>
+<td>致远 OA 漏洞流量内嵌 ZIP + WinZip AES-256-CTR</td>
+</tr>
+<tr>
+<td>11</td>
+<td>Silent Whispers</td>
+<td>Misc &#x2F; 流量</td>
+<td>ICMP echo-request payload 长度隐写</td>
+</tr>
+<tr>
+<td>12</td>
+<td>access.log</td>
+<td>Misc &#x2F; 日志</td>
+<td>文件名藏马 + HTTP 洪水 + MD5 出 flag</td>
+</tr>
+<tr>
+<td>13</td>
+<td>神秘 ZIP</td>
+<td>Misc</td>
+<td>WinZip AES（Log4Shell 口令）+ 二维码 + AES-256-CBC</td>
+</tr>
+<tr>
+<td>14</td>
+<td>苹果香</td>
+<td>Misc</td>
+<td>图片尾隐写口令 + MP3 ID3 标签 + 5-bit 字母编码</td>
+</tr>
+<tr>
+<td>15</td>
+<td>编码套娃</td>
+<td>Misc</td>
+<td>Base64 → Base32 → Hex</td>
+</tr>
+<tr>
+<td>16</td>
+<td>逆向挑战.apk</td>
+<td>Android</td>
+<td>百度加固 + frida-dexdump + RC4</td>
+</tr>
+<tr>
+<td>17</td>
+<td>challenge.pcap</td>
+<td>Misc &#x2F; 流量</td>
+<td>高位端口原始 TCP 通道 + hex ASCII</td>
+</tr>
+<tr>
+<td>18</td>
+<td>PLAIN.apk</td>
+<td>Android</td>
+<td>硬编码三段 base64 拼接</td>
+</tr>
+<tr>
+<td>19</td>
+<td>checkme.exe</td>
+<td>Reverse</td>
+<td>Nuitka 还原源码 + AES-256-CBC + ZeroPadding</td>
+</tr>
+<tr>
+<td>20</td>
+<td>CTF Decryption</td>
+<td>Misc &#x2F; 前端</td>
+<td>前端 JS 写死答案（十六进制→凯撒→栅栏→元音替换）</td>
+</tr>
+</tbody></table>
+<hr>
+<h2 id="逆向（6-题）"><a href="#逆向（6-题）" class="headerlink" title="逆向（6 题）"></a>逆向（6 题）</h2><p>逆向是这次的重头戏，而且<strong>打包器的种类几乎被考了个遍</strong>：PyInstaller、MinGW 裸 PE、Nuitka、两个 APK。识别出「它是什么打包器」这一步，往往就决定了后面 80% 的工作量。</p>
+<h3 id="01-challenge-exe-——-PyInstaller-三段变换"><a href="#01-challenge-exe-——-PyInstaller-三段变换" class="headerlink" title="01 challenge.exe —— PyInstaller 三段变换"></a>01 challenge.exe —— PyInstaller 三段变换</h3><p>单文件 PE，6.7 MB。字符串里能看到 <code>PyMarshal_ReadObjectFromString</code>、<code>PYZ archive entry not found in the TOC!</code>，直接判定 PyInstaller。</p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">python <span class="literal">-m</span> pyinstxtractor_ng challenge.exe</span><br></pre></td></tr></table></figure>
+
+<p>解包得到 <code>challenge.pyc</code>（Python 3.12），丢给 <a target="_blank" rel="noopener" href="https://pylingual.io/">PyLingual</a> 反编译，逻辑就一句话：<code>transform(input) == HIDDEN_FLAG</code>。</p>
+<p><code>FlagTransformer</code> 做了三步：</p>
+<ol>
+<li><code>_phase1</code>：<code>base64.b64encode</code> 之后<strong>大小写互换</strong>；</li>
+<li><code>_phase2</code>：每 4 个字符切块，块内反转；</li>
+<li><code>_phase3</code>：用 <code>_generate_key(len(s))</code> 做 XOR。</li>
+</ol>
+<p>最容易踩的坑在 <code>_generate_key</code>：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">_generate_key</span>(<span class="params">self, length</span>):</span><br><span class="line">    key = <span class="built_in">bytearray</span>()</span><br><span class="line">    <span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(length):</span><br><span class="line">        <span class="variable language_">self</span>.rng.seed(i + <span class="variable language_">self</span>.magic[i % <span class="number">4</span>])</span><br><span class="line">        key.append(<span class="variable language_">self</span>.rng.randint(<span class="number">0</span>, <span class="number">255</span>))</span><br><span class="line">    <span class="keyword">return</span> key</span><br></pre></td></tr></table></figure>
+
+<p><code>__init__</code> 里 <code>random.Random()</code> 没有传种子，看起来是「不可复现」的随机；但因为<strong>每个字节都会用 <code>i + magic[i % 4]</code> 重新 seed</strong>，初始种子完全无关紧要，密钥是可精确复现的。</p>
+<p>另一个坑是 opcode 分析：<code>BINARY_OP 12</code> 里的 <code>12</code> 是运算符序号，对应 CPython 的 <code>NB_XOR</code>。一开始按减法理解，解出来全是乱码。</p>
+<p>逆序求逆只需三步，异或和大小写互换都是自逆的，块反转再反转一次即可：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> base64, random</span><br><span class="line"></span><br><span class="line">HIDDEN_FLAG = <span class="built_in">bytes</span>((<span class="number">20</span>, <span class="number">54</span>, <span class="number">134</span>, <span class="number">96</span>, <span class="number">114</span>, <span class="number">70</span>, <span class="number">228</span>, <span class="number">108</span>, <span class="number">61</span>, <span class="number">132</span>, <span class="number">201</span>, <span class="number">219</span>, <span class="number">166</span>, <span class="number">161</span>,</span><br><span class="line">                     <span class="number">16</span>, <span class="number">210</span>, <span class="number">239</span>, <span class="number">35</span>, <span class="number">121</span>, <span class="number">109</span>, <span class="number">143</span>, <span class="number">200</span>, <span class="number">54</span>, <span class="number">51</span>, <span class="number">116</span>, <span class="number">243</span>, <span class="number">130</span>, <span class="number">32</span>,</span><br><span class="line">                     <span class="number">115</span>, <span class="number">129</span>, <span class="number">239</span>, <span class="number">190</span>, <span class="number">164</span>, <span class="number">3</span>, <span class="number">10</span>, <span class="number">235</span>, <span class="number">14</span>, <span class="number">24</span>, <span class="number">199</span>, <span class="number">176</span>, <span class="number">60</span>, <span class="number">136</span>,</span><br><span class="line">                     <span class="number">52</span>, <span class="number">144</span>, <span class="number">106</span>, <span class="number">40</span>, <span class="number">137</span>, <span class="number">27</span>, <span class="number">125</span>, <span class="number">14</span>, <span class="number">150</span>, <span class="number">191</span>, <span class="number">5</span>, <span class="number">216</span>, <span class="number">87</span>, <span class="number">142</span>))</span><br><span class="line">MAGIC = [<span class="number">18</span>, <span class="number">52</span>, <span class="number">86</span>, <span class="number">120</span>]</span><br><span class="line"></span><br><span class="line">rng = random.Random()</span><br><span class="line">key = <span class="built_in">bytearray</span>()</span><br><span class="line"><span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(<span class="built_in">len</span>(HIDDEN_FLAG)):</span><br><span class="line">    rng.seed(i + MAGIC[i % <span class="number">4</span>])</span><br><span class="line">    key.append(rng.randint(<span class="number">0</span>, <span class="number">255</span>))</span><br><span class="line"></span><br><span class="line">stage2 = <span class="built_in">bytes</span>(HIDDEN_FLAG[i] ^ key[i] <span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(<span class="built_in">len</span>(HIDDEN_FLAG))).decode(<span class="string">&#x27;latin1&#x27;</span>)</span><br><span class="line">s = <span class="string">&#x27;&#x27;</span>.join(stage2[i:i + <span class="number">4</span>][::-<span class="number">1</span>] <span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(<span class="number">0</span>, <span class="built_in">len</span>(stage2), <span class="number">4</span>))</span><br><span class="line">b64 = <span class="string">&#x27;&#x27;</span>.join(c.lower() <span class="keyword">if</span> c.isupper() <span class="keyword">else</span> c.upper() <span class="keyword">for</span> c <span class="keyword">in</span> s)</span><br><span class="line"><span class="built_in">print</span>(base64.b64decode(b64.encode()).decode())</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">flag&#123;9e633561-2181-4f9b-a13b-afe1796bc20b&#125;</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>补充踩坑：3.12 的 code object 不能直接 <code>marshal.loads</code>，要把偏移 16 处的类型字节改成 <code>0xe3</code>；本机 3.14 的 <code>dis</code> opcode 表跑 3.12 字节码会出现大量 <code>???</code>，需要借 <code>xdis.opcodes.opcode_312</code>。</p>
+</blockquote>
+<h3 id="07-mystery-exe-——-符号未剥离的-MinGW-程序"><a href="#07-mystery-exe-——-符号未剥离的-MinGW-程序" class="headerlink" title="07 mystery.exe —— 符号未剥离的 MinGW 程序"></a>07 mystery.exe —— 符号未剥离的 MinGW 程序</h3><p><code>mystery.exe</code> 54 KB，PE64，GCC 8.1.0 编译。最舒服的一点：<strong>COFF 符号表没剥</strong>（<code>NumberOfSymbols = 1199</code>），<code>main</code> 和 <code>check_password</code> 的地址直接查表就有：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">check_password  value=0x550  section=1(.text)   -&gt; VA 0x401550</span><br><span class="line">main            value=0x622  section=1(.text)   -&gt; VA 0x401622</span><br></pre></td></tr></table></figure>
+
+<p><code>check_password</code> 的逻辑短到可以抄下来：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">strcpy</span>(Str2, <span class="string">&quot;ReversingIsFun!&quot;</span>);</span><br><span class="line"><span class="keyword">for</span> ( i = <span class="number">0</span>; i &lt; <span class="built_in">strlen</span>(Str1); ++i )</span><br><span class="line">  Str1[i] ^= <span class="number">0x42u</span>;</span><br><span class="line"><span class="keyword">if</span> ( !<span class="built_in">strcmp</span>(Str1, Str2) )</span><br><span class="line">  <span class="built_in">printf</span>(<span class="string">&quot;Correct! FLAG is flag&#123;%s&#125;\n&quot;</span>, Str2);</span><br></pre></td></tr></table></figure>
+
+<p>输入逐字节异或 <code>0x42</code> 后要等于 <code>ReversingIsFun!</code>。但注意：<strong>程序成功时打印的 <code>%s</code> 是目标字符串本身，不是你的输入</strong>，所以 flag 直接就是目标串。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">flag&#123;ReversingIsFun!&#125;</span><br></pre></td></tr></table></figure>
+
+<p>推导出来的「正确密码」是 <code>target ^ 0x42</code>，含大量不可打印字符，没法手输——所以更省事的验证方式是动态打补丁：把 <code>0x4015f7</code> 的 <code>75 15</code>（<code>jne wrong</code>）改成 <code>90 90</code>（NOP），随便输什么都会走成功分支，然后读程序自己打印的 flag。</p>
+<h3 id="16-逆向挑战-apk-——-百度加固-frida-动态脱壳"><a href="#16-逆向挑战-apk-——-百度加固-frida-动态脱壳" class="headerlink" title="16 逆向挑战.apk —— 百度加固 + frida 动态脱壳"></a>16 逆向挑战.apk —— 百度加固 + frida 动态脱壳</h3><p>APK 是<strong>百度加固 Libra p00-6.9.2.1</strong>：App 自身 dex 被抽空，真 dex 加密在 <code>assets/baiduprotect{1,2,3}.jar</code>，由 <code>libbaiduprotect.so</code> 运行时解密，so 的代码段还自加密 + VM 化，静态脱壳基本没戏。</p>
+<p>动态方案（雷电模拟器 14 &#x2F; Android 14 x86_64）：</p>
+<ol>
+<li>打开 ROOT 权限并重启；</li>
+<li><code>frida-server 16.6.6 (android-x86_64)</code> 推到 <code>/data/local/tmp/</code>，root 起；</li>
+<li><code>frida-dexdump -U -f com.example.secretmessengerlite -o dump</code>，拿到 35 个 dex；</li>
+<li>按字符串定位：<code>classes14.dex</code> 含包名 16 次，<code>classes17.dex</code>（4464 B）含 <code>MainActivity</code>，就是业务逻辑。</li>
+</ol>
+<p><code>classes17.dex</code> 的字符串常量直接把答案摆出来了：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">ReverseMaster2024</span><br><span class="line">8nn3vb6LdNrkAyXkB94ozAQbVgDFC2b8GpT7CWs=</span><br><span class="line">getEncryptedBase64 / decryptedFlag / rc4 / equals</span><br></pre></td></tr></table></figure>
+
+<p>即 RC4，key &#x3D; <code>ReverseMaster2024</code>，密文是 base64 串：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> base64</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">rc4</span>(<span class="params">key, data</span>):</span><br><span class="line">    S = <span class="built_in">list</span>(<span class="built_in">range</span>(<span class="number">256</span>)); j = <span class="number">0</span></span><br><span class="line">    <span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(<span class="number">256</span>):</span><br><span class="line">        j = (j + S[i] + key[i % <span class="built_in">len</span>(key)]) % <span class="number">256</span></span><br><span class="line">        S[i], S[j] = S[j], S[i]</span><br><span class="line">    i = j = <span class="number">0</span>; out = <span class="built_in">bytearray</span>()</span><br><span class="line">    <span class="keyword">for</span> b <span class="keyword">in</span> data:</span><br><span class="line">        i = (i + <span class="number">1</span>) % <span class="number">256</span>; j = (j + S[i]) % <span class="number">256</span></span><br><span class="line">        S[i], S[j] = S[j], S[i]</span><br><span class="line">        out.append(b ^ S[(S[i] + S[j]) % <span class="number">256</span>])</span><br><span class="line">    <span class="keyword">return</span> <span class="built_in">bytes</span>(out)</span><br><span class="line"></span><br><span class="line">ct = base64.b64decode(<span class="string">&quot;8nn3vb6LdNrkAyXkB94ozAQbVgDFC2b8GpT7CWs=&quot;</span>)</span><br><span class="line"><span class="built_in">print</span>(rc4(<span class="string">b&quot;ReverseMaster2024&quot;</span>, ct))</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">flag&#123;java_rc4_reverse_master&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="18-PLAIN-apk-——-硬编码的「明文-flag」"><a href="#18-PLAIN-apk-——-硬编码的「明文-flag」" class="headerlink" title="18 PLAIN.apk —— 硬编码的「明文 flag」"></a>18 PLAIN.apk —— 硬编码的「明文 flag」</h3><p>这题和 16 题形成鲜明对比：没加固，jadx 打开，<code>AndroidManifest.xml</code> 里过滤掉 androidx &#x2F; kotlin 之后，题目自己的包只剩 <code>com.example.plainflag.MainActivity</code>。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">private</span> String <span class="title function_">generateFlag</span><span class="params">()</span> &#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="string">&quot;Q1RGew==ZDFyM2N0XzFuXw==YzBkM30=&quot;</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><strong>关键点：它是三段独立的 base64 拼在一起的，必须分段解码</strong>。直接整体解码会在第一个 <code>==</code> 处截断。</p>
+<table>
+<thead>
+<tr>
+<th>段</th>
+<th>Base64</th>
+<th>解码</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>1</td>
+<td><code>Q1RGew==</code></td>
+<td><code>CTF{</code></td>
+</tr>
+<tr>
+<td>2</td>
+<td><code>ZDFyM2N0XzFuXw==</code></td>
+<td><code>d1r3ct_1n_</code></td>
+</tr>
+<tr>
+<td>3</td>
+<td><code>YzBkM30=</code></td>
+<td><code>c0d3}</code></td>
+</tr>
+</tbody></table>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">CTF&#123;d1r3ct_1n_c0d3&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="19-checkme-exe-——-Nuitka-打包，还原源码"><a href="#19-checkme-exe-——-Nuitka-打包，还原源码" class="headerlink" title="19 checkme.exe —— Nuitka 打包，还原源码"></a>19 checkme.exe —— Nuitka 打包，还原源码</h3><p>PE64，<code>strings</code> 一搜就有 Nuitka 的痕迹：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">Nuitka: import of module ...</span><br><span class="line">D:\Programming\python\pythonproject\question\jp\v15_re+decrypt\checkme.py</span><br><span class="line">Crypto.Cipher</span><br></pre></td></tr></table></figure>
+
+<p>用 <a target="_blank" rel="noopener" href="https://github.com/DimaReverse/hexpyrion">HEXPYRION</a> 从 Nuitka 原生二进制还原出大概的 <code>checkme.py</code> 结构，关键常量直接可见：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">key = <span class="string">b&#x27;zyv2nt2yw784vxtw&#x27;</span></span><br><span class="line">iv = <span class="string">b&#x27;0000000000000000&#x27;</span></span><br><span class="line">aes = AEScryptor(key, AES.MODE_CBC, iv, padding_mode=<span class="string">&#x27;ZeroPadding&#x27;</span>, character_set=<span class="string">&#x27;utf-8&#x27;</span>)</span><br><span class="line">encrypted = aes.encrypt(flag)</span><br></pre></td></tr></table></figure>
+
+<p>密文：<code>un+/M4fSaQlaHd6wYAW7Xs9rh7iO3U7Ir3WGPn7Xasy+yeTwEHGcDQVZTJbXg769</code></p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> Crypto.Cipher <span class="keyword">import</span> AES</span><br><span class="line"><span class="keyword">import</span> base64</span><br><span class="line"></span><br><span class="line">s   = <span class="string">&quot;un+/M4fSaQlaHd6wYAW7Xs9rh7iO3U7Ir3WGPn7Xasy+yeTwEHGcDQVZTJbXg769&quot;</span></span><br><span class="line">key = <span class="string">b&quot;zyv2nt2yw784vxtw&quot;</span></span><br><span class="line">iv  = <span class="string">b&quot;0000000000000000&quot;</span></span><br><span class="line"></span><br><span class="line">pt = AES.new(key, AES.MODE_CBC, iv).decrypt(base64.b64decode(s))</span><br><span class="line"><span class="built_in">print</span>(pt.rstrip(<span class="string">b&quot;\x00&quot;</span>).decode(<span class="string">&quot;utf-8&quot;</span>))</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">flag&#123;842e459c-bef0-43db-be69-afd41ea09daa&#125;</span><br></pre></td></tr></table></figure>
+
+<p>注意是 <code>ZeroPadding</code> 不是 PKCS#7，尾部 6 个 <code>\x00</code> 用 <code>rstrip(b&quot;\x00&quot;)</code> 去掉即可。</p>
+<hr>
+<h2 id="流量分析（5-题）"><a href="#流量分析（5-题）" class="headerlink" title="流量分析（5 题）"></a>流量分析（5 题）</h2><p>五道流量题，<strong>干扰流量</strong>是统一主题：动辄几十万个包的视频流、上千个 time-exceeded、SMB 心跳、UDP 随机小包。先做统计看「什么是噪声」，比上来就翻包高效得多。</p>
+<h3 id="09-ping-pcapng-——-密钥藏在帧长里"><a href="#09-ping-pcapng-——-密钥藏在帧长里" class="headerlink" title="09 ping.pcapng —— 密钥藏在帧长里"></a>09 ping.pcapng —— 密钥藏在帧长里</h3><p>90 个包：44 个 ICMP echo request、44 个 reply、1 个 UDP、1 个 port unreachable。</p>
+<p>第一个诱饵：44 个 echo 的 <strong>payload 长度</strong>是 5~77 的一串数，看着像编码，但怎么映射都不出明文。真正的载体是<strong>整帧长度</strong> <code>len(pkt)</code>（&#x3D; payload + 42）：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">echo = [p <span class="keyword">for</span> p <span class="keyword">in</span> pkts <span class="keyword">if</span> ICMP <span class="keyword">in</span> p <span class="keyword">and</span> p[ICMP].<span class="built_in">type</span> == <span class="number">8</span>]</span><br><span class="line">b64key = <span class="string">&quot;&quot;</span>.join(<span class="built_in">chr</span>(<span class="built_in">len</span>(p)) <span class="keyword">for</span> p <span class="keyword">in</span> echo)</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">NufY4oKNJAv8QEewVRJGj/Rtw4rt731Qqt1Yptt3b10=</span><br></pre></td></tr></table></figure>
+
+<p>44 个字符全落在 base64 字母表内，还正好以 <code>=</code> 结尾——随机长度天然满足这个条件几乎不可能。解码得 32 字节，正好是 AES-256 的密钥长度。</p>
+<p>第二个诱饵：UDP 57094 → 12345 的载荷长这样：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">FLAG&#123;xLxKTpaOAzI93jzFghxdJmqHJ07MmibYDTui2HEI9tp7394blngYRKI1ytZb0tPQ&#125;</span><br></pre></td></tr></table></figure>
+
+<p>前缀是<strong>大写</strong> <code>FLAG</code>，括号内 64 字符是规整的 base64，解码得 48 字节 &#x3D; 3 个 AES 分组。用上面的密钥 AES-256-ECB 解密：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> Crypto.Cipher <span class="keyword">import</span> AES</span><br><span class="line">ct = base64.b64decode(<span class="string">&quot;xLxKTpaOAzI93jzFghxdJmqHJ07MmibYDTui2HEI9tp7394blngYRKI1ytZb0tPQ&quot;</span>)</span><br><span class="line">pt = AES.new(key, AES.MODE_ECB).decrypt(ct)</span><br></pre></td></tr></table></figure>
+
+<p>解出 <code>b&#39; ec7553e4...\x0f\x0f...&#39;</code>，末 15 字节全为 <code>0x0f</code>，PKCS#7 校验通过，说明密钥和模式唯一正确。首字节是长度前缀。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">flag&#123;ec7553e42cad6f1007645ba062f7e8ee&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="11-Silent-Whispers-in-ICMP-——-payload-长度即-ASCII"><a href="#11-Silent-Whispers-in-ICMP-——-payload-长度即-ASCII" class="headerlink" title="11 Silent Whispers in ICMP —— payload 长度即 ASCII"></a>11 Silent Whispers in ICMP —— payload 长度即 ASCII</h3><p>1026 个包里 1000 个是 <code>type=11</code>（time-exceeded）噪声，真正有效的是 26 个 <code>type=8</code> 的 echo request。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">flag = <span class="string">&quot;&quot;</span></span><br><span class="line"><span class="keyword">for</span> p <span class="keyword">in</span> pkts:</span><br><span class="line">    <span class="keyword">if</span> ICMP <span class="keyword">in</span> p <span class="keyword">and</span> p[ICMP].<span class="built_in">type</span> == <span class="number">8</span>:</span><br><span class="line">        flag += <span class="built_in">chr</span>(<span class="built_in">len</span>(<span class="built_in">bytes</span>(p[ICMP].payload)))</span><br></pre></td></tr></table></figure>
+
+<p>逐个长度正好是 <code>67, 84, 70, 123, ...</code>——可见 ASCII 区间。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">CTF&#123;1cmp_1s_n0t_jus7_p1ng&#125;</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>和 09 题对照着记：<strong>长度隐写有两种载体</strong>，11 题用的是 ICMP payload 长度，09 题用的是整帧长度。遇到长度隐写先别急着套公式，两种都试。</p>
+</blockquote>
+<h3 id="06-secret-upload-——-ICMP-传口令-上传即-ZIP"><a href="#06-secret-upload-——-ICMP-传口令-上传即-ZIP" class="headerlink" title="06 secret_upload —— ICMP 传口令 + 上传即 ZIP"></a>06 secret_upload —— ICMP 传口令 + 上传即 ZIP</h3><p>6987 个包里有一条 675 MB 的视频流（TCP 6164 个包），纯障眼法，别想着还原。</p>
+<p>真正的线索有两个：</p>
+<ol>
+<li><p><strong>全包只有 1 个 ICMP</strong>，出现得极其刻意：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">for</span> p <span class="keyword">in</span> rdpcap(<span class="string">&#x27;secret_upload.pcapng&#x27;</span>):</span><br><span class="line">    <span class="keyword">if</span> ICMP <span class="keyword">in</span> p <span class="keyword">and</span> Raw <span class="keyword">in</span> p:</span><br><span class="line">        <span class="built_in">print</span>(<span class="built_in">bytes</span>(p[Raw].load))</span><br><span class="line"><span class="comment"># b&#x27;U2VjcmV0UGFzc3dvcmQh&#x27;  -&gt; SecretPassword!</span></span><br></pre></td></tr></table></figure>
+
+<p>echo request 的 payload 正常是填充字节，这里是可打印的 base64，典型的 ICMP 隐写。</p>
+</li>
+<li><p>一条 <code>POST /?page=upload</code> 的上传请求，文件名写着 <code>image.png</code>、<code>Content-Type: image/png</code>，但 body 的 magic 是 <code>PK\x03\x04</code>——<strong>扩展名和 MIME 都是伪装的，实际是 ZIP</strong>。</p>
+</li>
+</ol>
+<p>从 <code>PK\x03\x04</code> 切到 EOCD 得到 192 字节 zip：<code>flag.txt</code> 的 <code>flags &amp; 0x0001</code> &#x3D; ZipCrypto 加密，<code>method=0</code>（store），所以密文 &#x3D; 12 字节加密头 + 明文。用 ICMP 里的口令直接解：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> pyzipper</span><br><span class="line">z = pyzipper.ZipFile(<span class="string">&#x27;uploaded.zip&#x27;</span>)</span><br><span class="line">z.setpassword(<span class="string">b&#x27;SecretPassword!&#x27;</span>)</span><br><span class="line"><span class="built_in">print</span>(z.read(<span class="string">&#x27;flag.txt&#x27;</span>))</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">flag&#123;1cMp_St3g0_4nd_Z1p_Cr4ck&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="10-1-pcapng-——-致远-OA-漏洞流量里的-ZIP"><a href="#10-1-pcapng-——-致远-OA-漏洞流量里的-ZIP" class="headerlink" title="10 1.pcapng —— 致远 OA 漏洞流量里的 ZIP"></a>10 1.pcapng —— 致远 OA 漏洞流量里的 ZIP</h3><p>42 个包，SMB 心跳（里面还有 <code>db 81d297...</code>、<code>u_bYfLd6...</code> 这种假密钥）和 UDP 1443 端口的大量加密小包全是噪声。</p>
+<p>突破口是第 13 个包的 HTTP 请求：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">PUT /seeyon/rest/orgMember/pass/Liyoubo HTTP/1.1</span><br><span class="line">Content-Length: 269</span><br><span class="line"></span><br><span class="line">file=PK\x03\x04.......</span><br></pre></td></tr></table></figure>
+
+<p>这是致远 OA 的历史漏洞接口，请求体是 <code>file=</code> + ZIP。服务端返回 401（攻击失败），但上传内容已经被流量捕获。</p>
+<p>ZIP 里的 <code>1.txt</code>：<code>compress_type = 99</code> + extra 字段 <code>0x9901</code> vendor <code>AE</code>、strength <code>03</code> → <strong>WinZip AES-256</strong>。结构是：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">salt(16) + password_verifier(2) + AES-CTR(ciphertext) + auth_code(10)</span><br></pre></td></tr></table></figure>
+
+<p>密钥派生 <code>PBKDF2-HMAC-SHA1(password, salt, 1000, 66)</code>，前 32 字节是 AES-256 key，中间 32 字节是 HMAC 认证密钥，末 2 字节是口令验证值。加密用 AES-256-CTR，<strong>计数器从 1 开始且是小端序</strong>（<code>01 00 00 ... 00</code>）——这个细节搞错就解不出来。</p>
+<p>口令就在 URL 里：<code>Liyoubo</code>。验证值匹配（<code>verifier == ver</code>）后解密，得到 deflate 流，<code>zlib.decompress(data, -15)</code> 解出 base64：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ZmxhZ3thbjRseXozZF90aDNfdHI0ZmYxY19sMWszX2FfcHIwfQo=</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">flag&#123;an4lyz3d_th3_tr4ff1c_l1k3_a_pr0&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="08-pac-pcapng-——-sqlmap-流量里的-base64-参数"><a href="#08-pac-pcapng-——-sqlmap-流量里的-base64-参数" class="headerlink" title="08 pac.pcapng —— sqlmap 流量里的 base64 参数"></a>08 pac.pcapng —— sqlmap 流量里的 base64 参数</h3><p>5247 个包，搜 <code>flag</code> 没命中，但 User-Agent 里有大量 <code>sqlmap/1.9.1.2#dev</code>，是一段自动化注入的录像。提取 213 个 HTTP 请求后发现，某个请求开始 <code>id</code> 参数变成了 base64 串：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">GET /user.php?id=ZmxhZ3s0NTE3MDhjZC1mN2E4LTQ5YWUtYWU1OC1mM2ZmMTMyOTczM2Z9 HTTP/1.1</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> re, base64</span><br><span class="line"><span class="keyword">for</span> p <span class="keyword">in</span> pkts:</span><br><span class="line">    <span class="keyword">if</span> p.haslayer(<span class="string">&#x27;TCP&#x27;</span>) <span class="keyword">and</span> p.haslayer(<span class="string">&#x27;Raw&#x27;</span>):</span><br><span class="line">        d = <span class="built_in">bytes</span>(p[<span class="string">&#x27;Raw&#x27;</span>].load)</span><br><span class="line">        <span class="keyword">if</span> d.startswith((<span class="string">b&#x27;GET &#x27;</span>, <span class="string">b&#x27;POST &#x27;</span>)):</span><br><span class="line">            m = re.search(<span class="string">r&#x27;id=([A-Za-z0-9+/=]&#123;16,&#125;)&#x27;</span>, d.split(<span class="string">b&#x27;\r\n&#x27;</span>)[<span class="number">0</span>].decode(<span class="string">&#x27;latin1&#x27;</span>))</span><br><span class="line">            <span class="keyword">if</span> m:</span><br><span class="line">                <span class="built_in">print</span>(base64.b64decode(m.group(<span class="number">1</span>)).decode())</span><br><span class="line">                <span class="keyword">break</span></span><br></pre></td></tr></table></figure>
+
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">flag&#123;451708cd-f7a8-49ae-ae58-f3ff1329733f&#125;</span><br></pre></td></tr></table></figure>
+
+<p>旁证：流量末尾 sqlmap 在跑 <code>load_file(0x2f666c6167)</code>——<code>0x2f666c6167</code> 就是 <code>/flag</code>，时间盲注在逐位判断该文件内容，说明目标确实是读 <code>/flag</code>。</p>
+<h3 id="17-challenge-pcap-——-高位端口的原始-TCP-通道"><a href="#17-challenge-pcap-——-高位端口的原始-TCP-通道" class="headerlink" title="17 challenge.pcap —— 高位端口的原始 TCP 通道"></a>17 challenge.pcap —— 高位端口的原始 TCP 通道</h3><p>只有 722 字节，适合直接暴力看。表里能清楚看出哪些是噪声：</p>
+<table>
+<thead>
+<tr>
+<th>序号</th>
+<th>协议</th>
+<th>端口</th>
+<th>载荷</th>
+<th>判定</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>2</td>
+<td>TCP</td>
+<td>14640→20480</td>
+<td><code>GET /index.html HTTP/1.1</code></td>
+<td>噪声</td>
+</tr>
+<tr>
+<td>3</td>
+<td>UDP</td>
+<td>53764→13568</td>
+<td>DNS <code>suspicious.local</code></td>
+<td>噪声</td>
+</tr>
+<tr>
+<td>4-6</td>
+<td>ICMP</td>
+<td>-</td>
+<td><code>noise0</code> <code>noise1</code> <code>noise2</code></td>
+<td>噪声</td>
+</tr>
+<tr>
+<td>7-10</td>
+<td>TCP</td>
+<td>12756→<strong>23569</strong></td>
+<td><code>666c6167</code> <code>7b776575</code> <code>725f7a6f</code> <code>70637a7d</code></td>
+<td>数据通道</td>
+</tr>
+</tbody></table>
+<p>4 个 8 字节的 hex ASCII 拼接：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">666c61677b776575725f7a6f70637a7d  -&gt;  flag&#123;weur_zopcz&#125;</span><br></pre></td></tr></table></figure>
+
+<p>Wireshark 里 <code>tcp.port == 23569</code> → Follow TCP Stream → 丢 CyberChef 的 From Hex 即可。</p>
+<hr>
+<h2 id="Misc-隐写（5-题）"><a href="#Misc-隐写（5-题）" class="headerlink" title="Misc 隐写（5 题）"></a>Misc 隐写（5 题）</h2><h3 id="02-tp-cap-——-四层套娃"><a href="#02-tp-cap-——-四层套娃" class="headerlink" title="02 tp.cap —— 四层套娃"></a>02 tp.cap —— 四层套娃</h3><p>这是全场最长的链路。<code>tp.cap</code> 里只有一条 HTTP 会话（Apache 2.4.23 Win32, PHP 5.4.45），三次请求：<code>fr.zip</code>（200）、<code>1.html</code>（304）、<code>2.jpg</code>（200，196 KB）。</p>
+<p>先用 scapy 按 seq 重组服务器→客户端数据，再按 magic 切出两个文件：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> scapy.<span class="built_in">all</span> <span class="keyword">import</span> rdpcap, IP, TCP</span><br><span class="line"></span><br><span class="line">p = rdpcap(<span class="string">&quot;tp.cap&quot;</span>)</span><br><span class="line">d = &#123;&#125;</span><br><span class="line"><span class="keyword">for</span> x <span class="keyword">in</span> p:</span><br><span class="line">    <span class="keyword">if</span> IP <span class="keyword">in</span> x <span class="keyword">and</span> TCP <span class="keyword">in</span> x <span class="keyword">and</span> x[IP].src == <span class="string">&quot;192.168.110.65&quot;</span> <span class="keyword">and</span> <span class="built_in">bytes</span>(x[TCP].payload):</span><br><span class="line">        d[x[TCP].seq] = <span class="built_in">bytes</span>(x[TCP].payload)</span><br><span class="line">t = <span class="string">b&quot;&quot;</span>.join(d[k] <span class="keyword">for</span> k <span class="keyword">in</span> <span class="built_in">sorted</span>(d))</span><br><span class="line"></span><br><span class="line">i = t.find(<span class="string">b&quot;PK\x03\x04&quot;</span>); j = t.rfind(<span class="string">b&quot;PK\x05\x06&quot;</span>) + <span class="number">22</span></span><br><span class="line"><span class="built_in">open</span>(<span class="string">&quot;fr.zip&quot;</span>, <span class="string">&quot;wb&quot;</span>).write(t[i:j])</span><br><span class="line"></span><br><span class="line">i = t.find(<span class="string">b&quot;\xff\xd8\xff&quot;</span>); j = t.rfind(<span class="string">b&quot;\xff\xd9&quot;</span>) + <span class="number">2</span></span><br><span class="line"><span class="built_in">open</span>(<span class="string">&quot;2.jpg&quot;</span>, <span class="string">&quot;wb&quot;</span>).write(t[i:j])</span><br><span class="line"><span class="built_in">print</span>(t[j:])   <span class="comment"># b&#x27;         .... . .-.. .-.. ----- ..-. ---&#x27;</span></span><br></pre></td></tr></table></figure>
+
+<p>第二层：<code>2.jpg</code> 的 <code>FF D9</code> <strong>之后</strong>还跟着摩斯码：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">.... . .-.. .-.. ----- ..-. ---</span><br><span class="line"> H    E  L    L    0    F    O</span><br></pre></td></tr></table></figure>
+
+<p>得到 <code>HELL0FO</code>（数字 0，不是字母 O），这是 <code>fr.zip</code> 的密码。</p>
+<p>第三层：<code>fr.zip</code> 的压缩方法是 <code>99</code>，extra 字段里有 <code>0x9901</code>：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">01 99 07 00 01 00 41 45 03 08 00</span><br><span class="line">             vendor &quot;AE&quot;  ver 01  strength 03(AES-256)  method 08(deflate)</span><br></pre></td></tr></table></figure>
+
+<p>WinZip AES-256。Python 自带 <code>zipfile</code> 会报 <code>method not supported</code>，用 7-Zip：</p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&amp; <span class="string">&quot;C:\Program Files\7-Zip\7z.exe&quot;</span> x fr.zip <span class="literal">-o</span>. <span class="string">&quot;-pHELL0FO&quot;</span> <span class="literal">-y</span></span><br></pre></td></tr></table></figure>
+
+<p>解出 <code>海丰杯.txt</code>，内容是「佛曰：蘇罰摩俱特諸有竟奩……」——<strong>与佛论禅</strong>。</p>
+<p>第四层：与佛论禅的原理是一张 128 字的 <code>foYue</code> 映射表（每字对应 0~127）+ 12 个 <code>BYTEMARK</code> 标记字（标记字后一个字的值 <code>+128</code>），映射出的字节做 <strong>AES-256-CBC</strong> 解密，KEY&#x2F;IV 固定：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">KEY = <span class="string">b&#x27;XDXDtudou@KeyFansClub^_^Encode!!&#x27;</span></span><br><span class="line">IV  = <span class="string">b&#x27;Potato@Key@_@=_=&#x27;</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">decode</span>(<span class="params">cipher</span>):</span><br><span class="line">    cipher = cipher.split(<span class="string">&quot;：&quot;</span>, <span class="number">1</span>)[-<span class="number">1</span>].strip()</span><br><span class="line">    data = <span class="string">b&quot;&quot;</span></span><br><span class="line">    i = <span class="number">0</span></span><br><span class="line">    <span class="keyword">while</span> i &lt; <span class="built_in">len</span>(cipher):</span><br><span class="line">        <span class="keyword">if</span> cipher[i] <span class="keyword">in</span> BYTEMARK:</span><br><span class="line">            i += <span class="number">1</span></span><br><span class="line">            data += <span class="built_in">bytes</span>([foYue.index(cipher[i]) + <span class="number">128</span>])</span><br><span class="line">        <span class="keyword">else</span>:</span><br><span class="line">            data += <span class="built_in">bytes</span>([foYue.index(cipher[i])])</span><br><span class="line">        i += <span class="number">1</span></span><br><span class="line">    result = AES.new(KEY, AES.MODE_CBC, IV).decrypt(data)</span><br><span class="line">    result = result[:-result[-<span class="number">1</span>]]</span><br><span class="line">    <span class="keyword">return</span> result.decode(<span class="string">&quot;utf-16le&quot;</span>)</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">flag&#123;ffllaaggNh4HHMq1MJ&#125;</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>顺带一个经验：<strong>看到 <code>compress_type = 99</code> 一定要去看 <code>0x9901</code> 额外字段</strong>，那才是 AES 的真正标志，普通工具认不出来。</p>
+</blockquote>
+<h3 id="03-二维码-——-PNG-尺寸被篡改"><a href="#03-二维码-——-PNG-尺寸被篡改" class="headerlink" title="03 二维码 —— PNG 尺寸被篡改"></a>03 二维码 —— PNG 尺寸被篡改</h3><p><code>二维码 .png</code> 打不开，PIL 报 <code>UnidentifiedImageError</code>。逐 chunk 检查，<strong>IHDR 的 CRC 校验失败</strong>，其他块都正常。</p>
+<p>IHDR 里写着 <code>1357 x 573</code>，但把所有 IDAT 解压后：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">raw len = 3751439</span><br><span class="line">stride  = 1 + 1357*4 = 5429   (RGBA 8bit)</span><br><span class="line">h       = 3751439 / 5429 = 691</span><br></pre></td></tr></table></figure>
+
+<p>真实高度是 691，底部 <strong>118 行</strong>被裁掉了，同时 IHDR 的高度被改小、CRC 没重算。修复：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> struct, zlib</span><br><span class="line">data = <span class="built_in">bytearray</span>(<span class="built_in">open</span>(<span class="string">&quot;a.png&quot;</span>, <span class="string">&quot;rb&quot;</span>).read())</span><br><span class="line">newihdr = struct.pack(<span class="string">&quot;&gt;IIBBBBB&quot;</span>, <span class="number">1357</span>, <span class="number">691</span>, <span class="number">8</span>, <span class="number">6</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>)</span><br><span class="line">data[<span class="number">16</span>:<span class="number">16</span>+<span class="number">13</span>] = newihdr</span><br><span class="line">struct.pack_into(<span class="string">&quot;&gt;I&quot;</span>, data, <span class="number">16</span>+<span class="number">13</span>, zlib.crc32(<span class="string">b&quot;IHDR&quot;</span> + newihdr) &amp; <span class="number">0xffffffff</span>)</span><br><span class="line"><span class="built_in">open</span>(<span class="string">&quot;fixed.png&quot;</span>, <span class="string">&quot;wb&quot;</span>).write(<span class="built_in">bytes</span>(data))</span><br></pre></td></tr></table></figure>
+
+<p>被隐藏的底部是一行艺术字，内容是 RAR 密码 <code>{N666}</code>。解压 RAR 得 <code>二维码.txt</code>，内容是 PNG 的 base64 data URI，解码后 cv2 一扫：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">flag&#123;sfdeuifhvsifen51656145&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="13-神秘-ZIP-——-Log4Shell-口令-二维码-AES"><a href="#13-神秘-ZIP-——-Log4Shell-口令-二维码-AES" class="headerlink" title="13 神秘 ZIP —— Log4Shell 口令 + 二维码 + AES"></a>13 神秘 ZIP —— Log4Shell 口令 + 二维码 + AES</h3><p>题目提示「可能与 Java 漏洞相关」「AES-256-CBC 可能是关键」。</p>
+<p><code>ZIP</code> 里两个文件都加密了，7-Zip 还报 <code>Headers Error</code>，压缩方法 <code>0x63</code> + extra 强度 <code>AE</code> → WinZip AES-256。按提示猜口令 <code>CVE-2021-44228</code> 成功解出 <code>QR.png</code>（<code>flag.txt</code> 只有 48 字节，结构不符合标准 WinZip AES，手工解也失败——是故意放的干扰文件）。</p>
+<p>二维码解码得到：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">doGIde+UiUIeVERp4z664Lnmiu7vD5FPRS4QnGamRgA=%%%</span><br></pre></td></tr></table></figure>
+
+<p>去掉尾部 <code>%%</code> 噪声，base64 解出 32 字节 &#x3D; 两个 AES 分组。密钥来源：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">key = hashlib.sha256(<span class="string">b&quot;CVE-2021-44228&quot;</span>).digest()   <span class="comment"># 32 字节 -&gt; AES-256</span></span><br><span class="line">iv  = key[:<span class="number">16</span>]                                      <span class="comment"># 无独立 IV 时的自 IV</span></span><br><span class="line">pt  = AES.new(key, AES.MODE_CBC, iv).decrypt(ct)</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">flag&#123;qr_rep@ir_2025&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="14-苹果香-——-文件尾口令-ID3-标签"><a href="#14-苹果香-——-文件尾口令-ID3-标签" class="headerlink" title="14 苹果香 —— 文件尾口令 + ID3 标签"></a>14 苹果香 —— 文件尾口令 + ID3 标签</h3><p>三个附件：<code>曲谱.jpg</code>（正常）、<code>狼戈.png</code>（其实是 JPEG，扩展名伪装）、<code>audio.zip</code>（AES 加密）。</p>
+<p><code>狼戈.png</code> 在 <code>FF D9</code> 之后还挂了一段肉眼可见的明文：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">FF D9 11 11 11 11 11 7A 69 3F 70 6B 65 79 36 36 36 36 31 36 11 11 11</span><br><span class="line">                     z  i  ?  p  k  e  y  6  6  6  6  1  6</span><br></pre></td></tr></table></figure>
+
+<p><code>pkey666616</code>，<code>pkey</code> 是 password key。注意<strong>带前缀反而是错的</strong>，真正的密码是数字部分：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> pyzipper</span><br><span class="line">z = pyzipper.AESZipFile(<span class="string">&quot;audio.zip&quot;</span>)</span><br><span class="line"><span class="built_in">open</span>(<span class="string">&quot;audio.docx&quot;</span>, <span class="string">&quot;wb&quot;</span>).write(z.read(<span class="string">&quot;audio.docx&quot;</span>, pwd=<span class="string">b&quot;666616&quot;</span>))</span><br></pre></td></tr></table></figure>
+
+<p><code>audio.docx</code> 的文件头是 <code>49 44 33</code>（<code>ID3</code>）——其实是 MP3。解析 ID3v2.3 标签，<code>TPUB</code>（Publisher）帧被塞了一串 90 位、只有 A&#x2F;B 的字符：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">AABABABABBAAAAAAABBAAABBBAAAAABABABAABAAABBABABAAAAAABAAABAAAAABBAAAAABBAAAABBAAAAAAAABBAB</span><br></pre></td></tr></table></figure>
+
+<p>90 &#x3D; 18 × 5，标准的 5-bit 编码。<code>A→0, B→1</code>，每 5 位转十进制再映射 <code>0→A ... 25→Z</code>：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">bits = [<span class="number">1</span> <span class="keyword">if</span> c == <span class="string">&#x27;B&#x27;</span> <span class="keyword">else</span> <span class="number">0</span> <span class="keyword">for</span> c <span class="keyword">in</span> s]</span><br><span class="line">vals = [<span class="built_in">int</span>(<span class="string">&#x27;&#x27;</span>.join(<span class="built_in">map</span>(<span class="built_in">str</span>, bits[i:i+<span class="number">5</span>])), <span class="number">2</span>) <span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(<span class="number">0</span>, <span class="built_in">len</span>(s)-<span class="number">4</span>, <span class="number">5</span>)]</span><br><span class="line"><span class="built_in">print</span>(<span class="string">&#x27;&#x27;</span>.join(<span class="built_in">chr</span>(<span class="built_in">ord</span>(<span class="string">&#x27;A&#x27;</span>) + v) <span class="keyword">for</span> v <span class="keyword">in</span> vals))</span><br><span class="line"><span class="comment"># FLAGHAVENICEDAYMAN</span></span><br></pre></td></tr></table></figure>
+
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">flag&#123;havenicedayman&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="12-access-log-——-日志里的攻击方式"><a href="#12-access-log-——-日志里的攻击方式" class="headerlink" title="12 access.log —— 日志里的攻击方式"></a>12 access.log —— 日志里的攻击方式</h3><p>解压后只有一个文件，<strong>文件名本身就是 base64</strong>：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">QGV2YWwoJF9SRVFVRVNUWyc2ZTcwZDQ2YmE0YmY3YjMyNmVlYWQ5Yzc5ZjFiNTdlMiddKQ==</span><br><span class="line">  -&gt; @eval($_REQUEST[&#x27;6e70d46ba4bf7b326eead9c79f1b57e2&#x27;])</span><br></pre></td></tr></table></figure>
+
+<p>文件名里藏着一句话木马，木马密码 <code>6e70d46ba4bf7b326eead9c79f1b57e2</code> 同时也是这个 ZipCrypto 包的密码。解出 55 MB &#x2F; 48001 行的 <code>access.log</code>。</p>
+<p>按来源 IP 统计：</p>
+<table>
+<thead>
+<tr>
+<th>来源 IP</th>
+<th>请求数</th>
+<th>特征</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>192.168.1.10</td>
+<td>27997</td>
+<td>23362 条 <code>A cat is fine too...</code> 超长垃圾请求行 + 4564 条 <code>GET  HTTP/1.0</code>（缺 URI）</td>
+</tr>
+<tr>
+<td>192.168.1.11</td>
+<td>13325</td>
+<td>HEAD 扫描 + 蚁剑</td>
+</tr>
+<tr>
+<td>192.168.1.9</td>
+<td>1810</td>
+<td>登录 + 上传 <code>/uploads/DDOS.py</code>、<code>ddos-p3.py</code></td>
+</tr>
+</tbody></table>
+<p>时间线上是「上传脚本 → HTTP 洪水」。结论：攻击方式 &#x3D; <strong>DDOS</strong>，题目约定 <code>flag = flag{MD5(攻击方式大写)}</code>：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> hashlib</span><br><span class="line"><span class="built_in">print</span>(hashlib.md5(<span class="string">b&quot;DDOS&quot;</span>).hexdigest().upper())</span><br><span class="line"><span class="comment"># 201C9EF8B1631BBED036066C9A4B3C7E</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="20-CTF-Decryption-——-前端写死的五步"><a href="#20-CTF-Decryption-——-前端写死的五步" class="headerlink" title="20 CTF Decryption —— 前端写死的五步"></a>20 CTF Decryption —— 前端写死的五步</h3><p>页面屏蔽了右键和 F12，但这毫无意义——所有校验和最终 flag 都写死在 JS 里，记事本打开 <code>index.html</code> 就能看。</p>
+<p>五步链条：</p>
+<ol>
+<li>十六进制 <code>53 4F 53 ...</code> → <code>SOSALITY-CTF-CHALLENGE-2025</code></li>
+<li>从里面提取标识 → <code>CTF</code></li>
+<li>对 <code>SOSALITY</code> 凯撒 +3 → <code>VRVDOLWB</code></li>
+<li>两栏栅栏解密 → <code>VORLVWDB</code></li>
+<li>元音 <code>O → U</code> → <code>VURLVWDB</code>，命中 <code>checkAnswer5</code></li>
+</ol>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">flag&#123;okmnjiuhbbhuijnmko&#125;</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h2 id="编码套娃（2-题）"><a href="#编码套娃（2-题）" class="headerlink" title="编码套娃（2 题）"></a>编码套娃（2 题）</h2><h3 id="15-Base64-→-Base32-→-Hex"><a href="#15-Base64-→-Base32-→-Hex" class="headerlink" title="15 Base64 → Base32 → Hex"></a>15 Base64 → Base32 → Hex</h3><p>附件里只有一串字符。判断链路的办法是<strong>看字符集</strong>：</p>
+<ul>
+<li>原文以 <code>==</code> 结尾、字符集符合 base64；</li>
+<li>base64 解出来只有 <code>A-Z</code>、<code>2-7</code> 和结尾 <code>=</code>，是 base32；</li>
+<li>base32 解出来是纯 hex。</li>
+</ul>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> base64</span><br><span class="line"></span><br><span class="line">s = <span class="string">&quot;R1kzRE1ZWldHRTM...&quot;</span>   <span class="comment"># 原文略</span></span><br><span class="line">t = base64.b64decode(s)</span><br><span class="line">t = base64.b32decode(t)</span><br><span class="line"><span class="built_in">print</span>(<span class="built_in">bytes</span>.fromhex(t.decode()).decode())</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">flag&#123;01f94223-76d6-435b-ab52-654bc3f7e804&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="05-encrypted-bin-——-重复密钥-XOR"><a href="#05-encrypted-bin-——-重复密钥-XOR" class="headerlink" title="05 encrypted.bin —— 重复密钥 XOR"></a>05 encrypted.bin —— 重复密钥 XOR</h3><p>222 字节的压缩包里只有 24 字节的 <code>encrypted.bin</code>：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">30 31 25 09 4B 44 01 3A 52 01 6C 12 06 0B 3C 10 46 00 2C 12 06 13 58 09</span><br></pre></td></tr></table></figure>
+
+<p>排除单字节 XOR、逐字节加减、位反转、循环移位、下标异或之后，用常见弱口令做重复密钥 XOR 试——密钥 <code>secret</code> 时出现 <code>CTF{.0r_1s\tfun_b#t_wea=}</code>，格式对上了但中间有乱码，说明密钥相近但不同。</p>
+<p>用已知明文反推（XOR 满足 <code>key[i] = cipher[i] ^ plain[i]</code>）：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="number">0x30</span> ^ <span class="built_in">ord</span>(<span class="string">&#x27;C&#x27;</span>) = <span class="number">0x73</span> = <span class="string">&#x27;s&#x27;</span></span><br><span class="line"><span class="number">0x31</span> ^ <span class="built_in">ord</span>(<span class="string">&#x27;T&#x27;</span>) = <span class="number">0x65</span> = <span class="string">&#x27;e&#x27;</span></span><br><span class="line"><span class="number">0x25</span> ^ <span class="built_in">ord</span>(<span class="string">&#x27;F&#x27;</span>) = <span class="number">0x63</span> = <span class="string">&#x27;c&#x27;</span></span><br><span class="line"><span class="number">0x09</span> ^ <span class="built_in">ord</span>(<span class="string">&#x27;&#123;&#x27;</span>) = <span class="number">0x72</span> = <span class="string">&#x27;r&#x27;</span></span><br></pre></td></tr></table></figure>
+
+<p>前四位 <code>secr</code>，结合 <code>secret</code> 的线索猜 <code>secr3t</code>：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">data = <span class="built_in">bytes</span>([<span class="number">0x30</span>,<span class="number">0x31</span>,<span class="number">0x25</span>,<span class="number">0x09</span>,<span class="number">0x4B</span>,<span class="number">0x44</span>,<span class="number">0x01</span>,<span class="number">0x3A</span>,<span class="number">0x52</span>,<span class="number">0x01</span>,<span class="number">0x6C</span>,<span class="number">0x12</span>,</span><br><span class="line">              <span class="number">0x06</span>,<span class="number">0x0B</span>,<span class="number">0x3C</span>,<span class="number">0x10</span>,<span class="number">0x46</span>,<span class="number">0x00</span>,<span class="number">0x2C</span>,<span class="number">0x12</span>,<span class="number">0x06</span>,<span class="number">0x13</span>,<span class="number">0x58</span>,<span class="number">0x09</span>])</span><br><span class="line">key = <span class="string">b&#x27;secr3t&#x27;</span></span><br><span class="line"><span class="built_in">print</span>(<span class="built_in">bytes</span>(c ^ key[i % <span class="built_in">len</span>(key)] <span class="keyword">for</span> i, c <span class="keyword">in</span> <span class="built_in">enumerate</span>(data)).decode())</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">CTF&#123;x0r_1s_fun_but_weak&#125;</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h2 id="Web（1-题）"><a href="#Web（1-题）" class="headerlink" title="Web（1 题）"></a>Web（1 题）</h2><h3 id="04-弱口令爆破"><a href="#04-弱口令爆破" class="headerlink" title="04 弱口令爆破"></a>04 弱口令爆破</h3><p>没有附件，只有平台页面。Ctrl+U 看源码，<strong>密码字典直接写在页面注释里</strong>（<code>password</code>、<code>qwerty</code>、<code>abc123</code>、<code>woaini1314</code>、<code>zhangshan1990</code> 之类四十多条）。</p>
+<p>把字典丢进 Burp Intruder 对登录接口跑一遍，命中后返回：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">【恭喜你，获得通关KEY】</span><br><span class="line">flag&#123;9049bddf4cdf7531d4ae78f28ba6b1f3&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这题的「考点」其实是<strong>先看源码</strong>——字典在注释里，不用自己整理。</p>
+<hr>
+<h2 id="全部-Flag-汇总"><a href="#全部-Flag-汇总" class="headerlink" title="全部 Flag 汇总"></a>全部 Flag 汇总</h2><table>
+<thead>
+<tr>
+<th>#</th>
+<th>Flag</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>01</td>
+<td><code>flag{9e633561-2181-4f9b-a13b-afe1796bc20b}</code></td>
+</tr>
+<tr>
+<td>02</td>
+<td><code>flag{ffllaaggNh4HHMq1MJ}</code></td>
+</tr>
+<tr>
+<td>03</td>
+<td><code>flag{sfdeuifhvsifen51656145}</code></td>
+</tr>
+<tr>
+<td>04</td>
+<td><code>flag{9049bddf4cdf7531d4ae78f28ba6b1f3}</code></td>
+</tr>
+<tr>
+<td>05</td>
+<td><code>CTF{x0r_1s_fun_but_weak}</code></td>
+</tr>
+<tr>
+<td>06</td>
+<td><code>flag{1cMp_St3g0_4nd_Z1p_Cr4ck}</code></td>
+</tr>
+<tr>
+<td>07</td>
+<td><code>flag{ReversingIsFun!}</code></td>
+</tr>
+<tr>
+<td>08</td>
+<td><code>flag{451708cd-f7a8-49ae-ae58-f3ff1329733f}</code></td>
+</tr>
+<tr>
+<td>09</td>
+<td><code>flag{ec7553e42cad6f1007645ba062f7e8ee}</code></td>
+</tr>
+<tr>
+<td>10</td>
+<td><code>flag{an4lyz3d_th3_tr4ff1c_l1k3_a_pr0}</code></td>
+</tr>
+<tr>
+<td>11</td>
+<td><code>CTF{1cmp_1s_n0t_jus7_p1ng}</code></td>
+</tr>
+<tr>
+<td>12</td>
+<td><code>flag{201C9EF8B1631BBED036066C9A4B3C7E}</code></td>
+</tr>
+<tr>
+<td>13</td>
+<td><code>flag{qr_rep@ir_2025}</code></td>
+</tr>
+<tr>
+<td>14</td>
+<td><code>flag{havenicedayman}</code></td>
+</tr>
+<tr>
+<td>15</td>
+<td><code>flag{01f94223-76d6-435b-ab52-654bc3f7e804}</code></td>
+</tr>
+<tr>
+<td>16</td>
+<td><code>flag{java_rc4_reverse_master}</code></td>
+</tr>
+<tr>
+<td>17</td>
+<td><code>flag{weur_zopcz}</code></td>
+</tr>
+<tr>
+<td>18</td>
+<td><code>CTF{d1r3ct_1n_c0d3}</code></td>
+</tr>
+<tr>
+<td>19</td>
+<td><code>flag{842e459c-bef0-43db-be69-afd41ea09daa}</code></td>
+</tr>
+<tr>
+<td>20</td>
+<td><code>flag{okmnjiuhbbhuijnmko}</code></td>
+</tr>
+</tbody></table>
+<blockquote>
+<p>08 题还有另一个附件里的 <code>flag1{dd73a692d474f6b3f4d668ff6cd37f51}</code>，本文附件中未包含其流量，故只记录 <code>flag2</code>。</p>
+</blockquote>
+<hr>
+<h2 id="复盘：这次学到的几个通用套路"><a href="#复盘：这次学到的几个通用套路" class="headerlink" title="复盘：这次学到的几个通用套路"></a>复盘：这次学到的几个通用套路</h2><ol>
+<li><strong>先确定「壳」再动手</strong>。逆向 6 题里 4 题的关键第一步是识别打包器（PyInstaller &#x2F; Nuitka &#x2F; 百度加固 &#x2F; 无加固）。<code>strings</code> 里搜 <code>PyInstaller</code>、<code>Nuitka</code>、<code>baiduprotect</code>、<code>dex</code>，比直接上 IDA 快得多。</li>
+<li><strong>流量题先做统计</strong>。按 <code>(src, dst, proto)</code> 或会话长度排个序，噪声往往一眼就能分辨（675 MB 视频流、1000 个 time-exceeded、SMB 心跳）。噪声排掉之后剩下的包通常不超过几十个，直接看就行。</li>
+<li><strong>长度本身就是一种隐写载体</strong>，而且载荷长度和整帧长度是两套东西（11 题 vs 09 题）。遇到「一堆数字映射不出字符」，就换一种长度口径再试。</li>
+<li><strong><code>compress_type = 99</code> 必须看 <code>0x9901</code></strong>。WinZip AES 在 02、10、13、14 四道题里出现了四次，是本场最高频的加密容器；Python 的 <code>zipfile</code> 处理不了，用 7-Zip 或 <code>pyzipper</code>。10 题更进一步用 AES-CTR 小端计数器手工解，细节错一位就全错。</li>
+<li><strong>图片尾部和元数据要习惯性看一眼</strong>。JPEG <code>FFD9</code> 之后、PNG <code>IEND</code> 之后、EXIF 注释、ID3 帧——02、03、14 三题的线索全在这些「看不到」的地方。</li>
+<li><strong>前端逻辑 ≠ 安全</strong>。20 题把答案写死在 JS 里，04 题把字典写在注释里，屏蔽 F12 只是心理威慑。</li>
+</ol>
+</div><div class="article-licensing box"><div class="licensing-title"><p>第八届「海丰杯」初赛全解 WriteUp（20 题全解）</p><p><a href="https://pluto839.github.io/Myblog/2026/11/01/第八届海丰杯初赛全解wp/">https://pluto839.github.io/Myblog/2026/11/01/第八届海丰杯初赛全解wp/</a></p></div><div class="licensing-meta level is-mobile"><div class="level-left"><div class="level-item is-narrow"><div><h6>作者</h6><p>Pluto</p></div></div><div class="level-item is-narrow"><div><h6>发布于</h6><p>2026-11-01</p></div></div><div class="level-item is-narrow"><div><h6>更新于</h6><p>2026-11-01</p></div></div><div class="level-item is-narrow"><div><h6>许可协议</h6><p><a class="" rel="noopener" target="_blank" title="知识共享署名-非商业性使用-相同方式共享 4.0 国际许可协议" href="https://creativecommons.org/licenses/by-nc-sa/4.0/">知识共享署名-非商业性使用-相同方式共享 4.0 国际许可协议</a></p></div></div></div></div></div><div class="article-tags is-size-7 mb-4"><span class="mr-2">#</span><a class="link-muted mr-2" rel="tag" href="/Myblog/tags/CTF/">CTF</a><a class="link-muted mr-2" rel="tag" href="/Myblog/tags/WriteUp/">WriteUp</a><a class="link-muted mr-2" rel="tag" href="/Myblog/tags/%E6%AF%94%E8%B5%9B/">比赛</a></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/social-share.js@1.0.16/dist/css/share.min.css"><div class="social-share"></div><script src="https://cdn.jsdelivr.net/npm/social-share.js@1.0.16/dist/js/social-share.min.js"></script></article></div><!--!--><nav class="post-navigation mt-4 level is-mobile"><div class="level-end"><a class="article-nav-next level level-item link-muted" href="/Myblog/2026/10/24/%E7%AC%AC%E5%8D%81%E4%B8%83%E5%B1%8A%E8%93%9D%E6%A1%A5%E6%9D%AF%E7%BD%91%E7%BB%9C%E5%AE%89%E5%85%A8%E8%B5%9B%E9%81%93-%E5%9B%BD%E8%B5%9B-WriteUp/"><span class="level-item">第十七届蓝桥杯网络安全赛道 国赛 WriteUp（6 道全解）</span><i class="level-item fas fa-chevron-right"></i></a></div></nav><div class="card" id="comments"><div class="card-content"><h3 class="title is-5">评论</h3><script src="https://giscus.app/client.js" repo="pluto839/Myblog" data-repo="pluto839/Myblog" data-repo-id="R_kgDOTyPc2A" data-category-id="DIC_kwDOTyPc2M4DC8BO" data-category="Announcements" data-mapping="pathname" data-strict="1" data-reactions-enabled="1" data-emit-metadata="0" data-input-position="top" data-theme="noborder_light" data-lang="zh-CN" crossorigin="anonymous" async></script></div></div></div><div class="column column-left is-4-tablet is-4-desktop is-3-widescreen  order-1 is-sticky"><div class="card widget" data-type="profile"><div class="card-content"><nav class="level"><div class="level-item has-text-centered flex-shrink-1"><div><figure class="image is-128x128 mx-auto mb-2"><img class="avatar is-rounded" src="/Myblog/img/avatar.jpg" alt="Pluto"></figure><p class="title is-size-4 is-block" style="line-height:inherit;">Pluto</p><p class="is-size-6 is-block">Hack the planet</p><p class="is-size-6 is-flex justify-content-center"><i class="fas fa-map-marker-alt mr-1"></i><span>Cyberspace</span></p></div></div></nav><nav class="level is-mobile"><div class="level-item has-text-centered is-marginless"><div><p class="heading">文章</p><a href="/Myblog/archives/"><p class="title">8</p></a></div></div><div class="level-item has-text-centered is-marginless"><div><p class="heading">分类</p><a href="/Myblog/categories/"><p class="title">4</p></a></div></div><div class="level-item has-text-centered is-marginless"><div><p class="heading">标签</p><a href="/Myblog/tags/"><p class="title">10</p></a></div></div></nav><div class="level"><a class="level-item button is-primary is-rounded" href="https://github.com/pluto839" target="_blank" rel="me noopener">关注我</a></div><div class="level is-mobile is-multiline"><a class="level-item button is-transparent is-marginless" target="_blank" rel="me noopener" title="GitHub" href="https://github.com/pluto839"><i class="fab fa-github"></i></a><a class="level-item button is-transparent is-marginless" target="_blank" rel="me noopener" title="RSS" href="/Myblog/atom.xml"><i class="fas fa-rss"></i></a></div></div></div><!--!--><div class="column-right-shadow is-hidden-widescreen"></div></div><div class="column column-right is-4-tablet is-4-desktop is-3-widescreen is-hidden-touch is-hidden-desktop-only order-3"><div class="card widget" data-type="categories"><div class="card-content"><div class="menu"><h3 class="menu-label">分类</h3><ul class="menu-list"><li><a class="level is-mobile" href="/Myblog/categories/CTF/"><span class="level-start"><span class="level-item">CTF</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/Myblog/categories/Web%E6%B8%97%E9%80%8F%E6%B5%8B%E8%AF%95/"><span class="level-start"><span class="level-item">Web渗透测试</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/Myblog/categories/%E5%AF%86%E7%A0%81%E5%AD%A6/"><span class="level-start"><span class="level-item">密码学</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/Myblog/categories/%E6%8A%80%E6%9C%AF%E7%AC%94%E8%AE%B0/"><span class="level-start"><span class="level-item">技术笔记</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li></ul></div></div></div><div class="card widget" data-type="tags"><div class="card-content"><div class="menu"><h3 class="menu-label">标签</h3><div class="field is-grouped is-grouped-multiline"><div class="control"><a class="tags has-addons" href="/Myblog/tags/CTF/"><span class="tag">CTF</span><span class="tag">6</span></a></div><div class="control"><a class="tags has-addons" href="/Myblog/tags/Web%E5%AE%89%E5%85%A8/"><span class="tag">Web安全</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/Myblog/tags/WriteUp/"><span class="tag">WriteUp</span><span class="tag">4</span></a></div><div class="control"><a class="tags has-addons" href="/Myblog/tags/%E4%BF%A1%E6%81%AF%E6%94%B6%E9%9B%86/"><span class="tag">信息收集</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/Myblog/tags/%E5%8A%A0%E5%AF%86%E7%AE%97%E6%B3%95/"><span class="tag">加密算法</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/Myblog/tags/%E5%8D%9A%E5%AE%A2%E6%90%AD%E5%BB%BA/"><span class="tag">博客搭建</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/Myblog/tags/%E5%AF%86%E7%A0%81%E5%AD%A6/"><span class="tag">密码学</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/Myblog/tags/%E6%AF%94%E8%B5%9B/"><span class="tag">比赛</span><span class="tag">3</span></a></div><div class="control"><a class="tags has-addons" href="/Myblog/tags/%E6%B8%97%E9%80%8F%E6%B5%8B%E8%AF%95/"><span class="tag">渗透测试</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/Myblog/tags/%E9%80%86%E5%90%91%E5%B7%A5%E7%A8%8B/"><span class="tag">逆向工程</span><span class="tag">1</span></a></div></div></div></div></div><div class="card widget" data-type="archives"><div class="card-content"><div class="menu"><h3 class="menu-label">归档</h3><ul class="menu-list"><li><a class="level is-mobile" href="/Myblog/archives/2026/11/"><span class="level-start"><span class="level-item">十一月 2026</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/Myblog/archives/2026/10/"><span class="level-start"><span class="level-item">十月 2026</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/Myblog/archives/2026/09/"><span class="level-start"><span class="level-item">九月 2026</span></span><span class="level-end"><span class="level-item tag">3</span></span></a></li><li><a class="level is-mobile" href="/Myblog/archives/2026/08/"><span class="level-start"><span class="level-item">八月 2026</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li></ul></div></div></div><div class="card widget" data-type="recent-posts"><div class="card-content"><h3 class="menu-label">最新文章</h3><article class="media"><div class="media-content"><p class="date"><time dateTime="2026-11-01T12:00:00.000Z">2026-11-01</time></p><p class="title"><a href="/Myblog/2026/11/01/%E7%AC%AC%E5%85%AB%E5%B1%8A%E6%B5%B7%E4%B8%B0%E6%9D%AF%E5%88%9D%E8%B5%9B%E5%85%A8%E8%A7%A3wp/">第八届「海丰杯」初赛全解 WriteUp（20 题全解）</a></p><p class="categories"><a href="/Myblog/categories/CTF/">CTF</a></p></div></article><article class="media"><div class="media-content"><p class="date"><time dateTime="2026-10-24T11:00:00.000Z">2026-10-24</time></p><p class="title"><a href="/Myblog/2026/10/24/%E7%AC%AC%E5%8D%81%E4%B8%83%E5%B1%8A%E8%93%9D%E6%A1%A5%E6%9D%AF%E7%BD%91%E7%BB%9C%E5%AE%89%E5%85%A8%E8%B5%9B%E9%81%93-%E5%9B%BD%E8%B5%9B-WriteUp/">第十七届蓝桥杯网络安全赛道 国赛 WriteUp（6 道全解）</a></p><p class="categories"><a href="/Myblog/categories/CTF/">CTF</a></p></div></article><article class="media"><div class="media-content"><p class="date"><time dateTime="2026-10-24T10:00:00.000Z">2026-10-24</time></p><p class="title"><a href="/Myblog/2026/10/24/%E7%AC%AC%E5%8D%81%E4%B8%83%E5%B1%8A%E8%93%9D%E6%A1%A5%E6%9D%AF%E7%BD%91%E7%BB%9C%E5%AE%89%E5%85%A8%E8%B5%9B%E9%81%93-%E7%9C%81%E8%B5%9B-WriteUp/">第十七届蓝桥杯网络安全赛道 省赛 WriteUp（8 道全解）</a></p><p class="categories"><a href="/Myblog/categories/CTF/">CTF</a></p></div></article><article class="media"><div class="media-content"><p class="date"><time dateTime="2026-09-16T02:00:00.000Z">2026-09-16</time></p><p class="title"><a href="/Myblog/2026/09/16/CTF%E9%80%86%E5%90%91%E5%88%B7%E9%A2%98%E5%85%A5%E9%97%A8%E6%8C%87%E5%8D%97%EF%BC%9AIDA%E4%BB%8E%E5%AE%89%E8%A3%85%E5%88%B0%E5%8A%A8%E6%80%81%E8%B0%83%E8%AF%95/">CTF逆向刷题入门指南：IDA从安装到动态调试</a></p><p class="categories"><a href="/Myblog/categories/CTF/">CTF</a></p></div></article><article class="media"><div class="media-content"><p class="date"><time dateTime="2026-09-16T01:00:00.000Z">2026-09-16</time></p><p class="title"><a href="/Myblog/2026/09/16/Web%E5%91%BD%E4%BB%A4%E6%89%A7%E8%A1%8C%E4%B8%8E%E7%BB%95%E8%BF%87%E5%AE%9E%E6%88%98%EF%BC%9A%E4%BB%8Eezcmd%E5%88%B0%E6%97%A0%E5%AD%97%E6%AF%8D%E6%95%B0%E5%AD%97Shell/">Web命令执行与绕过实战：从ezcmd到无字母数字Shell</a></p><p class="categories"><a href="/Myblog/categories/CTF/">CTF</a></p></div></article></div></div></div></div></div></section><footer class="footer"><div class="container"><div class="level"><div class="level-start"><a class="footer-logo is-block mb-2" href="/Myblog/">Pluto&#039;s Notes</a><p class="is-size-7"><span>&copy; 2026 Pluto</span>  Powered by <a href="https://hexo.io/" target="_blank" rel="noopener">Hexo</a> &amp; <a href="https://github.com/ppoffice/hexo-theme-icarus" target="_blank" rel="noopener">Icarus</a></p></div><div class="level-end"><div class="field has-addons"><p class="control"><a class="button is-transparent is-large" target="_blank" rel="noopener" title="Creative Commons" href="https://creativecommons.org/licenses/by-nc-sa/4.0/"><i class="fab fa-creative-commons"></i></a></p><p class="control"><a class="button is-transparent is-large" target="_blank" rel="noopener" title="Attribution" href="https://creativecommons.org/licenses/by-nc-sa/4.0/"><i class="fab fa-creative-commons-by"></i></a></p><p class="control"><a class="button is-transparent is-large" target="_blank" rel="noopener" title="Noncommercial" href="https://creativecommons.org/licenses/by-nc-sa/4.0/"><i class="fab fa-creative-commons-nc"></i></a></p><p class="control"><a class="button is-transparent is-large" target="_blank" rel="noopener" title="Share Alike" href="https://creativecommons.org/licenses/by-nc-sa/4.0/"><i class="fab fa-creative-commons-sa"></i></a></p></div></div></div></div></footer><script src="https://cdn.jsdelivr.net/npm/jquery@3.3.1/dist/jquery.min.js"></script><script src="https://cdn.jsdelivr.net/npm/moment@2.22.2/min/moment-with-locales.min.js"></script><script src="https://cdn.jsdelivr.net/npm/clipboard@2.0.4/dist/clipboard.min.js" defer></script><script>moment.locale("zh-cn");</script><script>var IcarusThemeSettings = {
+            article: {
+                highlight: {
+                    clipboard: true,
+                    fold: 'unfolded'
+                }
+            }
+        };</script><script data-pjax src="/Myblog/js/column.js"></script><script src="/Myblog/js/animation.js"></script><a id="back-to-top" title="回到顶端" href="javascript:;"><i class="fas fa-chevron-up"></i></a><script data-pjax src="/Myblog/js/back_to_top.js" defer></script><!--!--><script data-pjax src="/Myblog/js/main.js" defer></script><div class="searchbox"><div class="searchbox-container"><div class="searchbox-header"><div class="searchbox-input-container"><input class="searchbox-input" type="text" placeholder="想要查找什么..."></div><a class="searchbox-close" href="javascript:;">×</a></div><div class="searchbox-body"></div></div></div><script data-pjax src="/Myblog/js/insight.js" defer></script><script data-pjax>document.addEventListener('DOMContentLoaded', function () {
+            loadInsight({"contentUrl":"/Myblog/content.json"}, {"hint":"想要查找什么...","untitled":"(无标题)","posts":"文章","pages":"页面","categories":"分类","tags":"标签"});
+        });</script><!-- hexo injector body_end start -->
+<div class="pluto-scene" aria-hidden="true">
+  <div class="cloud"></div>
+  <div class="cloud"></div>
+  <div class="cloud"></div>
+  <div class="cloud"></div>
+  <span class="star" style="top:49.90%;left:89.04%;animation-delay:4.78s;animation-duration:4.93s;width:2.41px;height:2.41px"></span><span class="star" style="top:99.33%;left:40.89%;animation-delay:3.28s;animation-duration:3.97s;width:2.35px;height:2.35px"></span><span class="star" style="top:63.17%;left:98.13%;animation-delay:3.88s;animation-duration:2.44s;width:1.13px;height:1.13px"></span><span class="star" style="top:47.95%;left:24.12%;animation-delay:2.90s;animation-duration:2.62s;width:1.64px;height:1.64px"></span><span class="star" style="top:34.52%;left:85.27%;animation-delay:4.14s;animation-duration:4.68s;width:2.18px;height:2.18px"></span><span class="star" style="top:72.65%;left:4.70%;animation-delay:0.71s;animation-duration:4.49s;width:1.97px;height:1.97px"></span><span class="star" style="top:23.54%;left:70.83%;animation-delay:3.58s;animation-duration:4.24s;width:1.45px;height:1.45px"></span><span class="star" style="top:50.58%;left:25.81%;animation-delay:4.26s;animation-duration:3.24s;width:1.27px;height:1.27px"></span><span class="star" style="top:3.15%;left:68.04%;animation-delay:4.43s;animation-duration:3.21s;width:2.16px;height:2.16px"></span><span class="star" style="top:38.18%;left:78.54%;animation-delay:1.91s;animation-duration:3.52s;width:1.71px;height:1.71px"></span><span class="star" style="top:54.27%;left:55.73%;animation-delay:0.15s;animation-duration:4.56s;width:2.39px;height:2.39px"></span><span class="star" style="top:94.98%;left:82.76%;animation-delay:4.24s;animation-duration:2.80s;width:2.12px;height:2.12px"></span><span class="star" style="top:52.03%;left:99.68%;animation-delay:0.33s;animation-duration:2.13s;width:1.99px;height:1.99px"></span><span class="star" style="top:24.51%;left:56.23%;animation-delay:1.50s;animation-duration:3.40s;width:1.07px;height:1.07px"></span><span class="star" style="top:63.37%;left:54.53%;animation-delay:2.71s;animation-duration:3.29s;width:1.26px;height:1.26px"></span><span class="star" style="top:48.70%;left:78.55%;animation-delay:0.68s;animation-duration:2.31s;width:2.42px;height:2.42px"></span><span class="star" style="top:61.34%;left:44.18%;animation-delay:3.70s;animation-duration:3.84s;width:1.42px;height:1.42px"></span><span class="star" style="top:29.96%;left:3.64%;animation-delay:0.88s;animation-duration:4.17s;width:2.19px;height:2.19px"></span><span class="star" style="top:44.30%;left:40.13%;animation-delay:4.39s;animation-duration:3.92s;width:1.87px;height:1.87px"></span><span class="star" style="top:5.70%;left:53.68%;animation-delay:3.47s;animation-duration:4.30s;width:1.39px;height:1.39px"></span><span class="star" style="top:31.65%;left:62.18%;animation-delay:2.58s;animation-duration:3.60s;width:1.66px;height:1.66px"></span><span class="star" style="top:31.62%;left:0.84%;animation-delay:2.10s;animation-duration:4.17s;width:1.50px;height:1.50px"></span><span class="star" style="top:1.00%;left:78.49%;animation-delay:4.45s;animation-duration:4.71s;width:1.51px;height:1.51px"></span><span class="star" style="top:69.81%;left:97.43%;animation-delay:2.92s;animation-duration:4.95s;width:2.21px;height:2.21px"></span><span class="star" style="top:8.90%;left:12.23%;animation-delay:2.67s;animation-duration:2.55s;width:2.24px;height:2.24px"></span><span class="star" style="top:11.57%;left:21.32%;animation-delay:2.35s;animation-duration:3.31s;width:2.25px;height:2.25px"></span><span class="star" style="top:81.59%;left:60.31%;animation-delay:2.95s;animation-duration:2.62s;width:2.20px;height:2.20px"></span><span class="star" style="top:53.78%;left:81.28%;animation-delay:4.67s;animation-duration:3.34s;width:1.84px;height:1.84px"></span><span class="star" style="top:60.32%;left:69.08%;animation-delay:4.91s;animation-duration:2.56s;width:1.33px;height:1.33px"></span><span class="star" style="top:82.74%;left:58.62%;animation-delay:1.79s;animation-duration:2.96s;width:2.07px;height:2.07px"></span><span class="star" style="top:58.37%;left:35.64%;animation-delay:0.17s;animation-duration:3.84s;width:2.05px;height:2.05px"></span><span class="star" style="top:97.15%;left:65.35%;animation-delay:3.60s;animation-duration:3.06s;width:1.84px;height:1.84px"></span><span class="star" style="top:33.67%;left:70.65%;animation-delay:3.03s;animation-duration:4.62s;width:1.78px;height:1.78px"></span><span class="star" style="top:4.14%;left:8.46%;animation-delay:1.49s;animation-duration:2.78s;width:1.79px;height:1.79px"></span><span class="star" style="top:15.65%;left:88.31%;animation-delay:2.25s;animation-duration:3.30s;width:2.11px;height:2.11px"></span><span class="star" style="top:70.82%;left:77.76%;animation-delay:3.40s;animation-duration:4.70s;width:2.44px;height:2.44px"></span><span class="star" style="top:79.11%;left:37.59%;animation-delay:0.35s;animation-duration:3.31s;width:2.11px;height:2.11px"></span><span class="star" style="top:62.01%;left:4.85%;animation-delay:0.40s;animation-duration:3.41s;width:2.14px;height:2.14px"></span><span class="star" style="top:53.25%;left:57.94%;animation-delay:4.09s;animation-duration:2.57s;width:1.36px;height:1.36px"></span><span class="star" style="top:69.88%;left:71.34%;animation-delay:2.12s;animation-duration:2.31s;width:1.92px;height:1.92px"></span><span class="star" style="top:96.93%;left:8.18%;animation-delay:0.30s;animation-duration:4.61s;width:1.41px;height:1.41px"></span><span class="star" style="top:53.59%;left:60.58%;animation-delay:3.71s;animation-duration:2.41s;width:1.37px;height:1.37px"></span><span class="star" style="top:56.36%;left:7.00%;animation-delay:1.04s;animation-duration:4.24s;width:2.17px;height:2.17px"></span><span class="star" style="top:52.09%;left:34.53%;animation-delay:0.61s;animation-duration:4.25s;width:1.19px;height:1.19px"></span><span class="star" style="top:67.63%;left:76.40%;animation-delay:1.34s;animation-duration:2.67s;width:2.00px;height:2.00px"></span><span class="star" style="top:72.45%;left:16.41%;animation-delay:1.42s;animation-duration:3.37s;width:1.09px;height:1.09px"></span><span class="star" style="top:63.19%;left:66.25%;animation-delay:0.66s;animation-duration:3.60s;width:2.15px;height:2.15px"></span><span class="star" style="top:87.29%;left:12.14%;animation-delay:1.13s;animation-duration:2.74s;width:2.31px;height:2.31px"></span><span class="star" style="top:11.39%;left:76.39%;animation-delay:1.00s;animation-duration:2.82s;width:1.93px;height:1.93px"></span><span class="star" style="top:87.66%;left:14.21%;animation-delay:4.75s;animation-duration:4.57s;width:1.07px;height:1.07px"></span><span class="star" style="top:31.33%;left:8.91%;animation-delay:4.66s;animation-duration:4.01s;width:1.98px;height:1.98px"></span><span class="star" style="top:49.86%;left:55.62%;animation-delay:3.66s;animation-duration:4.46s;width:1.65px;height:1.65px"></span><span class="star" style="top:46.46%;left:14.32%;animation-delay:1.74s;animation-duration:4.58s;width:1.48px;height:1.48px"></span><span class="star" style="top:23.53%;left:45.49%;animation-delay:4.92s;animation-duration:2.29s;width:1.02px;height:1.02px"></span><span class="star" style="top:77.51%;left:38.28%;animation-delay:0.62s;animation-duration:3.90s;width:2.37px;height:2.37px"></span><span class="star" style="top:54.50%;left:63.91%;animation-delay:3.02s;animation-duration:3.00s;width:1.00px;height:1.00px"></span><span class="star" style="top:17.06%;left:67.02%;animation-delay:0.90s;animation-duration:2.30s;width:1.68px;height:1.68px"></span><span class="star" style="top:63.43%;left:64.23%;animation-delay:2.69s;animation-duration:4.64s;width:1.60px;height:1.60px"></span><span class="star" style="top:39.53%;left:69.37%;animation-delay:1.39s;animation-duration:4.12s;width:1.75px;height:1.75px"></span><span class="star" style="top:57.65%;left:29.56%;animation-delay:0.97s;animation-duration:2.74s;width:2.00px;height:2.00px"></span>
+  <div class="shooting-star" style="top:10%;left:70%;animation-delay:-1s"></div>
+  <div class="shooting-star" style="top:25%;left:40%;animation-delay:-3s"></div>
+</div>
+
+<!-- 文章阅读进度 -->
+<div class="pluto-progress" id="plutoProgress" aria-hidden="true"></div>
+
+<!-- 主题切换 -->
+<button class="theme-toggle" id="plutoThemeToggle" type="button" aria-label="切换日/夜模式" title="切换日/夜模式 (T)">🌙</button>
+
+<!-- 回到顶部 -->
+<button class="pluto-totop" id="plutoToTop" type="button" aria-label="回到顶部" title="回到顶部">↑</button>
+
+<script>
+(function () {
+  var doc = document.documentElement;
+  var root = '/Myblog/';
+  var btn = document.getElementById('plutoThemeToggle');
+
+  /* ---------- 日/夜模式 ---------- */
+  var prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+  var theme = localStorage.getItem('pluto-theme') || (prefersDark ? 'dark' : 'light');
+
+  function applyTheme(t) {
+    doc.setAttribute('data-theme', t);
+    theme = t;
+    if (btn) {
+      btn.textContent = t === 'dark' ? '☀️' : '🌙';
+      btn.setAttribute('aria-pressed', t === 'dark' ? 'true' : 'false');
+    }
+  }
+
+  applyTheme(theme);
+
+  if (btn) {
+    btn.addEventListener('click', function () {
+      var next = theme === 'dark' ? 'light' : 'dark';
+      localStorage.setItem('pluto-theme', next);
+      applyTheme(next);
+    });
+  }
+
+  // 仅供样式层做「首屏渐显」判断
+  if (document.body) {
+    document.body.style.colorScheme = theme === 'dark' ? 'dark' : 'light';
+  }
+
+  /* ---------- 首页 Hero（等布局稳定后再插入，避免找不到挂载点） ---------- */
+  function trimSlash(s) {
+    while (s.length > 1 && s.charAt(s.length - 1) === '/') {
+      s = s.slice(0, -1);
+    }
+    return s;
+  }
+
+  function mountHero() {
+    if (document.querySelector('.pluto-hero')) return true;
+
+    var mainCol = document.querySelector('.column-main');
+    var columns = document.querySelector('.columns');
+    if (!mainCol || !columns) return false;
+
+    // 严格的首页判定：只有首页列表才有「阅读全文」按钮（.article-more），
+    // 且同一页里有多张卡片。文章详情页虽然也有 .card-image（封面），
+    // 但没有 .article-more，绝不能当首页处理。
+    var isIndexPage = !!mainCol.querySelector('a.article-more');
+    if (!isIndexPage) return true; // 非首页，视为无需插入
+
+    // Hero 要横跨三栏，必须挂到 .columns 的父节点（.container）上
+    var anchor = columns.parentNode || columns;
+
+    var hero = document.createElement('div');
+    hero.className = 'pluto-hero';
+    hero.innerHTML =
+      '<img class="pluto-avatar" src="' + root + 'img/avatar.jpg?v=2" alt="Pluto" width="132" height="132">' +
+      '<h1>Pluto</h1>' +
+      '<p class="pluto-tagline">Hack the planet. Explore the unknown.</p>' +
+      '<div class="pluto-hero-links">' +
+        '<a href="' + root + 'archives" title="全部文章"><i class="fas fa-layer-group"></i>归档</a>' +
+        '<a href="' + root + 'categories" title="按分类浏览"><i class="fas fa-folder-open"></i>分类</a>' +
+        '<a href="' + root + 'tags" title="按标签浏览"><i class="fas fa-tags"></i>标签</a>' +
+        '<a href="https://github.com/pluto839" target="_blank" rel="noopener" title="GitHub"><i class="fab fa-github"></i>GitHub</a>' +
+      '</div>';
+    anchor.insertBefore(hero, columns);
+    return true;
+  }
+
+  // 立即试一次；失败则轮询重试，最多约 2 秒
+  if (!mountHero()) {
+    var heroTries = 0;
+    var heroTimer = setInterval(function () {
+      heroTries += 1;
+      if (mountHero() || heroTries > 20) clearInterval(heroTimer);
+    }, 100);
+    document.addEventListener('DOMContentLoaded', mountHero);
+  }
+
+  /* ---------- 阅读进度条（仅在文章正文存在时启用） ---------- */
+  var bar = document.getElementById('plutoProgress');
+  var articleBody = document.querySelector('.card-content.article .content');
+
+  if (bar) {
+    if (!articleBody) {
+      bar.style.display = 'none';
+    } else {
+      var onScroll = function () {
+        var top = articleBody.getBoundingClientRect().top + window.pageYOffset;
+        var span = articleBody.offsetHeight - window.innerHeight * 0.6;
+        var pct = span > 0
+          ? (window.pageYOffset - top + window.innerHeight * 0.35) / span
+          : 1;
+        pct = Math.max(0, Math.min(1, pct));
+        bar.style.transform = 'scaleX(' + pct + ')';
+        bar.style.opacity = (pct > 0.004 && pct < 0.998) ? '1' : '0';
+      };
+      document.addEventListener('scroll', onScroll, { passive: true });
+      window.addEventListener('resize', onScroll);
+      onScroll();
+    }
+  }
+
+  /* ---------- 回到顶部 ---------- */
+  var toTop = document.getElementById('plutoToTop');
+  if (toTop) {
+    document.addEventListener('scroll', function () {
+      toTop.classList.toggle('is-visible', window.pageYOffset > 400);
+    }, { passive: true });
+    toTop.addEventListener('click', function () {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    });
+  }
+
+  /* ---------- 小屏导航折叠 ---------- */
+  var navbar = document.querySelector('.navbar-main .navbar-container');
+  if (navbar) {
+    var syncNavToggle = function () {
+      var toggle = document.querySelector('.pluto-nav-toggle');
+      if (window.innerWidth < 1024) {
+        if (!toggle) {
+          toggle = document.createElement('button');
+          toggle.type = 'button';
+          toggle.className = 'pluto-nav-toggle';
+          toggle.setAttribute('aria-label', '展开导航');
+          toggle.innerHTML = '<i class="fas fa-bars"></i>';
+          toggle.addEventListener('click', function () {
+            navbar.classList.toggle('pluto-nav-open');
+            toggle.setAttribute('aria-expanded',
+              navbar.classList.contains('pluto-nav-open') ? 'true' : 'false');
+          });
+          navbar.appendChild(toggle);
+        }
+      } else if (toggle) {
+        toggle.parentNode.removeChild(toggle);
+        navbar.classList.remove('pluto-nav-open');
+      }
+    };
+    syncNavToggle();
+    window.addEventListener('resize', syncNavToggle);
+  }
+
+  /* ---------- 键盘快捷键：T 切主题，/ 唤起搜索 ---------- */
+  document.addEventListener('keydown', function (e) {
+    var tag = (e.target && e.target.tagName) || '';
+    if (/^(INPUT|TEXTAREA|SELECT)$/.test(tag) || (e.target && e.target.isContentEditable)) return;
+
+    if (e.key === 't' || e.key === 'T') {
+      var next = theme === 'dark' ? 'light' : 'dark';
+      localStorage.setItem('pluto-theme', next);
+      applyTheme(next);
+      return;
+    }
+    if (e.key === '/') {
+      var search = document.querySelector('.navbar-item.search');
+      if (search) {
+        e.preventDefault();
+        search.click();
+      }
+    }
+  });
+})();
+</script>
+
+<script src="/Myblog/js/pluto-cursor.js"></script>
+<!-- hexo injector body_end end --></body></html>

@@ -1,0 +1,1317 @@
+/* ============================================================
+   Pluto's Notes —— 自定义样式
+   只做「视觉增强」，不改动任何文章正文内容与排版语义。
+   目录：
+     1. 设计变量（日/夜）
+     2. 全局基底 & 入场兜底
+     3. 背景场景（云 / 星 / 流星）
+     4. 导航栏
+     5. 首页 Hero
+     6. 文章卡片
+     7. 正文阅读增强
+     8. 侧栏卡片与小组件
+     9. 页脚
+    10. 浮动控件（主题 / 回顶 / 进度条）
+    11. 动效降级 & 响应式
+   ============================================================ */
+
+/* ---------- 1. 设计变量 ---------- */
+:root {
+  --pluto-bg: url("/Myblog/img/bg-theme.jpg");
+  --pluto-bg-size: cover;
+  --pluto-text: #1a1a2e;
+  --pluto-text-soft: #5a6478;
+  --pluto-cloud: rgba(255, 255, 255, 0.78);
+  --pluto-accent: #3273dc;
+  --pluto-accent-2: #a855f7;
+  --pluto-accent-soft: rgba(50, 115, 220, 0.1);
+
+  --pluto-card: rgba(255, 255, 255, 0.72);
+  --pluto-card-solid: #ffffff;
+  --pluto-card-border: rgba(255, 255, 255, 0.55);
+  --pluto-shadow: 0 4px 20px rgba(29, 53, 87, 0.07);
+  --pluto-shadow-hover: 0 14px 38px rgba(29, 53, 87, 0.14);
+
+  --pluto-code-bg: #f3f5f9;
+  --pluto-quote-bg: rgba(50, 115, 220, 0.05);
+  --pluto-rule: rgba(29, 53, 87, 0.1);
+
+  --pluto-radius: 14px;
+  --pluto-ease: cubic-bezier(0.19, 1, 0.22, 1);
+}
+
+[data-theme="dark"] {
+  --pluto-bg: radial-gradient(ellipse at top, rgba(11, 16, 38, 0.82) 0%, rgba(20, 22, 42, 0.86) 55%, rgba(5, 5, 16, 0.92) 100%), url("/Myblog/img/bg-theme.jpg");
+  --pluto-bg-size: cover;
+  --pluto-text: #e6edf3;
+  --pluto-text-soft: #9aa7bd;
+  --pluto-cloud: rgba(60, 60, 100, 0.3);
+  --pluto-accent: #79c0ff;
+  --pluto-accent-2: #d2a8ff;
+  --pluto-accent-soft: rgba(121, 192, 255, 0.12);
+
+  --pluto-card: rgba(20, 22, 38, 0.75);
+  --pluto-card-solid: #14162a;
+  --pluto-card-border: rgba(90, 100, 140, 0.32);
+  --pluto-shadow: 0 4px 20px rgba(0, 0, 0, 0.35);
+  --pluto-shadow-hover: 0 14px 40px rgba(0, 80, 200, 0.22);
+
+  --pluto-code-bg: rgba(255, 255, 255, 0.07);
+  --pluto-quote-bg: rgba(121, 192, 255, 0.07);
+  --pluto-rule: rgba(160, 180, 220, 0.16);
+}
+
+/* ---------- 2. 全局基底 & 入场兜底 ---------- */
+body {
+  background: var(--pluto-bg) !important;
+  background-size: var(--pluto-bg-size, cover) !important;
+  background-position: center center !important;
+  background-repeat: no-repeat !important;
+  background-attachment: fixed !important;
+  color: var(--pluto-text);
+  transition: background 0.6s ease, color 0.4s ease;
+  min-height: 100vh;
+  position: relative;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* 首屏白闪防护：主题入场脚本执行完（或 1.2s 超时）后才显形 */
+.pluto-anim body > .navbar,
+.pluto-anim body > .section,
+.pluto-anim body > .footer {
+  opacity: 0;
+}
+
+::selection {
+  background: var(--pluto-accent);
+  color: #fff;
+}
+
+/* 滚动条（Webkit） */
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--pluto-rule);
+  border-radius: 10px;
+  border: 2px solid transparent;
+  background-clip: padding-box;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--pluto-accent);
+  background-clip: padding-box;
+}
+
+/* 全站链接过渡 */
+a {
+  transition: color 0.22s ease;
+}
+
+/* ---------- 3. 背景场景 ---------- */
+.pluto-scene {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.cloud {
+  position: absolute;
+  background: var(--pluto-cloud);
+  border-radius: 50%;
+  filter: blur(30px);
+  animation: float-cloud linear infinite;
+}
+
+.cloud:nth-child(1) { width: 180px; height: 60px; top: 12%; left: -200px; animation-duration: 60s; }
+.cloud:nth-child(2) { width: 240px; height: 80px; top: 28%; left: -260px; animation-duration: 85s; animation-delay: -20s; }
+.cloud:nth-child(3) { width: 140px; height: 50px; top: 55%; left: -160px; animation-duration: 70s; animation-delay: -40s; }
+.cloud:nth-child(4) { width: 200px; height: 70px; top: 75%; left: -220px; animation-duration: 95s; animation-delay: -10s; }
+
+@keyframes float-cloud {
+  from { transform: translateX(0); }
+  to   { transform: translateX(calc(100vw + 400px)); }
+}
+
+.star {
+  position: absolute;
+  width: 2px;
+  height: 2px;
+  background: #fff;
+  border-radius: 50%;
+  opacity: 0;
+  animation: twinkle ease-in-out infinite;
+}
+
+[data-theme="dark"] .star {
+  opacity: 1;
+  box-shadow: 0 0 4px #fff, 0 0 8px rgba(120, 180, 255, 0.6);
+}
+
+@keyframes twinkle {
+  0%, 100% { opacity: 0.2; transform: scale(0.8); }
+  50%      { opacity: 1;   transform: scale(1.4); }
+}
+
+.shooting-star {
+  position: absolute;
+  width: 2px;
+  height: 2px;
+  background: #fff;
+  border-radius: 50%;
+  box-shadow:
+    0 0 4px #fff,
+    -60px 0 20px 2px rgba(255, 255, 255, 0.4),
+    -120px 0 40px 2px rgba(255, 255, 255, 0.15);
+  opacity: 0;
+  animation: shoot 6s linear infinite;
+}
+
+[data-theme="dark"] .shooting-star { opacity: 1; }
+
+@keyframes shoot {
+  0%   { transform: translate(0, 0) rotate(-25deg); opacity: 0; }
+  5%   { opacity: 1; }
+  20%  { transform: translate(400px, 180px) rotate(-25deg); opacity: 0; }
+  100% { opacity: 0; }
+}
+
+/* ---------- 4. 导航栏 ---------- */
+.navbar-main {
+  background: rgba(255, 255, 255, 0.82) !important;
+  -webkit-backdrop-filter: blur(16px) saturate(160%);
+  backdrop-filter: blur(16px) saturate(160%);
+  box-shadow: 0 1px 0 rgba(29, 53, 87, 0.06), 0 6px 24px rgba(29, 53, 87, 0.05);
+  transition: background 0.4s ease, box-shadow 0.4s ease;
+}
+
+[data-theme="dark"] .navbar-main {
+  background: rgba(10, 12, 24, 0.82) !important;
+  box-shadow: 0 1px 0 rgba(120, 150, 200, 0.1), 0 6px 24px rgba(0, 0, 0, 0.4);
+}
+
+.navbar-logo {
+  font-weight: 800 !important;
+  letter-spacing: 0.5px;
+  background: linear-gradient(90deg, var(--pluto-accent), var(--pluto-accent-2));
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  transition: filter 0.3s ease;
+}
+
+.navbar-logo:hover {
+  filter: brightness(1.15);
+}
+
+/* 导航项：底部渐显下划线 */
+.navbar-start .navbar-item {
+  position: relative;
+  font-weight: 500;
+  transition: color 0.22s ease;
+}
+
+.navbar-start .navbar-item::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  bottom: 6px;
+  width: 0;
+  height: 2px;
+  border-radius: 2px;
+  background: linear-gradient(90deg, var(--pluto-accent), var(--pluto-accent-2));
+  transform: translateX(-50%);
+  transition: width 0.3s var(--pluto-ease);
+}
+
+.navbar-start .navbar-item:hover::after,
+.navbar-start .navbar-item.is-active::after {
+  width: calc(100% - 24px);
+}
+
+[data-theme="dark"] .navbar-start .navbar-item.is-active {
+  color: var(--pluto-accent) !important;
+}
+
+/* 小屏折叠按钮（由脚本按断点动态插入） */
+.pluto-nav-toggle {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  width: 38px;
+  height: 38px;
+  margin: 4px 8px 4px auto;
+  border: 1px solid var(--pluto-rule);
+  border-radius: 10px;
+  background: var(--pluto-card-solid);
+  color: var(--pluto-text);
+  cursor: pointer;
+  font-size: 15px;
+  transition: all 0.25s ease;
+  flex: 0 0 auto;
+}
+
+.pluto-nav-toggle:hover {
+  border-color: var(--pluto-accent);
+  color: var(--pluto-accent);
+}
+
+@media screen and (max-width: 1023px) {
+  .pluto-nav-toggle {
+    display: flex;
+  }
+}
+
+/* ---------- 5. 首页 Hero ---------- */
+.pluto-hero {
+  text-align: center;
+  padding: 54px 20px 34px;
+  position: relative;
+  animation: hero-in 0.8s var(--pluto-ease) both;
+}
+
+@keyframes hero-in {
+  from { opacity: 0; transform: translateY(18px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.pluto-hero .pluto-avatar {
+  width: 132px;
+  height: 132px;
+  border-radius: 50%;
+  border: 4px solid transparent;
+  background:
+    linear-gradient(var(--pluto-card-solid), var(--pluto-card-solid)) padding-box,
+    linear-gradient(135deg, var(--pluto-accent), var(--pluto-accent-2)) border-box;
+  box-shadow:
+    0 0 0 6px var(--pluto-accent-soft),
+    0 12px 34px rgba(29, 53, 87, 0.18);
+  animation: pluto-float 5s ease-in-out infinite;
+  transition: transform 0.45s var(--pluto-ease), box-shadow 0.45s ease;
+  object-fit: cover;
+}
+
+.pluto-hero .pluto-avatar:hover {
+  transform: rotate(6deg) scale(1.06);
+  box-shadow:
+    0 0 0 10px var(--pluto-accent-soft),
+    0 16px 44px rgba(50, 115, 220, 0.32);
+}
+
+@keyframes pluto-float {
+  0%, 100% { transform: translateY(0); }
+  50%      { transform: translateY(-9px); }
+}
+
+.pluto-hero h1 {
+  margin: 20px 0 0;
+  font-size: 2.35rem;
+  font-weight: 800;
+  letter-spacing: 3px;
+  background: linear-gradient(90deg, var(--pluto-accent), var(--pluto-accent-2));
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.pluto-hero .pluto-tagline {
+  margin-top: 8px;
+  font-size: 1rem;
+  color: var(--pluto-text-soft);
+  font-style: italic;
+  letter-spacing: 0.3px;
+}
+
+.pluto-hero-links {
+  margin-top: 20px;
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.pluto-hero-links a {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  font-size: 0.8rem;
+  border-radius: 999px;
+  border: 1px solid var(--pluto-rule);
+  background: var(--pluto-card);
+  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
+  color: var(--pluto-text-soft) !important;
+  transition: all 0.25s ease;
+}
+
+.pluto-hero-links a:hover {
+  color: var(--pluto-accent) !important;
+  border-color: var(--pluto-accent);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px var(--pluto-accent-soft);
+}
+
+.pluto-hero-links a i {
+  font-size: 0.78rem;
+}
+
+/* ---------- 6. 侧栏头像 ---------- */
+.profile .card-content .card-header .media .media-left figure img,
+.widget-profile .card-content .card-header .media .media-left figure img {
+  border: 3px solid transparent;
+  background:
+    linear-gradient(var(--pluto-card-solid), var(--pluto-card-solid)) padding-box,
+    linear-gradient(135deg, var(--pluto-accent), var(--pluto-accent-2)) border-box;
+  box-shadow: 0 6px 20px var(--pluto-accent-soft);
+  transition: transform 0.4s var(--pluto-ease), box-shadow 0.4s ease;
+  object-fit: cover;
+}
+
+.profile .card-content .card-header .media .media-left figure img:hover,
+.widget-profile .card-content .card-header .media .media-left figure img:hover {
+  transform: rotate(6deg) scale(1.06);
+  box-shadow: 0 10px 28px rgba(50, 115, 220, 0.3);
+}
+
+/* ---------- 7. 卡片基底（含侧栏小组件） ---------- */
+.card {
+  -webkit-backdrop-filter: blur(14px) saturate(140%);
+  backdrop-filter: blur(14px) saturate(140%);
+  background: var(--pluto-card) !important;
+  border: 1px solid var(--pluto-card-border);
+  border-radius: var(--pluto-radius);
+  box-shadow: var(--pluto-shadow);
+  transition: background 0.4s ease, border-color 0.4s ease, box-shadow 0.4s ease;
+}
+
+[data-theme="dark"] .card {
+  background: var(--pluto-card) !important;
+  border-color: var(--pluto-card-border);
+}
+
+/* 小组件标题：左侧渐变标记 */
+.card.widget .card-content .menu-label,
+.card.widget .card-header-title {
+  position: relative;
+  padding-left: 12px;
+  font-weight: 700;
+  letter-spacing: 0.4px;
+}
+
+.card.widget .card-content .menu-label::before,
+.card.widget .card-header-title::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 3px;
+  height: 1em;
+  border-radius: 2px;
+  background: linear-gradient(180deg, var(--pluto-accent), var(--pluto-accent-2));
+}
+
+/* 侧栏菜单项 hover */
+.card.widget .menu-list a {
+  border-radius: 8px;
+  transition: background 0.22s ease, color 0.22s ease, padding-left 0.22s ease;
+}
+
+.card.widget .menu-list a:hover {
+  background: var(--pluto-accent-soft);
+  color: var(--pluto-accent) !important;
+  padding-left: 10px;
+}
+
+[data-theme="dark"] a,
+[data-theme="dark"] .card-header-title,
+[data-theme="dark"] .title,
+[data-theme="dark"] .subtitle,
+[data-theme="dark"] .content h1,
+[data-theme="dark"] .content h2,
+[data-theme="dark"] .content h3,
+[data-theme="dark"] .content h4 {
+  color: var(--pluto-text);
+}
+
+/* 深色模式下正文文字统一提亮（提高权重，压过主题默认的深色文字） */
+[data-theme="dark"] .card-content.article .content,
+[data-theme="dark"] .card-content.article .content p,
+[data-theme="dark"] .card-content.article .content li,
+[data-theme="dark"] .card-content.article .content span,
+[data-theme="dark"] .card-content.article .content td,
+[data-theme="dark"] .card-content.article .content th,
+[data-theme="dark"] .card .content,
+[data-theme="dark"] .card .content p,
+[data-theme="dark"] .card .content li {
+  color: #d3dced;
+}
+
+/* 加粗在深色下要更亮一点，否则读不出强调 */
+[data-theme="dark"] .card-content.article .content strong,
+[data-theme="dark"] .card .content strong {
+  color: #f2f7ff;
+}
+
+/* 摘要里的链接 */
+[data-theme="dark"] .card .content a {
+  color: var(--pluto-accent);
+}
+
+[data-theme="dark"] code {
+  background: var(--pluto-code-bg);
+  color: #ffb86c;
+}
+
+/* 代码块内的 span 由语法高亮配色接管，不能被上面的深色提亮规则压掉 */
+[data-theme="dark"] pre code span,
+[data-theme="dark"] pre code .line,
+[data-theme="dark"] figure.highlight span,
+[data-theme="dark"] figure.highlight .line {
+  color: inherit;
+}
+
+/* ---------- 代码块：GitHub 风格（日 github / 夜 github-dark） ---------- */
+.card-content.article .content figure.highlight {
+  --hl-fg: #24292e;
+  --hl-bg: #ffffff;
+  --hl-gutter-bg: #f6f8fa;
+  --hl-gutter-fg: #8c959f;
+  --hl-border: #d0d7de;
+  --hl-accent: #d73a49;
+  --hl-title-bg: linear-gradient(180deg, #f6f8fa 0%, #eef1f4 100%);
+  --hl-shadow: 0 1px 0 rgba(27, 31, 36, 0.04), 0 8px 24px rgba(27, 31, 36, 0.06);
+
+  --hl-keyword: #d73a49;
+  --hl-title: #6f42c1;
+  --hl-number: #005cc5;
+  --hl-string: #032f62;
+  --hl-builtin: #e36209;
+  --hl-comment: #6a737d;
+  --hl-name: #22863a;
+  --hl-bullet: #735c0f;
+}
+
+[data-theme="dark"] .card-content.article .content figure.highlight {
+  --hl-fg: #c9d1d9;
+  --hl-bg: #0d1117;
+  --hl-gutter-bg: #161b22;
+  --hl-gutter-fg: #6e7681;
+  --hl-border: #30363d;
+  --hl-accent: #ff7b72;
+  --hl-title-bg: linear-gradient(180deg, #161b22 0%, #0f141a 100%);
+  --hl-shadow: 0 1px 0 rgba(255, 255, 255, 0.04), 0 8px 28px rgba(0, 0, 0, 0.55);
+
+  --hl-keyword: #ff7b72;
+  --hl-title: #d2a8ff;
+  --hl-number: #79c0ff;
+  --hl-string: #a5d6ff;
+  --hl-builtin: #ffa657;
+  --hl-comment: #8b949e;
+  --hl-name: #7ee787;
+  --hl-bullet: #f2cc60;
+}
+
+.card-content.article .content figure.highlight {
+  position: relative;
+  margin: 1.6em 0;
+  border: 1px solid var(--hl-border);
+  border-radius: 12px;
+  background: var(--hl-bg);
+  box-shadow: var(--hl-shadow);
+  overflow: hidden;
+}
+
+.card-content.article .content figure.highlight::before {
+  content: '';
+  display: block;
+  height: 40px;
+  border-bottom: 1px solid var(--hl-border);
+  background: var(--hl-title-bg);
+}
+
+.card-content.article .content figure.highlight::after {
+  content: '';
+  position: absolute;
+  top: 15px;
+  left: 16px;
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: var(--hl-accent);
+  box-shadow: 16px 0 0 #e5c07b, 32px 0 0 #56b46f;
+  opacity: 0.85;
+}
+
+.card-content.article .content figure.highlight table,
+.card-content.article .content figure.highlight tbody,
+.card-content.article .content figure.highlight tr,
+.card-content.article .content figure.highlight td {
+  display: block;
+  margin: 0;
+  border: 0;
+  background: transparent;
+  border-radius: 0;
+  padding: 0;
+}
+
+.card-content.article .content figure.highlight tr {
+  display: flex;
+  align-items: stretch;
+}
+
+.card-content.article .content figure.highlight td.gutter {
+  flex: 0 0 auto;
+  border-right: 1px solid var(--hl-border);
+  background: var(--hl-gutter-bg);
+  user-select: none;
+}
+
+.card-content.article .content figure.highlight td.code {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow-x: auto;
+}
+
+.card-content.article .content figure.highlight table tr:hover,
+.card-content.article .content figure.highlight tr:hover {
+  background: transparent;
+}
+
+.card-content.article .content figure.highlight pre {
+  margin: 0;
+  padding: 14px 18px;
+  border: 0;
+  border-radius: 0;
+  background: transparent !important;
+  box-shadow: none;
+  overflow: visible;
+}
+
+.card-content.article .content figure.highlight td.gutter pre {
+  padding: 14px 10px 14px 16px;
+  text-align: right;
+}
+
+.card-content.article .content figure.highlight .line {
+  display: block;
+  color: var(--hl-fg);
+  font-family: "JetBrains Mono", "Fira Code", "Cascadia Code", Consolas, "SFMono-Regular", Menlo, monospace;
+  font-size: 0.84rem;
+  line-height: 1.75;
+}
+
+.card-content.article .content figure.highlight td.gutter .line {
+  color: var(--hl-gutter-fg);
+  font-size: 0.78rem;
+}
+
+/* 语法着色（与 highlight.js 的 github / github-dark 配色对齐） */
+.card-content.article .content figure.highlight .keyword,
+.card-content.article .content figure.highlight .doctag,
+.card-content.article .content figure.highlight .template-tag,
+.card-content.article .content figure.highlight .template-variable,
+.card-content.article .content figure.highlight .type,
+.card-content.article .content figure.highlight .variable.language_ {
+  color: var(--hl-keyword);
+}
+
+.card-content.article .content figure.highlight .title,
+.card-content.article .content figure.highlight .title.class_,
+.card-content.article .content figure.highlight .title.function_ {
+  color: var(--hl-title);
+}
+
+.card-content.article .content figure.highlight .number,
+.card-content.article .content figure.highlight .literal,
+.card-content.article .content figure.highlight .attr,
+.card-content.article .content figure.highlight .attribute,
+.card-content.article .content figure.highlight .meta,
+.card-content.article .content figure.highlight .operator,
+.card-content.article .content figure.highlight .selector-id,
+.card-content.article .content figure.highlight .selector-class,
+.card-content.article .content figure.highlight .selector-attr,
+.card-content.article .content figure.highlight .variable:not(.language_) {
+  color: var(--hl-number);
+}
+
+.card-content.article .content figure.highlight .string,
+.card-content.article .content figure.highlight .regexp,
+.card-content.article .content figure.highlight .meta .string {
+  color: var(--hl-string);
+}
+
+.card-content.article .content figure.highlight .built_in,
+.card-content.article .content figure.highlight .builtin-name,
+.card-content .content figure.highlight .builtin-name,
+.card-content.article .content figure.highlight .symbol {
+  color: var(--hl-builtin);
+}
+
+.card-content.article .content figure.highlight .comment,
+.card-content.article .content figure.highlight .code,
+.card-content.article .content figure.highlight .quote,
+.card-content.article .content figure.highlight .formula {
+  color: var(--hl-comment);
+  font-style: italic;
+}
+
+.card-content.article .content figure.highlight .name,
+.card-content.article .content figure.highlight .selector-tag,
+.card-content.article .content figure.highlight .selector-pseudo {
+  color: var(--hl-name);
+}
+
+.card-content.article .content figure.highlight .bullet,
+.card-content.article .content figure.highlight .params {
+  color: var(--hl-bullet);
+}
+
+.card-content.article .content figure.highlight .subst {
+  color: var(--hl-fg);
+}
+
+.card-content.article .content figure.highlight .strong {
+  color: var(--hl-fg);
+  font-weight: 700;
+}
+
+.card-content.article .content figure.highlight .emphasis {
+  color: var(--hl-fg);
+  font-style: italic;
+}
+
+/* 复制按钮跟随标题栏 */
+.card-content.article .content figure.highlight .copy-button,
+.card-content.article .content figure.highlight .button {
+  top: 4px !important;
+  right: 12px !important;
+  height: 30px !important;
+  padding: 0 10px !important;
+  border-radius: 7px !important;
+  border: 1px solid var(--hl-border) !important;
+  background: var(--hl-bg) !important;
+  color: var(--hl-gutter-fg) !important;
+  font-size: 0.72rem !important;
+  opacity: 0.85;
+  transition: all 0.22s ease;
+}
+
+.card-content.article .content figure.highlight .copy-button:hover,
+.card-content.article .content figure.highlight .button:hover {
+  color: var(--hl-fg) !important;
+  border-color: var(--hl-keyword) !important;
+  opacity: 1;
+}
+
+[data-theme="dark"] .tag:not(body) {
+  background: var(--pluto-accent-soft);
+  color: var(--pluto-accent);
+}
+
+[data-theme="dark"] .footer {
+  background: rgba(6, 8, 18, 0.9) !important;
+}
+
+/* ---------- 8. 文章卡片（首页列表） ---------- */
+.card:has(.card-image):has(.article-more) {
+  display: flex;
+  flex-direction: row;
+  align-items: stretch;
+  min-height: 260px;
+  gap: 0;
+  overflow: hidden;
+  margin-bottom: 24px;
+  transition: transform 0.4s var(--pluto-ease), box-shadow 0.4s ease, border-color 0.4s ease;
+}
+
+.card:has(.card-image):has(.article-more) .card-image,
+.card:has(.card-image):has(.article-more) .card-content {
+  flex: 0 0 auto;
+}
+
+.card:has(.card-image):has(.article-more) .card-image {
+  flex: 0 0 42%;
+  max-width: 42%;
+  overflow: hidden;
+  position: relative;
+}
+
+/* 封面渐变遮罩，让图文过渡更自然 */
+.card:has(.card-image):has(.article-more) .card-image::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, rgba(255, 255, 255, 0) 55%, rgba(255, 255, 255, 0.18) 100%);
+  z-index: 1;
+  pointer-events: none;
+  transition: opacity 0.4s;
+}
+
+.card:has(.card-image):has(.article-more) .card-image .image {
+  display: block;
+  width: 100%;
+  height: 100%;
+  padding-bottom: 0 !important;
+}
+
+.card:has(.card-image):has(.article-more) .card-image img.fill {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.75s var(--pluto-ease), filter 0.5s ease;
+  display: block;
+}
+
+.card:has(.card-image):has(.article-more):hover .card-image img.fill {
+  transform: scale(1.08);
+  filter: saturate(1.1);
+}
+
+.card:has(.card-image):has(.article-more) .card-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  padding: 24px 28px;
+  min-width: 0;
+}
+
+.card:has(.card-image):has(.article-more) .card-content .title {
+  margin-top: 6px;
+  margin-bottom: 12px;
+  font-size: 1.32rem !important;
+  line-height: 1.45;
+  font-weight: 700;
+  transition: color 0.25s ease;
+}
+
+.card:has(.card-image):has(.article-more):hover .card-content .title {
+  color: var(--pluto-accent);
+}
+
+.card:has(.card-image):has(.article-more) .card-content .content {
+  flex: 1;
+  margin-bottom: 14px;
+}
+
+/* 元信息：弱化 + 分类高亮 */
+.card:has(.card-image):has(.article-more) .card-content .article-meta {
+  font-size: 0.7rem !important;
+  letter-spacing: 0.4px;
+  opacity: 0.9;
+  color: var(--pluto-text-soft);
+}
+
+/* 「阅读全文」按钮 */
+.card:has(.card-image):has(.article-more) .card-content .article-more {
+  align-self: flex-start;
+  margin-top: auto;
+  padding: 6px 16px !important;
+  background: transparent !important;
+  border: 1.5px solid var(--pluto-accent) !important;
+  border-radius: 999px;
+  color: var(--pluto-accent) !important;
+  font-weight: 600;
+  transition: all 0.28s var(--pluto-ease);
+}
+
+.card:has(.card-image):has(.article-more) .card-content .article-more:hover {
+  background: var(--pluto-accent) !important;
+  color: #fff !important;
+  transform: translateX(5px);
+  box-shadow: 0 6px 18px var(--pluto-accent-soft);
+}
+
+/* 左右交替布局 */
+.column-main > .card:nth-child(even):has(.card-image):has(.article-more) {
+  flex-direction: row-reverse;
+}
+
+.column-main > .card:nth-child(even):has(.card-image):has(.article-more) .card-image::before {
+  background: linear-gradient(-90deg, rgba(255, 255, 255, 0) 55%, rgba(255, 255, 255, 0.18) 100%);
+}
+
+.column-main > .card:nth-child(even):has(.card-image):has(.article-more) .card-content .article-more {
+  align-self: flex-end;
+}
+
+.column-main > .card:nth-child(even):has(.card-image):has(.article-more) .card-content .article-more:hover {
+  transform: translateX(-5px);
+}
+
+[data-theme="dark"] .card:has(.card-image):has(.article-more) {
+  background: rgba(18, 20, 36, 0.88) !important;
+  border: 1px solid var(--pluto-card-border);
+}
+
+[data-theme="dark"] .card:has(.card-image):has(.article-more) .card-image::before {
+  background: linear-gradient(90deg, rgba(0, 0, 0, 0) 55%, rgba(0, 0, 0, 0.5) 100%);
+}
+
+[data-theme="dark"] .column-main > .card:nth-child(even):has(.card-image):has(.article-more) .card-image::before {
+  background: linear-gradient(-90deg, rgba(0, 0, 0, 0) 55%, rgba(0, 0, 0, 0.5) 100%);
+}
+
+/* 无封面的卡片：给个左侧强调条 */
+.column-main > .card:not(:has(.card-image)):not(.widget) {
+  border-left: 3px solid transparent;
+  transition: border-color 0.3s ease, box-shadow 0.3s ease, transform 0.3s var(--pluto-ease);
+}
+
+.column-main > .card:not(:has(.card-image)):not(.widget):hover {
+  border-left-color: var(--pluto-accent);
+}
+
+/* 卡片整体 hover 抬升 */
+.card:has(.card-image):has(.article-more):hover {
+  transform: translateY(-4px);
+  box-shadow: var(--pluto-shadow-hover);
+}
+
+[data-theme="dark"] .card:has(.card-image):has(.article-more):hover {
+  box-shadow: 0 14px 40px rgba(0, 100, 240, 0.25);
+}
+
+/* ---------- 9. 正文阅读增强 ---------- */
+.card-content.article .content {
+  font-size: 1rem;
+  line-height: 1.85;
+  letter-spacing: 0.01em;
+}
+
+.card-content.article .content > p {
+  margin-bottom: 1.1em;
+}
+
+/* 标题：阅读节奏 + 渐变下划线 */
+.card-content.article .content h2,
+.card-content.article .content h3 {
+  position: relative;
+  scroll-margin-top: 88px;
+  margin-top: 2em;
+  margin-bottom: 0.8em;
+  font-weight: 700;
+}
+
+.card-content.article .content h2 {
+  padding-bottom: 0.42em;
+  border-bottom: 1px solid var(--pluto-rule);
+}
+
+.card-content.article .content h2::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  bottom: -1px;
+  width: 56px;
+  height: 3px;
+  border-radius: 3px;
+  background: linear-gradient(90deg, var(--pluto-accent), var(--pluto-accent-2));
+}
+
+.card-content.article .content h3 {
+  padding-left: 12px;
+}
+
+.card-content.article .content h3::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0.28em;
+  bottom: 0.28em;
+  width: 3px;
+  border-radius: 3px;
+  background: linear-gradient(180deg, var(--pluto-accent), var(--pluto-accent-2));
+}
+
+/* 行内代码 */
+.card-content.article .content code:not([class*="language-"]):not(.hljs) {
+  background: var(--pluto-code-bg);
+  color: #d6336c;
+  padding: 0.15em 0.42em;
+  border-radius: 5px;
+  font-size: 0.88em;
+  border: 1px solid var(--pluto-rule);
+}
+
+[data-theme="dark"] .card-content.article .content code:not([class*="language-"]):not(.hljs) {
+  color: #ff9ecd;
+}
+
+/* 代码块（具体外观见上方 GitHub 风格区块，这里只做兜底） */
+.card-content.article .content pre {
+  border-radius: 12px;
+  border: 1px solid var(--pluto-rule);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.6);
+  position: relative;
+}
+
+[data-theme="dark"] .card-content.article .content pre {
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
+}
+
+.card-content.article .content pre code {
+  font-size: 0.86rem;
+  line-height: 1.7;
+}
+
+.card-content.article .content figure.highlight pre,
+.card-content.article .content figure.highlight pre code {
+  box-shadow: none;
+  border: 0;
+  border-radius: 0;
+}
+
+/* 引用块 */
+.card-content.article .content blockquote {
+  background: var(--pluto-quote-bg);
+  border-left: 3px solid var(--pluto-accent);
+  border-radius: 0 10px 10px 0;
+  padding: 14px 18px;
+  color: var(--pluto-text-soft);
+  font-style: normal;
+}
+
+/* 表格 */
+.card-content.article .content table {
+  border-radius: 10px;
+  overflow: hidden;
+  border: 1px solid var(--pluto-rule);
+}
+
+.card-content.article .content table th {
+  background: var(--pluto-accent-soft);
+  font-weight: 700;
+}
+
+.card-content.article .content table tr:hover {
+  background: var(--pluto-accent-soft);
+}
+
+/* 图片 */
+.card-content.article .content img {
+  border-radius: 10px;
+  box-shadow: 0 8px 24px rgba(29, 53, 87, 0.1);
+  transition: transform 0.4s var(--pluto-ease);
+}
+
+.card-content.article .content img:hover {
+  transform: scale(1.01);
+}
+
+/* 列表 */
+.card-content.article .content ul li::marker,
+.card-content.article .content ol li::marker {
+  color: var(--pluto-accent);
+  font-weight: 700;
+}
+
+/* 分割线 */
+.card-content.article .content hr {
+  background: var(--pluto-rule);
+  height: 1px;
+  margin: 2.4em 0;
+}
+
+/* 文章标签徽章 */
+.card-content.article .article-tags a {
+  display: inline-block;
+  padding: 1px 9px;
+  margin-bottom: 4px;
+  border-radius: 999px;
+  background: var(--pluto-accent-soft);
+  color: var(--pluto-accent) !important;
+  transition: all 0.22s ease;
+}
+
+.card-content.article .article-tags a:hover {
+  background: var(--pluto-accent);
+  color: #fff !important;
+}
+
+/* 文章内 TOC（左侧 sticky） */
+.card.widget[data-type="toc"] a.toc-link {
+  border-radius: 6px;
+  transition: all 0.22s ease;
+}
+
+.card.widget[data-type="toc"] a.toc-link.is-active-link {
+  color: var(--pluto-accent) !important;
+  font-weight: 600;
+  background: var(--pluto-accent-soft);
+}
+
+/* 上下篇导航 */
+.post-navigation .article-nav-prev,
+.post-navigation .article-nav-next {
+  padding: 10px 14px;
+  border-radius: 10px;
+  border: 1px solid var(--pluto-rule);
+  transition: all 0.25s ease;
+  max-width: 100%;
+}
+
+.post-navigation .article-nav-prev:hover,
+.post-navigation .article-nav-next:hover {
+  border-color: var(--pluto-accent);
+  background: var(--pluto-accent-soft);
+  color: var(--pluto-accent) !important;
+}
+
+/* 分页 */
+.pagination .pagination-link,
+.pagination .pagination-next,
+.pagination .pagination-previous {
+  border-radius: 10px;
+  transition: all 0.22s ease;
+}
+
+.pagination .pagination-link.is-current {
+  background: linear-gradient(135deg, var(--pluto-accent), var(--pluto-accent-2));
+  border-color: transparent;
+  color: #fff;
+}
+
+/* ---------- 10. 页脚 ---------- */
+.footer {
+  background: rgba(255, 255, 255, 0.72) !important;
+  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(12px);
+  border-top: 1px solid var(--pluto-rule);
+  transition: background 0.4s ease;
+}
+
+.footer-logo {
+  font-weight: 800;
+  background: linear-gradient(90deg, var(--pluto-accent), var(--pluto-accent-2));
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+/* 资源小组件里的外链：hover 有反馈、hostname 弱化 */
+.card.widget .menu-list a .tag {
+  opacity: 0.55;
+  font-size: 0.66rem;
+  transition: opacity 0.22s ease;
+}
+
+.card.widget .menu-list a:hover .tag {
+  opacity: 1;
+}
+
+/* ---------- 11. 浮动控件 ---------- */
+.theme-toggle {
+  position: fixed;
+  top: 80px;
+  right: 24px;
+  z-index: 999;
+  width: 46px;
+  height: 46px;
+  border-radius: 50%;
+  border: 1px solid var(--pluto-card-border);
+  background: rgba(255, 255, 255, 0.72);
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+  cursor: pointer;
+  font-size: 19px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s var(--pluto-ease);
+  box-shadow: 0 4px 16px rgba(29, 53, 87, 0.1);
+}
+
+.theme-toggle:hover {
+  transform: rotate(20deg) scale(1.08);
+  box-shadow: 0 8px 24px rgba(29, 53, 87, 0.18);
+  border-color: var(--pluto-accent);
+}
+
+[data-theme="dark"] .theme-toggle {
+  background: rgba(24, 26, 44, 0.82);
+  border-color: var(--pluto-card-border);
+  color: #ffd86b;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+}
+
+/* 回到顶部 */
+.pluto-totop {
+  position: fixed;
+  right: 24px;
+  bottom: 28px;
+  z-index: 999;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  border: 1px solid var(--pluto-card-border);
+  background: rgba(255, 255, 255, 0.75);
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+  color: var(--pluto-text-soft);
+  font-size: 18px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(12px);
+  transition: all 0.32s var(--pluto-ease);
+  box-shadow: 0 4px 16px rgba(29, 53, 87, 0.1);
+}
+
+.pluto-totop.is-visible {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+}
+
+.pluto-totop:hover {
+  color: #fff;
+  background: linear-gradient(135deg, var(--pluto-accent), var(--pluto-accent-2));
+  border-color: transparent;
+  box-shadow: 0 8px 24px var(--pluto-accent-soft);
+}
+
+[data-theme="dark"] .pluto-totop {
+  background: rgba(24, 26, 44, 0.82);
+  border-color: var(--pluto-card-border);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+}
+
+/* 阅读进度条 */
+.pluto-progress {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 3px;
+  z-index: 1000;
+  transform: scaleX(0);
+  transform-origin: 0 50%;
+  background: linear-gradient(90deg, var(--pluto-accent), var(--pluto-accent-2));
+  opacity: 0;
+  transition: opacity 0.2s ease;
+  pointer-events: none;
+  box-shadow: 0 0 10px var(--pluto-accent);
+}
+
+/* 自定义光标：白天琥珀金日光，夜晚青蓝月光 */
+@media (hover: hover) and (pointer: fine) {
+  html.pluto-cursor body,
+  html.pluto-cursor body * {
+    cursor: none !important;
+  }
+
+  html.pluto-cursor body a,
+  html.pluto-cursor body button,
+  html.pluto-cursor body .button,
+  html.pluto-cursor body [role="button"],
+  html.pluto-cursor body summary,
+  html.pluto-cursor body label {
+    cursor: none !important;
+  }
+
+  html.pluto-cursor body input,
+  html.pluto-cursor body textarea,
+  html.pluto-cursor body select,
+  html.pluto-cursor body [contenteditable="true"] {
+    cursor: auto !important;
+  }
+}
+
+/* ---------- 12. 动效降级 & 响应式 ---------- */
+@media (prefers-reduced-motion: reduce) {
+  .cloud,
+  .star,
+  .shooting-star,
+  .pluto-hero .pluto-avatar {
+    animation: none !important;
+  }
+  * {
+    transition-duration: 0.01ms !important;
+  }
+}
+
+@media screen and (max-width: 768px) {
+  /* 文章卡片改为上下堆叠 */
+  .card:has(.card-image):has(.article-more),
+  .column-main > .card:nth-child(even):has(.card-image):has(.article-more) {
+    flex-direction: column !important;
+    min-height: auto;
+  }
+
+  .card:has(.card-image):has(.article-more) .card-image {
+    flex: 0 0 190px;
+    max-width: 100%;
+    height: 190px;
+  }
+
+  .card:has(.card-image):has(.article-more) .card-image img.fill {
+    height: 190px;
+  }
+
+  .card:has(.card-image):has(.article-more) .card-content {
+    padding: 18px 20px;
+  }
+
+  .card:has(.card-image):has(.article-more) .card-content .article-more,
+  .column-main > .card:nth-child(even):has(.card-image):has(.article-more) .card-content .article-more {
+    align-self: flex-start;
+  }
+
+  /* Hero 与浮动控件缩小 */
+  .pluto-hero {
+    padding: 34px 12px 24px;
+  }
+
+  .pluto-hero .pluto-avatar {
+    width: 100px;
+    height: 100px;
+  }
+
+  .pluto-hero h1 {
+    font-size: 1.85rem;
+    letter-spacing: 2px;
+  }
+
+  .theme-toggle {
+    top: auto;
+    right: 16px;
+    bottom: 84px;
+    width: 42px;
+    height: 42px;
+    font-size: 17px;
+  }
+
+  .pluto-totop {
+    right: 16px;
+    bottom: 28px;
+    width: 42px;
+    height: 42px;
+  }
+
+  .card-content.article .content {
+    font-size: 0.97rem;
+    line-height: 1.78;
+  }
+
+  .card-content.article .content h2 {
+    margin-top: 1.7em;
+  }
+}
+
+@media screen and (max-width: 480px) {
+  .pluto-hero-links a {
+    font-size: 0.74rem;
+    padding: 5px 11px;
+  }
+}

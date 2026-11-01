@@ -1,0 +1,46 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 400">
+<defs>
+<linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+<stop offset="0%" stop-color="#001a33"/>
+<stop offset="100%" stop-color="#003366"/>
+</linearGradient>
+<filter id="glow"><feGaussianBlur stdDeviation="3" result="blur"/><feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+</defs>
+<rect width="800" height="400" fill="url(#bg)"/>
+<g fill="#00d4ff" filter="url(#glow)">
+<circle cx="120" cy="80" r="5"/>
+<circle cx="280" cy="100" r="6"/>
+<circle cx="400" cy="60" r="5"/>
+<circle cx="520" cy="90" r="5"/>
+<circle cx="680" cy="70" r="6"/>
+<circle cx="120" cy="320" r="6"/>
+<circle cx="280" cy="300" r="5"/>
+<circle cx="400" cy="340" r="5"/>
+<circle cx="520" cy="310" r="6"/>
+<circle cx="680" cy="330" r="5"/>
+<circle cx="400" cy="200" r="8"/>
+</g>
+<g stroke="#00d4ff" stroke-width="1" fill="none" opacity="0.5">
+<line x1="120" y1="80" x2="280" y2="100"/>
+<line x1="280" y1="100" x2="400" y2="60"/>
+<line x1="400" y1="60" x2="520" y2="90"/>
+<line x1="520" y1="90" x2="680" y2="70"/>
+<line x1="120" y1="320" x2="280" y2="300"/>
+<line x1="280" y1="300" x2="400" y2="340"/>
+<line x1="400" y1="340" x2="520" y2="310"/>
+<line x1="520" y1="310" x2="680" y2="330"/>
+<line x1="120" y1="80" x2="400" y2="200"/>
+<line x1="280" y1="100" x2="400" y2="200"/>
+<line x1="400" y1="60" x2="400" y2="200"/>
+<line x1="520" y1="90" x2="400" y2="200"/>
+<line x1="680" y1="70" x2="400" y2="200"/>
+<line x1="120" y1="320" x2="400" y2="200"/>
+<line x1="280" y1="300" x2="400" y2="200"/>
+<line x1="400" y1="340" x2="400" y2="200"/>
+<line x1="520" y1="310" x2="400" y2="200"/>
+<line x1="680" y1="330" x2="400" y2="200"/>
+</g>
+<text x="400" y="205" text-anchor="middle" font-family="monospace" font-size="10" fill="#001a33" font-weight="bold">NET</text>
+<text x="400" y="60" text-anchor="middle" font-family="monospace" font-size="44" font-weight="bold" fill="#fff" filter="url(#glow)" dy="-80">WEB</text>
+<text x="400" y="200" text-anchor="middle" font-family="monospace" font-size="14" fill="#00d4ff" opacity="0.8">192.168.1.1 → 10.0.0.1 [SYN, ACK]</text>
+</svg>

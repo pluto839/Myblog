@@ -1,0 +1,251 @@
+<!doctype html>
+<html lang="zh"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"><meta name="robots" content="noindex"><title>标签: 博客搭建 - Pluto&#039;s Notes</title><link rel="manifest" href="/Myblog/manifest.json"><meta name="theme-color" content="#3273dc"><meta name="application-name" content="极客笔记"><meta name="msapplication-TileImage" content="/img/icon.svg"><meta name="msapplication-TileColor" content="#3273dc"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="极客笔记"><meta name="apple-mobile-web-app-status-bar-style" content="default"><link rel="apple-touch-icon" sizes="192x192" href="/img/icon.svg"><meta name="description" content="一个极客的技术笔记与知识分享站"><meta property="og:type" content="website"><meta property="og:title" content="极客笔记"><meta property="og:url" content="https://pluto839.github.io/Myblog"><meta property="og:site_name" content="Pluto&#039;s Notes"><meta property="og:description" content="一个极客的技术笔记与知识分享站"><meta property="og:locale" content="zh_CN"><meta property="og:image" content="https://pluto839.github.io/img/og_image.png"><meta property="article:author" content="Pluto"><meta property="article:tag" content="极客"><meta property="article:tag" content="技术笔记"><meta property="article:tag" content="编程"><meta property="article:tag" content="开源"><meta property="twitter:card" content="summary"><meta property="twitter:image:src" content="https://pluto839.github.io/img/og_image.png"><script type="application/ld+json">{"@context":"https://schema.org","@type":"BlogPosting","mainEntityOfPage":{"@type":"WebPage","@id":"https://pluto839.github.io/Myblog"},"headline":"Pluto's Notes","image":["https://pluto839.github.io/Myblog/img/og_image.png"],"author":{"@type":"Person","name":"Pluto"},"publisher":{"@type":"Organization","name":"Pluto's Notes","logo":{"@type":"ImageObject","url":{"text":"Pluto's Notes"}}},"description":"一个极客的技术笔记与知识分享站"}</script><link rel="icon" href="/Myblog/img/avatar.jpg"><link rel="stylesheet" href="https://use.fontawesome.com/releases/v6.0.0/css/all.css"><link data-pjax rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@11.7.0/styles/atom-one-light.css"><link rel="stylesheet" href="jsdelivr"><link data-pjax rel="stylesheet" href="/Myblog/css/default.css"><style>body>.footer,body>.navbar,body>.section{opacity:0}</style><!--!--><style>.pace{-webkit-pointer-events:none;pointer-events:none;-webkit-user-select:none;-moz-user-select:none;user-select:none}.pace-inactive{display:none}.pace .pace-progress{background:#3273dc;position:fixed;z-index:2000;top:0;right:100%;width:100%;height:2px}</style><script src="https://cdn.jsdelivr.net/npm/pace-js@1.2.4/pace.min.js"></script><!-- hexo injector head_end start --><script>
+  (function () {
+      function switchTab() {
+          if (!location.hash) {
+            return;
+          }
+
+          const id = '#' + CSS.escape(location.hash.substring(1));
+          const $tabMenu = document.querySelector(`.tabs a[href="${id}"]`);
+          if (!$tabMenu) {
+            return;
+          }
+
+          const $tabMenuContainer = $tabMenu.parentElement.parentElement;
+          Array.from($tabMenuContainer.children).forEach($menu => $menu.classList.remove('is-active'));
+          Array.from($tabMenuContainer.querySelectorAll('a'))
+              .map($menu => document.getElementById($menu.getAttribute("href").substring(1)))
+              .forEach($content => $content.classList.add('is-hidden'));
+
+          if ($tabMenu) {
+              $tabMenu.parentElement.classList.add('is-active');
+          }
+          const $activeTab = document.querySelector(id);
+          if ($activeTab) {
+              $activeTab.classList.remove('is-hidden');
+          }
+      }
+      switchTab();
+      window.addEventListener('hashchange', switchTab, false);
+  })();
+  </script>
+<meta name="data-root" content="/Myblog/">
+<link rel="stylesheet" href="/Myblog/css/pluto-custom.css">
+<script>
+  // 尽早执行，避免深色模式首屏白闪
+  (function () {
+    var s = localStorage.getItem('pluto-theme');
+    var pd = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+    var t = s || (pd ? 'dark' : 'light');
+    var d = document.documentElement;
+    d.setAttribute('data-theme', t);
+    d.setAttribute('data-root', '/Myblog/');
+    d.classList.add('pluto-anim');
+    // 兜底：主题入场脚本万一没跑，1.2s 后强制显形，绝不把页面卡在半透明
+    setTimeout(function () {
+      d.classList.remove('pluto-anim');
+    }, 1200);
+  })();
+</script>
+<!-- hexo injector head_end end --><meta name="generator" content="Hexo 8.1.2"><link rel="alternate" href="/Myblog/atom.xml" title="Pluto's Notes" type="application/atom+xml">
+</head><body class="is-3-column"><nav class="navbar navbar-main"><div class="container navbar-container"><div class="navbar-brand justify-content-center"><a class="navbar-item navbar-logo" href="/Myblog/">Pluto&#039;s Notes</a></div><div class="navbar-menu"><div class="navbar-start"><a class="navbar-item" href="/Myblog/">首页</a><a class="navbar-item" href="/Myblog/archives">归档</a><a class="navbar-item" href="/Myblog/categories">分类</a><a class="navbar-item" href="/Myblog/tags">标签</a><a class="navbar-item" href="/Myblog/about">关于</a></div><div class="navbar-end"><a class="navbar-item" target="_blank" rel="noopener" title="GitHub" href="https://github.com/pluto839"><i class="fab fa-github"></i></a><a class="navbar-item search" title="搜索" href="javascript:;"><i class="fas fa-search"></i></a></div></div></div></nav><section class="section"><div class="container"><div class="columns"><div class="column order-2 column-main is-8-tablet is-8-desktop is-6-widescreen"><div class="card"><div class="card-content"><nav class="breadcrumb" aria-label="breadcrumbs"><ul><li><a href="/Myblog/tags/">标签</a></li><li class="is-active"><a href="#" aria-current="page">博客搭建</a></li></ul></nav></div></div><div class="card"><div class="card-image"><a class="image is-7by3" href="/Myblog/2026/08/08/%E4%BB%8E%E9%9B%B6%E6%90%AD%E5%BB%BA%E6%9E%81%E5%AE%A2%E5%8D%9A%E5%AE%A2%EF%BC%9A%E7%94%A8-Hexo-%E6%89%93%E9%80%A0%E4%B8%AA%E4%BA%BA%E6%8A%80%E6%9C%AF%E7%AC%94%E8%AE%B0%E7%AB%99/"><img class="fill" src="/Myblog/img/covers/hexo-blog.jpeg" alt="从零搭建极客博客：用 Hexo 打造个人技术笔记站"></a></div><article class="card-content article" role="article"><div class="article-meta is-size-7 is-uppercase level is-mobile"><div class="level-left"><span class="level-item"><time dateTime="2026-08-08T15:40:00.000Z" title="2026/8/8 23:40:00">2026-08-08</time>发表</span><span class="level-item"><time dateTime="2026-11-01T08:48:35.644Z" title="2026/11/1 16:48:35">2026-11-01</time>更新</span><span class="level-item"><a class="link-muted" href="/Myblog/categories/%E6%8A%80%E6%9C%AF%E7%AC%94%E8%AE%B0/">技术笔记</a></span><span class="level-item">11 分钟读完 (大约1606个字)</span></div></div><p class="title is-3 is-size-4-mobile"><a class="link-muted" href="/Myblog/2026/08/08/%E4%BB%8E%E9%9B%B6%E6%90%AD%E5%BB%BA%E6%9E%81%E5%AE%A2%E5%8D%9A%E5%AE%A2%EF%BC%9A%E7%94%A8-Hexo-%E6%89%93%E9%80%A0%E4%B8%AA%E4%BA%BA%E6%8A%80%E6%9C%AF%E7%AC%94%E8%AE%B0%E7%AB%99/">从零搭建极客博客：用 Hexo 打造个人技术笔记站</a></p><div class="content"><p>在这个信息爆炸的时代，我始终相信：<strong>最好的学习方式是教别人，而最好的教别人方式是写下来。</strong></p><p>在浏览了大量技术博客（比如 <a target="_blank" rel="noopener" href="https://itsa1right.ink/">itsa1right.ink</a>、<a target="_blank" rel="noopener" href="https://blog.yanxisishi.top/">blog.yanxisishi.top</a>）之后，我决定搭建一个属于自己的极客笔记站。经过调研，我选择了以下技术栈：</p></div><a class="article-more button is-small is-size-7" href="/Myblog/2026/08/08/%E4%BB%8E%E9%9B%B6%E6%90%AD%E5%BB%BA%E6%9E%81%E5%AE%A2%E5%8D%9A%E5%AE%A2%EF%BC%9A%E7%94%A8-Hexo-%E6%89%93%E9%80%A0%E4%B8%AA%E4%BA%BA%E6%8A%80%E6%9C%AF%E7%AC%94%E8%AE%B0%E7%AB%99/#more">阅读更多</a></article></div></div><div class="column column-left is-4-tablet is-4-desktop is-3-widescreen  order-1 is-sticky"><div class="card widget" data-type="profile"><div class="card-content"><nav class="level"><div class="level-item has-text-centered flex-shrink-1"><div><figure class="image is-128x128 mx-auto mb-2"><img class="avatar is-rounded" src="/Myblog/img/avatar.jpg" alt="Pluto"></figure><p class="title is-size-4 is-block" style="line-height:inherit;">Pluto</p><p class="is-size-6 is-block">Hack the planet</p><p class="is-size-6 is-flex justify-content-center"><i class="fas fa-map-marker-alt mr-1"></i><span>Cyberspace</span></p></div></div></nav><nav class="level is-mobile"><div class="level-item has-text-centered is-marginless"><div><p class="heading">文章</p><a href="/Myblog/archives/"><p class="title">8</p></a></div></div><div class="level-item has-text-centered is-marginless"><div><p class="heading">分类</p><a href="/Myblog/categories/"><p class="title">4</p></a></div></div><div class="level-item has-text-centered is-marginless"><div><p class="heading">标签</p><a href="/Myblog/tags/"><p class="title">10</p></a></div></div></nav><div class="level"><a class="level-item button is-primary is-rounded" href="https://github.com/pluto839" target="_blank" rel="me noopener">关注我</a></div><div class="level is-mobile is-multiline"><a class="level-item button is-transparent is-marginless" target="_blank" rel="me noopener" title="GitHub" href="https://github.com/pluto839"><i class="fab fa-github"></i></a><a class="level-item button is-transparent is-marginless" target="_blank" rel="me noopener" title="RSS" href="/Myblog/atom.xml"><i class="fas fa-rss"></i></a></div></div></div><!--!--><div class="column-right-shadow is-hidden-widescreen"></div></div><div class="column column-right is-4-tablet is-4-desktop is-3-widescreen is-hidden-touch is-hidden-desktop-only order-3"><div class="card widget" data-type="categories"><div class="card-content"><div class="menu"><h3 class="menu-label">分类</h3><ul class="menu-list"><li><a class="level is-mobile" href="/Myblog/categories/CTF/"><span class="level-start"><span class="level-item">CTF</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile" href="/Myblog/categories/Web%E6%B8%97%E9%80%8F%E6%B5%8B%E8%AF%95/"><span class="level-start"><span class="level-item">Web渗透测试</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/Myblog/categories/%E5%AF%86%E7%A0%81%E5%AD%A6/"><span class="level-start"><span class="level-item">密码学</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/Myblog/categories/%E6%8A%80%E6%9C%AF%E7%AC%94%E8%AE%B0/"><span class="level-start"><span class="level-item">技术笔记</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li></ul></div></div></div><div class="card widget" data-type="tags"><div class="card-content"><div class="menu"><h3 class="menu-label">标签</h3><div class="field is-grouped is-grouped-multiline"><div class="control"><a class="tags has-addons" href="/Myblog/tags/CTF/"><span class="tag">CTF</span><span class="tag">6</span></a></div><div class="control"><a class="tags has-addons" href="/Myblog/tags/Web%E5%AE%89%E5%85%A8/"><span class="tag">Web安全</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/Myblog/tags/WriteUp/"><span class="tag">WriteUp</span><span class="tag">4</span></a></div><div class="control"><a class="tags has-addons" href="/Myblog/tags/%E4%BF%A1%E6%81%AF%E6%94%B6%E9%9B%86/"><span class="tag">信息收集</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/Myblog/tags/%E5%8A%A0%E5%AF%86%E7%AE%97%E6%B3%95/"><span class="tag">加密算法</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/Myblog/tags/%E5%8D%9A%E5%AE%A2%E6%90%AD%E5%BB%BA/"><span class="tag">博客搭建</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/Myblog/tags/%E5%AF%86%E7%A0%81%E5%AD%A6/"><span class="tag">密码学</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/Myblog/tags/%E6%AF%94%E8%B5%9B/"><span class="tag">比赛</span><span class="tag">3</span></a></div><div class="control"><a class="tags has-addons" href="/Myblog/tags/%E6%B8%97%E9%80%8F%E6%B5%8B%E8%AF%95/"><span class="tag">渗透测试</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/Myblog/tags/%E9%80%86%E5%90%91%E5%B7%A5%E7%A8%8B/"><span class="tag">逆向工程</span><span class="tag">1</span></a></div></div></div></div></div><div class="card widget" data-type="archives"><div class="card-content"><div class="menu"><h3 class="menu-label">归档</h3><ul class="menu-list"><li><a class="level is-mobile" href="/Myblog/archives/2026/11/"><span class="level-start"><span class="level-item">十一月 2026</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/Myblog/archives/2026/10/"><span class="level-start"><span class="level-item">十月 2026</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/Myblog/archives/2026/09/"><span class="level-start"><span class="level-item">九月 2026</span></span><span class="level-end"><span class="level-item tag">3</span></span></a></li><li><a class="level is-mobile" href="/Myblog/archives/2026/08/"><span class="level-start"><span class="level-item">八月 2026</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li></ul></div></div></div><div class="card widget" data-type="recent-posts"><div class="card-content"><h3 class="menu-label">最新文章</h3><article class="media"><div class="media-content"><p class="date"><time dateTime="2026-11-01T12:00:00.000Z">2026-11-01</time></p><p class="title"><a href="/Myblog/2026/11/01/%E7%AC%AC%E5%85%AB%E5%B1%8A%E6%B5%B7%E4%B8%B0%E6%9D%AF%E5%88%9D%E8%B5%9B%E5%85%A8%E8%A7%A3wp/">第八届「海丰杯」初赛全解 WriteUp（20 题全解）</a></p><p class="categories"><a href="/Myblog/categories/CTF/">CTF</a></p></div></article><article class="media"><div class="media-content"><p class="date"><time dateTime="2026-10-24T11:00:00.000Z">2026-10-24</time></p><p class="title"><a href="/Myblog/2026/10/24/%E7%AC%AC%E5%8D%81%E4%B8%83%E5%B1%8A%E8%93%9D%E6%A1%A5%E6%9D%AF%E7%BD%91%E7%BB%9C%E5%AE%89%E5%85%A8%E8%B5%9B%E9%81%93-%E5%9B%BD%E8%B5%9B-WriteUp/">第十七届蓝桥杯网络安全赛道 国赛 WriteUp（6 道全解）</a></p><p class="categories"><a href="/Myblog/categories/CTF/">CTF</a></p></div></article><article class="media"><div class="media-content"><p class="date"><time dateTime="2026-10-24T10:00:00.000Z">2026-10-24</time></p><p class="title"><a href="/Myblog/2026/10/24/%E7%AC%AC%E5%8D%81%E4%B8%83%E5%B1%8A%E8%93%9D%E6%A1%A5%E6%9D%AF%E7%BD%91%E7%BB%9C%E5%AE%89%E5%85%A8%E8%B5%9B%E9%81%93-%E7%9C%81%E8%B5%9B-WriteUp/">第十七届蓝桥杯网络安全赛道 省赛 WriteUp（8 道全解）</a></p><p class="categories"><a href="/Myblog/categories/CTF/">CTF</a></p></div></article><article class="media"><div class="media-content"><p class="date"><time dateTime="2026-09-16T02:00:00.000Z">2026-09-16</time></p><p class="title"><a href="/Myblog/2026/09/16/CTF%E9%80%86%E5%90%91%E5%88%B7%E9%A2%98%E5%85%A5%E9%97%A8%E6%8C%87%E5%8D%97%EF%BC%9AIDA%E4%BB%8E%E5%AE%89%E8%A3%85%E5%88%B0%E5%8A%A8%E6%80%81%E8%B0%83%E8%AF%95/">CTF逆向刷题入门指南：IDA从安装到动态调试</a></p><p class="categories"><a href="/Myblog/categories/CTF/">CTF</a></p></div></article><article class="media"><div class="media-content"><p class="date"><time dateTime="2026-09-16T01:00:00.000Z">2026-09-16</time></p><p class="title"><a href="/Myblog/2026/09/16/Web%E5%91%BD%E4%BB%A4%E6%89%A7%E8%A1%8C%E4%B8%8E%E7%BB%95%E8%BF%87%E5%AE%9E%E6%88%98%EF%BC%9A%E4%BB%8Eezcmd%E5%88%B0%E6%97%A0%E5%AD%97%E6%AF%8D%E6%95%B0%E5%AD%97Shell/">Web命令执行与绕过实战：从ezcmd到无字母数字Shell</a></p><p class="categories"><a href="/Myblog/categories/CTF/">CTF</a></p></div></article></div></div></div></div></div></section><footer class="footer"><div class="container"><div class="level"><div class="level-start"><a class="footer-logo is-block mb-2" href="/Myblog/">Pluto&#039;s Notes</a><p class="is-size-7"><span>&copy; 2026 Pluto</span>  Powered by <a href="https://hexo.io/" target="_blank" rel="noopener">Hexo</a> &amp; <a href="https://github.com/ppoffice/hexo-theme-icarus" target="_blank" rel="noopener">Icarus</a></p></div><div class="level-end"><div class="field has-addons"><p class="control"><a class="button is-transparent is-large" target="_blank" rel="noopener" title="Creative Commons" href="https://creativecommons.org/licenses/by-nc-sa/4.0/"><i class="fab fa-creative-commons"></i></a></p><p class="control"><a class="button is-transparent is-large" target="_blank" rel="noopener" title="Attribution" href="https://creativecommons.org/licenses/by-nc-sa/4.0/"><i class="fab fa-creative-commons-by"></i></a></p><p class="control"><a class="button is-transparent is-large" target="_blank" rel="noopener" title="Noncommercial" href="https://creativecommons.org/licenses/by-nc-sa/4.0/"><i class="fab fa-creative-commons-nc"></i></a></p><p class="control"><a class="button is-transparent is-large" target="_blank" rel="noopener" title="Share Alike" href="https://creativecommons.org/licenses/by-nc-sa/4.0/"><i class="fab fa-creative-commons-sa"></i></a></p></div></div></div></div></footer><script src="https://cdn.jsdelivr.net/npm/jquery@3.3.1/dist/jquery.min.js"></script><script src="https://cdn.jsdelivr.net/npm/moment@2.22.2/min/moment-with-locales.min.js"></script><script src="https://cdn.jsdelivr.net/npm/clipboard@2.0.4/dist/clipboard.min.js" defer></script><script>moment.locale("zh-cn");</script><script>var IcarusThemeSettings = {
+            article: {
+                highlight: {
+                    clipboard: true,
+                    fold: 'unfolded'
+                }
+            }
+        };</script><script data-pjax src="/Myblog/js/column.js"></script><script src="/Myblog/js/animation.js"></script><a id="back-to-top" title="回到顶端" href="javascript:;"><i class="fas fa-chevron-up"></i></a><script data-pjax src="/Myblog/js/back_to_top.js" defer></script><!--!--><script data-pjax src="/Myblog/js/main.js" defer></script><div class="searchbox"><div class="searchbox-container"><div class="searchbox-header"><div class="searchbox-input-container"><input class="searchbox-input" type="text" placeholder="想要查找什么..."></div><a class="searchbox-close" href="javascript:;">×</a></div><div class="searchbox-body"></div></div></div><script data-pjax src="/Myblog/js/insight.js" defer></script><script data-pjax>document.addEventListener('DOMContentLoaded', function () {
+            loadInsight({"contentUrl":"/Myblog/content.json"}, {"hint":"想要查找什么...","untitled":"(无标题)","posts":"文章","pages":"页面","categories":"分类","tags":"标签"});
+        });</script><!-- hexo injector body_end start -->
+<div class="pluto-scene" aria-hidden="true">
+  <div class="cloud"></div>
+  <div class="cloud"></div>
+  <div class="cloud"></div>
+  <div class="cloud"></div>
+  <span class="star" style="top:49.90%;left:89.04%;animation-delay:4.78s;animation-duration:4.93s;width:2.41px;height:2.41px"></span><span class="star" style="top:99.33%;left:40.89%;animation-delay:3.28s;animation-duration:3.97s;width:2.35px;height:2.35px"></span><span class="star" style="top:63.17%;left:98.13%;animation-delay:3.88s;animation-duration:2.44s;width:1.13px;height:1.13px"></span><span class="star" style="top:47.95%;left:24.12%;animation-delay:2.90s;animation-duration:2.62s;width:1.64px;height:1.64px"></span><span class="star" style="top:34.52%;left:85.27%;animation-delay:4.14s;animation-duration:4.68s;width:2.18px;height:2.18px"></span><span class="star" style="top:72.65%;left:4.70%;animation-delay:0.71s;animation-duration:4.49s;width:1.97px;height:1.97px"></span><span class="star" style="top:23.54%;left:70.83%;animation-delay:3.58s;animation-duration:4.24s;width:1.45px;height:1.45px"></span><span class="star" style="top:50.58%;left:25.81%;animation-delay:4.26s;animation-duration:3.24s;width:1.27px;height:1.27px"></span><span class="star" style="top:3.15%;left:68.04%;animation-delay:4.43s;animation-duration:3.21s;width:2.16px;height:2.16px"></span><span class="star" style="top:38.18%;left:78.54%;animation-delay:1.91s;animation-duration:3.52s;width:1.71px;height:1.71px"></span><span class="star" style="top:54.27%;left:55.73%;animation-delay:0.15s;animation-duration:4.56s;width:2.39px;height:2.39px"></span><span class="star" style="top:94.98%;left:82.76%;animation-delay:4.24s;animation-duration:2.80s;width:2.12px;height:2.12px"></span><span class="star" style="top:52.03%;left:99.68%;animation-delay:0.33s;animation-duration:2.13s;width:1.99px;height:1.99px"></span><span class="star" style="top:24.51%;left:56.23%;animation-delay:1.50s;animation-duration:3.40s;width:1.07px;height:1.07px"></span><span class="star" style="top:63.37%;left:54.53%;animation-delay:2.71s;animation-duration:3.29s;width:1.26px;height:1.26px"></span><span class="star" style="top:48.70%;left:78.55%;animation-delay:0.68s;animation-duration:2.31s;width:2.42px;height:2.42px"></span><span class="star" style="top:61.34%;left:44.18%;animation-delay:3.70s;animation-duration:3.84s;width:1.42px;height:1.42px"></span><span class="star" style="top:29.96%;left:3.64%;animation-delay:0.88s;animation-duration:4.17s;width:2.19px;height:2.19px"></span><span class="star" style="top:44.30%;left:40.13%;animation-delay:4.39s;animation-duration:3.92s;width:1.87px;height:1.87px"></span><span class="star" style="top:5.70%;left:53.68%;animation-delay:3.47s;animation-duration:4.30s;width:1.39px;height:1.39px"></span><span class="star" style="top:31.65%;left:62.18%;animation-delay:2.58s;animation-duration:3.60s;width:1.66px;height:1.66px"></span><span class="star" style="top:31.62%;left:0.84%;animation-delay:2.10s;animation-duration:4.17s;width:1.50px;height:1.50px"></span><span class="star" style="top:1.00%;left:78.49%;animation-delay:4.45s;animation-duration:4.71s;width:1.51px;height:1.51px"></span><span class="star" style="top:69.81%;left:97.43%;animation-delay:2.92s;animation-duration:4.95s;width:2.21px;height:2.21px"></span><span class="star" style="top:8.90%;left:12.23%;animation-delay:2.67s;animation-duration:2.55s;width:2.24px;height:2.24px"></span><span class="star" style="top:11.57%;left:21.32%;animation-delay:2.35s;animation-duration:3.31s;width:2.25px;height:2.25px"></span><span class="star" style="top:81.59%;left:60.31%;animation-delay:2.95s;animation-duration:2.62s;width:2.20px;height:2.20px"></span><span class="star" style="top:53.78%;left:81.28%;animation-delay:4.67s;animation-duration:3.34s;width:1.84px;height:1.84px"></span><span class="star" style="top:60.32%;left:69.08%;animation-delay:4.91s;animation-duration:2.56s;width:1.33px;height:1.33px"></span><span class="star" style="top:82.74%;left:58.62%;animation-delay:1.79s;animation-duration:2.96s;width:2.07px;height:2.07px"></span><span class="star" style="top:58.37%;left:35.64%;animation-delay:0.17s;animation-duration:3.84s;width:2.05px;height:2.05px"></span><span class="star" style="top:97.15%;left:65.35%;animation-delay:3.60s;animation-duration:3.06s;width:1.84px;height:1.84px"></span><span class="star" style="top:33.67%;left:70.65%;animation-delay:3.03s;animation-duration:4.62s;width:1.78px;height:1.78px"></span><span class="star" style="top:4.14%;left:8.46%;animation-delay:1.49s;animation-duration:2.78s;width:1.79px;height:1.79px"></span><span class="star" style="top:15.65%;left:88.31%;animation-delay:2.25s;animation-duration:3.30s;width:2.11px;height:2.11px"></span><span class="star" style="top:70.82%;left:77.76%;animation-delay:3.40s;animation-duration:4.70s;width:2.44px;height:2.44px"></span><span class="star" style="top:79.11%;left:37.59%;animation-delay:0.35s;animation-duration:3.31s;width:2.11px;height:2.11px"></span><span class="star" style="top:62.01%;left:4.85%;animation-delay:0.40s;animation-duration:3.41s;width:2.14px;height:2.14px"></span><span class="star" style="top:53.25%;left:57.94%;animation-delay:4.09s;animation-duration:2.57s;width:1.36px;height:1.36px"></span><span class="star" style="top:69.88%;left:71.34%;animation-delay:2.12s;animation-duration:2.31s;width:1.92px;height:1.92px"></span><span class="star" style="top:96.93%;left:8.18%;animation-delay:0.30s;animation-duration:4.61s;width:1.41px;height:1.41px"></span><span class="star" style="top:53.59%;left:60.58%;animation-delay:3.71s;animation-duration:2.41s;width:1.37px;height:1.37px"></span><span class="star" style="top:56.36%;left:7.00%;animation-delay:1.04s;animation-duration:4.24s;width:2.17px;height:2.17px"></span><span class="star" style="top:52.09%;left:34.53%;animation-delay:0.61s;animation-duration:4.25s;width:1.19px;height:1.19px"></span><span class="star" style="top:67.63%;left:76.40%;animation-delay:1.34s;animation-duration:2.67s;width:2.00px;height:2.00px"></span><span class="star" style="top:72.45%;left:16.41%;animation-delay:1.42s;animation-duration:3.37s;width:1.09px;height:1.09px"></span><span class="star" style="top:63.19%;left:66.25%;animation-delay:0.66s;animation-duration:3.60s;width:2.15px;height:2.15px"></span><span class="star" style="top:87.29%;left:12.14%;animation-delay:1.13s;animation-duration:2.74s;width:2.31px;height:2.31px"></span><span class="star" style="top:11.39%;left:76.39%;animation-delay:1.00s;animation-duration:2.82s;width:1.93px;height:1.93px"></span><span class="star" style="top:87.66%;left:14.21%;animation-delay:4.75s;animation-duration:4.57s;width:1.07px;height:1.07px"></span><span class="star" style="top:31.33%;left:8.91%;animation-delay:4.66s;animation-duration:4.01s;width:1.98px;height:1.98px"></span><span class="star" style="top:49.86%;left:55.62%;animation-delay:3.66s;animation-duration:4.46s;width:1.65px;height:1.65px"></span><span class="star" style="top:46.46%;left:14.32%;animation-delay:1.74s;animation-duration:4.58s;width:1.48px;height:1.48px"></span><span class="star" style="top:23.53%;left:45.49%;animation-delay:4.92s;animation-duration:2.29s;width:1.02px;height:1.02px"></span><span class="star" style="top:77.51%;left:38.28%;animation-delay:0.62s;animation-duration:3.90s;width:2.37px;height:2.37px"></span><span class="star" style="top:54.50%;left:63.91%;animation-delay:3.02s;animation-duration:3.00s;width:1.00px;height:1.00px"></span><span class="star" style="top:17.06%;left:67.02%;animation-delay:0.90s;animation-duration:2.30s;width:1.68px;height:1.68px"></span><span class="star" style="top:63.43%;left:64.23%;animation-delay:2.69s;animation-duration:4.64s;width:1.60px;height:1.60px"></span><span class="star" style="top:39.53%;left:69.37%;animation-delay:1.39s;animation-duration:4.12s;width:1.75px;height:1.75px"></span><span class="star" style="top:57.65%;left:29.56%;animation-delay:0.97s;animation-duration:2.74s;width:2.00px;height:2.00px"></span>
+  <div class="shooting-star" style="top:10%;left:70%;animation-delay:-1s"></div>
+  <div class="shooting-star" style="top:25%;left:40%;animation-delay:-3s"></div>
+</div>
+
+<!-- 文章阅读进度 -->
+<div class="pluto-progress" id="plutoProgress" aria-hidden="true"></div>
+
+<!-- 主题切换 -->
+<button class="theme-toggle" id="plutoThemeToggle" type="button" aria-label="切换日/夜模式" title="切换日/夜模式 (T)">🌙</button>
+
+<!-- 回到顶部 -->
+<button class="pluto-totop" id="plutoToTop" type="button" aria-label="回到顶部" title="回到顶部">↑</button>
+
+<script>
+(function () {
+  var doc = document.documentElement;
+  var root = '/Myblog/';
+  var btn = document.getElementById('plutoThemeToggle');
+
+  /* ---------- 日/夜模式 ---------- */
+  var prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+  var theme = localStorage.getItem('pluto-theme') || (prefersDark ? 'dark' : 'light');
+
+  function applyTheme(t) {
+    doc.setAttribute('data-theme', t);
+    theme = t;
+    if (btn) {
+      btn.textContent = t === 'dark' ? '☀️' : '🌙';
+      btn.setAttribute('aria-pressed', t === 'dark' ? 'true' : 'false');
+    }
+  }
+
+  applyTheme(theme);
+
+  if (btn) {
+    btn.addEventListener('click', function () {
+      var next = theme === 'dark' ? 'light' : 'dark';
+      localStorage.setItem('pluto-theme', next);
+      applyTheme(next);
+    });
+  }
+
+  // 仅供样式层做「首屏渐显」判断
+  if (document.body) {
+    document.body.style.colorScheme = theme === 'dark' ? 'dark' : 'light';
+  }
+
+  /* ---------- 首页 Hero（等布局稳定后再插入，避免找不到挂载点） ---------- */
+  function trimSlash(s) {
+    while (s.length > 1 && s.charAt(s.length - 1) === '/') {
+      s = s.slice(0, -1);
+    }
+    return s;
+  }
+
+  function mountHero() {
+    if (document.querySelector('.pluto-hero')) return true;
+
+    var mainCol = document.querySelector('.column-main');
+    var columns = document.querySelector('.columns');
+    if (!mainCol || !columns) return false;
+
+    // 严格的首页判定：只有首页列表才有「阅读全文」按钮（.article-more），
+    // 且同一页里有多张卡片。文章详情页虽然也有 .card-image（封面），
+    // 但没有 .article-more，绝不能当首页处理。
+    var isIndexPage = !!mainCol.querySelector('a.article-more');
+    if (!isIndexPage) return true; // 非首页，视为无需插入
+
+    // Hero 要横跨三栏，必须挂到 .columns 的父节点（.container）上
+    var anchor = columns.parentNode || columns;
+
+    var hero = document.createElement('div');
+    hero.className = 'pluto-hero';
+    hero.innerHTML =
+      '<img class="pluto-avatar" src="' + root + 'img/avatar.jpg?v=2" alt="Pluto" width="132" height="132">' +
+      '<h1>Pluto</h1>' +
+      '<p class="pluto-tagline">Hack the planet. Explore the unknown.</p>' +
+      '<div class="pluto-hero-links">' +
+        '<a href="' + root + 'archives" title="全部文章"><i class="fas fa-layer-group"></i>归档</a>' +
+        '<a href="' + root + 'categories" title="按分类浏览"><i class="fas fa-folder-open"></i>分类</a>' +
+        '<a href="' + root + 'tags" title="按标签浏览"><i class="fas fa-tags"></i>标签</a>' +
+        '<a href="https://github.com/pluto839" target="_blank" rel="noopener" title="GitHub"><i class="fab fa-github"></i>GitHub</a>' +
+      '</div>';
+    anchor.insertBefore(hero, columns);
+    return true;
+  }
+
+  // 立即试一次；失败则轮询重试，最多约 2 秒
+  if (!mountHero()) {
+    var heroTries = 0;
+    var heroTimer = setInterval(function () {
+      heroTries += 1;
+      if (mountHero() || heroTries > 20) clearInterval(heroTimer);
+    }, 100);
+    document.addEventListener('DOMContentLoaded', mountHero);
+  }
+
+  /* ---------- 阅读进度条（仅在文章正文存在时启用） ---------- */
+  var bar = document.getElementById('plutoProgress');
+  var articleBody = document.querySelector('.card-content.article .content');
+
+  if (bar) {
+    if (!articleBody) {
+      bar.style.display = 'none';
+    } else {
+      var onScroll = function () {
+        var top = articleBody.getBoundingClientRect().top + window.pageYOffset;
+        var span = articleBody.offsetHeight - window.innerHeight * 0.6;
+        var pct = span > 0
+          ? (window.pageYOffset - top + window.innerHeight * 0.35) / span
+          : 1;
+        pct = Math.max(0, Math.min(1, pct));
+        bar.style.transform = 'scaleX(' + pct + ')';
+        bar.style.opacity = (pct > 0.004 && pct < 0.998) ? '1' : '0';
+      };
+      document.addEventListener('scroll', onScroll, { passive: true });
+      window.addEventListener('resize', onScroll);
+      onScroll();
+    }
+  }
+
+  /* ---------- 回到顶部 ---------- */
+  var toTop = document.getElementById('plutoToTop');
+  if (toTop) {
+    document.addEventListener('scroll', function () {
+      toTop.classList.toggle('is-visible', window.pageYOffset > 400);
+    }, { passive: true });
+    toTop.addEventListener('click', function () {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    });
+  }
+
+  /* ---------- 小屏导航折叠 ---------- */
+  var navbar = document.querySelector('.navbar-main .navbar-container');
+  if (navbar) {
+    var syncNavToggle = function () {
+      var toggle = document.querySelector('.pluto-nav-toggle');
+      if (window.innerWidth < 1024) {
+        if (!toggle) {
+          toggle = document.createElement('button');
+          toggle.type = 'button';
+          toggle.className = 'pluto-nav-toggle';
+          toggle.setAttribute('aria-label', '展开导航');
+          toggle.innerHTML = '<i class="fas fa-bars"></i>';
+          toggle.addEventListener('click', function () {
+            navbar.classList.toggle('pluto-nav-open');
+            toggle.setAttribute('aria-expanded',
+              navbar.classList.contains('pluto-nav-open') ? 'true' : 'false');
+          });
+          navbar.appendChild(toggle);
+        }
+      } else if (toggle) {
+        toggle.parentNode.removeChild(toggle);
+        navbar.classList.remove('pluto-nav-open');
+      }
+    };
+    syncNavToggle();
+    window.addEventListener('resize', syncNavToggle);
+  }
+
+  /* ---------- 键盘快捷键：T 切主题，/ 唤起搜索 ---------- */
+  document.addEventListener('keydown', function (e) {
+    var tag = (e.target && e.target.tagName) || '';
+    if (/^(INPUT|TEXTAREA|SELECT)$/.test(tag) || (e.target && e.target.isContentEditable)) return;
+
+    if (e.key === 't' || e.key === 'T') {
+      var next = theme === 'dark' ? 'light' : 'dark';
+      localStorage.setItem('pluto-theme', next);
+      applyTheme(next);
+      return;
+    }
+    if (e.key === '/') {
+      var search = document.querySelector('.navbar-item.search');
+      if (search) {
+        e.preventDefault();
+        search.click();
+      }
+    }
+  });
+})();
+</script>
+
+<script src="/Myblog/js/pluto-cursor.js"></script>
+<!-- hexo injector body_end end --></body></html>
